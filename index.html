@@ -59,6 +59,8 @@ button,input,select,textarea{font-family:var(--sans);}
 .user-chip .uname{font-size:13px;font-weight:600;}
 .user-chip button{background:var(--surface-2);border:none;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);}
 .user-chip button:hover{background:var(--red-soft);color:var(--red);}
+.user-chip #settingsBtn{width:30px;height:30px;padding:0;border-radius:50%;font-size:14px;}
+.user-chip #settingsBtn:hover{background:var(--primary-soft);color:var(--primary-dark);}
 
 /* ---- Buttons ---- */
 .btn{border:none;background:var(--ink);color:#fff;padding:11px 22px;border-radius:999px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow);}
@@ -258,6 +260,8 @@ let authError = '';
 let currentProfile = null;
 let currentStep = 0;
 let dashboardTab = 'today';
+let apiKey = null;
+let showSettings = false;
 
 const STEP_META = [
   {key:'basic', label:'Basic Info', color:'var(--primary)'},
@@ -307,7 +311,58 @@ async function sha256Hex(str){
 
 /* =========================================================
    STORAGE
+   This app was designed for an artifact sandbox's built-in
+   window.storage API. Running as a standalone site, we back
+   that same get/set/delete interface with IndexedDB (chosen
+   over localStorage for its much higher quota, since uploaded
+   photos and PDF reports are stored as base64 blobs).
 ========================================================= */
+const IDB_NAME = 'itsdoable-db';
+const IDB_STORE = 'kv';
+function openIDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = ()=>{ req.result.createObjectStore(IDB_STORE); };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+let idbPromise = null;
+function getIDB(){ if(!idbPromise) idbPromise = openIDB(); return idbPromise; }
+window.storage = {
+  async get(key){
+    const db = await getIDB();
+    return new Promise((resolve,reject)=>{
+      const req = db.transaction(IDB_STORE,'readonly').objectStore(IDB_STORE).get(key);
+      req.onsuccess = ()=> resolve(req.result===undefined ? null : {value:req.result});
+      req.onerror = ()=> reject(req.error);
+    });
+  },
+  async set(key, value){
+    const db = await getIDB();
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(IDB_STORE,'readwrite');
+      tx.objectStore(IDB_STORE).put(value, key);
+      tx.oncomplete = ()=> resolve();
+      tx.onerror = ()=> reject(tx.error);
+    });
+  },
+  async delete(key){
+    const db = await getIDB();
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(IDB_STORE,'readwrite');
+      tx.objectStore(IDB_STORE).delete(key);
+      tx.oncomplete = ()=> resolve();
+      tx.onerror = ()=> reject(tx.error);
+    });
+  }
+};
+async function loadApiKey(){
+  try{ const r = await window.storage.get('apiKey'); return r?r.value:null; }catch(e){ return null; }
+}
+async function saveApiKey(key){ await window.storage.set('apiKey', key); }
+async function clearApiKey(){ await window.storage.delete('apiKey'); }
+
 async function loadAccounts(){
   try{ const r = await window.storage.get('accounts', false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
 }
@@ -353,9 +408,18 @@ async function saveCompositionLog(profileId,arr){ await window.storage.set('comp
    CLAUDE API
 ========================================================= */
 async function claudeCall(content, system){
+  if(!apiKey){
+    throw new Error('Add your Anthropic API key in Settings (gear icon, top right) to use AI features');
+  }
   const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000, system, messages:[{role:'user', content}] })
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({ model:'claude-sonnet-5', max_tokens:1000, system, messages:[{role:'user', content}] })
   });
   const data = await res.json();
   if(data.error) throw new Error(data.error.message || 'AI request failed');
@@ -452,6 +516,7 @@ function computeFocusAreas(auto, smartLatest){
 ========================================================= */
 async function boot(){
   accounts = await loadAccounts();
+  apiKey = await loadApiKey();
   const s = await loadSession();
   if(s && accounts.find(a=>a.id===s.accountId)){
     session = s;
@@ -642,14 +707,45 @@ function renderReset(){
 function renderMasthead(){
   const h = el(`<div class="masthead">
     <div class="brand"><div class="brand-mark">${BRAND_MARK_SVG}</div><div><div class="brand-name">It's Doable</div><div class="brand-tagline">Start small. Finish strong.</div></div></div>
-    <div class="user-chip"><span class="uname">${session.name}</span><button id="logoutBtn">Log out</button></div>
+    <div class="user-chip"><span class="uname">${session.name}</span><button id="settingsBtn" title="AI settings">⚙</button><button id="logoutBtn">Log out</button></div>
   </div>`);
+  h.querySelector('#settingsBtn').onclick = openSettingsModal;
   h.querySelector('#logoutBtn').onclick = async ()=>{
     await clearSession();
     session=null; currentProfile=null; currentStep=0; authView='login';
     render();
   };
   return h;
+}
+function openSettingsModal(){
+  const body = openModal('Settings');
+  body.innerHTML='';
+  body.appendChild(el(`<div style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;line-height:1.5;">
+    AI features (report analysis, plan generation, recipes, exercise guides, meal estimates) call the Anthropic API directly from your browser using your own API key. The key is stored only in this browser (IndexedDB) — it is never sent anywhere except api.anthropic.com.
+  </div>`));
+  const field = el(`<div class="field">
+    <label>Anthropic API key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." value="${apiKey||''}">
+    <div class="hint">Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com/settings/keys</a></div>
+  </div>`);
+  body.appendChild(field);
+  const row = el(`<div style="display:flex;gap:10px;margin-top:6px;">
+    <button class="btn btn-primary" id="saveKeyBtn">Save key</button>
+    <button class="btn btn-ghost" id="clearKeyBtn">Remove key</button>
+  </div>`);
+  body.appendChild(row);
+  const msg = el(`<div id="settingsMsg"></div>`);
+  body.appendChild(msg);
+  row.querySelector('#saveKeyBtn').onclick = async ()=>{
+    const val = field.querySelector('#apiKeyInput').value.trim();
+    if(!val){ msg.innerHTML = `<div class="err-box">Enter a key first.</div>`; return; }
+    apiKey = val; await saveApiKey(val);
+    msg.innerHTML = `<div class="ok-box">Saved.</div>`;
+  };
+  row.querySelector('#clearKeyBtn').onclick = async ()=>{
+    apiKey = null; await clearApiKey(); field.querySelector('#apiKeyInput').value='';
+    msg.innerHTML = `<div class="ok-box">Key removed.</div>`;
+  };
 }
 function renderStepper(){
   const rail = el('<div class="stepper"></div>');
