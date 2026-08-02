@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>It's Doable — Personal Health Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#F6F7FC;
+  --surface:#FFFFFF;
+  --surface-2:#F0F1FA;
+  --ink:#1A1D2E;
+  --ink-soft:#666B85;
+  --ink-faint:#9BA0BC;
+  --line:#E6E8F5;
+
+  --primary:#5B5FEF;
+  --primary-dark:#4438CA;
+  --primary-soft:#EDEDFC;
+
+  --teal:#0EA5A0;
+  --teal-soft:#E1F7F5;
+  --coral:#FF7A59;
+  --coral-soft:#FFEDE6;
+  --violet:#8B5CF6;
+  --violet-soft:#F1EBFE;
+  --amber:#F0A020;
+  --amber-soft:#FFF3DC;
+  --red:#EF4444;
+  --red-soft:#FDE8E8;
+  --lime:#65A30D;
+  --lime-soft:#EEF6DD;
+  --sky:#3B82F6;
+  --sky-soft:#E7F0FE;
+
+  --radius:16px;
+  --radius-sm:10px;
+  --display:'Space Grotesk',sans-serif;
+  --sans:'Inter',sans-serif;
+  --shadow:0 2px 14px rgba(30,30,70,0.07);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:var(--sans);}
+::selection{background:var(--primary-soft);}
+
+.app-shell{max-width:1180px;margin:0 auto;padding:22px 20px 60px;}
+
+/* ---- Masthead ---- */
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:11px;}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--violet));display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 3px 10px rgba(91,95,239,0.35);}
+.brand-name{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-0.01em;}
+.brand-tagline{font-size:11.5px;color:var(--ink-faint);font-weight:500;letter-spacing:.01em;margin-top:-1px;}
+.user-chip{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 14px;box-shadow:var(--shadow);}
+.user-chip .uname{font-size:13px;font-weight:600;}
+.user-chip button{background:var(--surface-2);border:none;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);}
+.user-chip button:hover{background:var(--red-soft);color:var(--red);}
+
+/* ---- Buttons ---- */
+.btn{border:none;background:var(--ink);color:#fff;padding:11px 22px;border-radius:999px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--violet));}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:none;}
+.btn-sm{padding:7px 14px;font-size:12.5px;}
+.btn-block{width:100%;}
+
+/* ---- Auth screens ---- */
+.auth-wrap{max-width:420px;margin:50px auto;}
+.auth-card{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:32px 30px;}
+.auth-logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px;}
+.auth-title{font-family:var(--display);font-weight:700;font-size:26px;text-align:center;margin:8px 0 2px;letter-spacing:-0.01em;}
+.auth-tagline{text-align:center;font-family:var(--display);font-weight:600;font-size:14px;color:var(--primary-dark);margin-bottom:6px;}
+.auth-sub{text-align:center;color:var(--ink-soft);font-size:13.5px;margin-bottom:24px;}
+.auth-tabs{display:flex;background:var(--surface-2);border-radius:999px;padding:4px;margin-bottom:22px;}
+.auth-tab{flex:1;text-align:center;padding:9px;border-radius:999px;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;}
+.auth-tab.active{background:var(--surface);color:var(--primary-dark);box-shadow:var(--shadow);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+.field input[type=text],.field input[type=email],.field input[type=password],.field input[type=number],.field input[type=date],.field select,.field textarea{
+  width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);font-size:14px;color:var(--ink);
+}
+.field textarea{font-family:var(--sans);min-height:70px;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary);}
+.field .hint{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
+.otp-callout{background:var(--violet-soft);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:18px;}
+.otp-callout .otp-title{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--violet);margin-bottom:8px;}
+.otp-callout .otp-code{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:.15em;color:var(--primary-dark);margin-bottom:8px;}
+.otp-callout .otp-note{font-size:12px;color:var(--ink-soft);line-height:1.5;}
+.auth-link{text-align:center;font-size:13px;color:var(--ink-soft);margin-top:14px;}
+.auth-link a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none;}
+.err-box{border:1px solid var(--red);background:var(--red-soft);color:#a12727;padding:10px 12px;border-radius:var(--radius-sm);font-size:12.5px;margin:12px 0;}
+.ok-box{border:1px solid var(--lime);background:var(--lime-soft);color:#3f5c0a;padding:10px 12px;border-radius:var(--radius-sm);font-size:12.5px;margin:12px 0;}
+
+/* ---- Stepper ---- */
+.stepper{display:flex;align-items:center;gap:4px;overflow-x:auto;padding:14px 4px 20px;margin-bottom:4px;}
+.step-dot{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;cursor:pointer;min-width:64px;}
+.step-circle{width:32px;height:32px;border-radius:50%;background:var(--surface-2);color:var(--ink-faint);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:12.5px;border:2px solid transparent;}
+.step-dot.done .step-circle{background:var(--step-color,var(--primary));color:#fff;}
+.step-dot.active .step-circle{background:#fff;color:var(--step-color,var(--primary));border-color:var(--step-color,var(--primary));box-shadow:0 0 0 4px color-mix(in srgb, var(--step-color,var(--primary)) 18%, transparent);}
+.step-label{font-size:10.5px;color:var(--ink-faint);text-align:center;max-width:72px;font-weight:600;}
+.step-dot.active .step-label{color:var(--ink);}
+.step-line{height:2px;background:var(--line);flex:1;min-width:16px;margin-top:-22px;}
+
+/* ---- Layout grid ---- */
+.content-grid{display:grid;grid-template-columns:1fr 250px;gap:20px;align-items:start;}
+@media (max-width:880px){.content-grid{grid-template-columns:1fr;} .snapshot{order:2;}}
+
+/* ---- Sheet ---- */
+.sheet{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:30px 32px;min-height:420px;border-top:5px solid var(--step-color,var(--primary));}
+.sheet-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--step-color,var(--primary));margin-bottom:6px;}
+.sheet-title{font-family:var(--display);font-size:25px;font-weight:700;margin-bottom:4px;}
+.sheet-sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:22px;}
+.sheet hr.rule{border:none;border-top:1px solid var(--line);margin:22px 0;}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;}
+@media (max-width:560px){.field-grid{grid-template-columns:1fr;}}
+
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 15px;font-size:13px;cursor:pointer;user-select:none;color:var(--ink-soft);font-weight:500;}
+.chip input{display:none;}
+.chip.checked{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-dark);font-weight:700;}
+.radio-row{display:flex;gap:10px;flex-wrap:wrap;}
+.radio-row label{border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;cursor:pointer;}
+.radio-row label:has(input:checked){border-color:var(--primary);background:var(--primary-soft);color:var(--primary-dark);font-weight:700;}
+
+.big-choice{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:6px;}
+@media (max-width:700px){.big-choice{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:420px){.big-choice{grid-template-columns:1fr;}}
+.big-choice label{border:2px solid var(--line);border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;}
+.big-choice label:has(input:checked){border-color:var(--primary);background:var(--primary-soft);}
+.big-choice input{display:none;}
+.big-choice .bc-label{font-family:var(--display);font-weight:700;font-size:15px;}
+
+.file-drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;background:var(--bg);}
+.file-list{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.file-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12.5px;}
+.file-item button{background:none;border:none;color:var(--red);font-size:12px;font-weight:600;}
+
+.btn-row{display:flex;justify-content:space-between;margin-top:28px;align-items:center;gap:10px;flex-wrap:wrap;}
+
+.recap-card{border-radius:14px;padding:14px 16px;margin-bottom:12px;background:var(--bg);}
+.recap-card h4{margin:0 0 8px;font-family:var(--display);font-size:14.5px;color:var(--primary-dark);}
+.recap-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line);}
+.recap-row:last-child{border-bottom:none;}
+.recap-row span:first-child{color:var(--ink-soft);}
+.recap-row span:last-child{font-weight:600;text-align:right;max-width:60%;}
+
+.finding-item{border-radius:12px;padding:11px 13px;margin-bottom:8px;background:var(--teal-soft);border-left:4px solid var(--teal);}
+.finding-item.medical{background:var(--red-soft);border-left-color:var(--red);}
+.finding-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.finding-label{font-weight:600;font-size:13.5px;}
+.finding-value{font-size:13px;color:var(--ink-soft);}
+.finding-note{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+.badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;}
+.badge.manageable{background:var(--teal);color:#fff;}
+.badge.medical{background:var(--red);color:#fff;}
+.callout{border-radius:14px;background:var(--red-soft);padding:13px 15px;font-size:13px;margin:14px 0;color:#a12727;}
+.callout.good{background:var(--lime-soft);color:#3f5c0a;}
+.quote-block{font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink);background:var(--primary-soft);border-radius:14px;padding:14px 16px;margin:14px 0;}
+
+/* ---- Snapshot panel ---- */
+.snapshot{position:sticky;top:20px;}
+.snapshot-title{font-family:var(--display);font-weight:700;font-size:13px;color:var(--ink-soft);margin-bottom:10px;}
+.stat-card{border-radius:14px;padding:12px 14px;margin-bottom:10px;background:var(--bg);}
+.stat-k{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);}
+.stat-v{font-family:var(--display);font-size:16px;font-weight:700;color:var(--ink);}
+.snapshot-empty{font-size:12px;color:var(--ink-faint);font-style:italic;}
+
+/* ---- Plan display ---- */
+.macro-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.macro-chip{background:linear-gradient(135deg,var(--primary-soft),var(--violet-soft));border-radius:14px;padding:12px 18px;text-align:center;min-width:92px;}
+.macro-chip .mv{font-family:var(--display);font-size:19px;font-weight:800;color:var(--primary-dark);}
+.macro-chip .mk{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+.day-card{border-radius:14px;padding:14px 16px;margin-bottom:12px;background:var(--bg);}
+.day-card h5{font-family:var(--display);font-size:15px;margin:0 0 8px;color:var(--primary-dark);}
+.meal-line{font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line);}
+.meal-line:last-child{border-bottom:none;}
+.meal-line b{font-size:12.5px;color:var(--ink-soft);}
+
+/* ---- Dashboard / tracking ---- */
+.tabs{display:flex;gap:6px;margin-bottom:20px;background:var(--surface-2);border-radius:999px;padding:4px;width:fit-content;}
+.tab{padding:8px 16px;font-size:13px;color:var(--ink-soft);border-radius:999px;cursor:pointer;font-weight:600;}
+.tab.active{color:#fff;background:var(--primary);}
+.macro-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+@media (max-width:640px){.macro-summary{grid-template-columns:repeat(2,1fr);}}
+.macro-summary .item{font-size:12px;background:var(--bg);border-radius:12px;padding:10px 12px;}
+.macro-summary .item b{display:block;font-family:var(--display);font-size:16px;color:var(--ink);}
+.progress{background:var(--surface-2);border-radius:6px;height:9px;overflow:hidden;margin:6px 0 2px;}
+.progress-fill{height:100%;background:var(--teal);}
+.progress-fill.over{background:var(--coral);}
+
+.meal-slot{border-radius:14px;background:var(--bg);padding:14px 16px;margin-bottom:12px;}
+.meal-slot h5{font-family:var(--display);font-size:14px;margin:0 0 8px;display:flex;align-items:center;gap:8px;}
+.meal-slot .dot{width:9px;height:9px;border-radius:50%;background:var(--slot-color,var(--primary));}
+.meal-slot .entry{font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:10px;}
+.meal-slot .entry:last-of-type{border-bottom:none;}
+.meal-slot .entry button{background:none;border:none;color:var(--red);font-size:12px;}
+.slot-form{display:flex;gap:8px;margin-top:8px;}
+.slot-form textarea{flex:1;min-height:38px;font-size:13px;padding:8px 10px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:#fff;resize:vertical;}
+.slot-form button{border:none;background:var(--primary);color:#fff;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;}
+
+table.log-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;}
+table.log-table th{text-align:left;font-size:10.5px;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--line);padding:6px 4px;}
+table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+svg.chart{width:100%;height:150px;}
+.weekly-weigh{border-radius:14px;background:var(--violet-soft);padding:14px 16px;margin-bottom:18px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+.weekly-weigh .field{margin-bottom:0;width:140px;}
+.weekly-weigh .info{font-size:12.5px;color:var(--ink-soft);}
+
+/* Composition / targets */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+@media (max-width:640px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-tile{background:var(--bg);border-radius:14px;padding:14px;text-align:center;}
+.stat-tile .tv{font-family:var(--display);font-size:22px;font-weight:800;}
+.stat-tile .tl{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.stat-tile .tc{margin-top:6px;}
+table.target-table{width:100%;border-collapse:collapse;font-size:13px;}
+table.target-table th{text-align:left;font-size:10.5px;text-transform:uppercase;color:var(--ink-faint);padding:6px 8px;}
+table.target-table td{padding:8px;border-top:1px solid var(--line);}
+.details-toggle{font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer;margin:10px 0;display:inline-block;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,22,40,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.modal-box{background:#fff;border-radius:20px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:28px 28px 26px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.25);}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--surface-2);border:none;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;color:var(--ink-soft);}
+.modal-close:hover{background:var(--red-soft);color:var(--red);}
+.guide-list{margin:0 0 14px;padding-left:20px;}
+.guide-list li{font-size:13.5px;margin-bottom:6px;line-height:1.5;}
+.guide-section-title{font-family:var(--display);font-weight:700;font-size:13px;color:var(--primary-dark);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em;}
+.chip-row-sm{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.chip-sm{background:var(--primary-soft);color:var(--primary-dark);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:600;}
+.recipe-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.recipe-meta span{background:var(--bg);border-radius:999px;padding:5px 12px;font-size:12px;color:var(--ink-soft);font-weight:600;}
+.meal-line-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);}
+.meal-line-row:last-of-type{border-bottom:none;}
+.line-btn{border:1.5px solid var(--line);background:#fff;color:var(--primary-dark);border-radius:999px;padding:5px 13px;font-size:11.5px;font-weight:700;flex:0 0 auto;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="app-shell" id="app"></div>
+
+<script>
+/* =========================================================
+   STATE
+========================================================= */
+let accounts = [];
+let session = null;          // {accountId, email, name}
+let pendingSignup = null;    // {name,email,passwordHash,salt,otp,expiresAt}
+let pendingReset = null;     // {accountId,email,otp,expiresAt}
+let authView = 'login';      // login | signup | verify | forgot | reset
+let authError = '';
+let currentProfile = null;
+let currentStep = 0;
+let dashboardTab = 'today';
+
+const STEP_META = [
+  {key:'basic', label:'Basic Info', color:'var(--primary)'},
+  {key:'measurements', label:'Measurements', color:'var(--teal)'},
+  {key:'food', label:'Food Prefs', color:'var(--coral)'},
+  {key:'medical', label:'Medical History', color:'var(--red)'},
+  {key:'goals', label:'Goals', color:'var(--violet)'},
+  {key:'composition', label:'Body Composition', color:'var(--sky)'},
+  {key:'summary', label:'Summary & Analysis', color:'var(--amber)'},
+  {key:'assist', label:'Choose Assistance', color:'var(--primary)'},
+  {key:'plan', label:'Your Plan', color:'var(--teal)'},
+  {key:'track', label:'Tracking', color:'var(--lime)'},
+];
+const MEAL_SLOTS = [
+  {key:'preBreakfast', label:'Pre-breakfast', color:'var(--sky)'},
+  {key:'breakfast', label:'Breakfast', color:'var(--amber)'},
+  {key:'preLunch', label:'Pre-lunch snack', color:'var(--teal)'},
+  {key:'lunch', label:'Lunch', color:'var(--coral)'},
+  {key:'eveningSnack', label:'Evening snack', color:'var(--violet)'},
+  {key:'dinner', label:'Dinner', color:'var(--primary)'},
+];
+const SMART_FIELDS = [
+  {key:'bodyFatPct', label:'Body Fat', unit:'%', direction:'lowerBetter', focus:'Fat reduction'},
+  {key:'visceralFat', label:'Visceral Fat', unit:'', direction:'lowerBetter', focus:'Fat reduction'},
+  {key:'muscleMassKg', label:'Muscle Mass', unit:'kg', direction:'higherBetter', focus:'Muscle building'},
+  {key:'boneMassPct', label:'Bone Mass', unit:'%', direction:'higherBetter', focus:'Bone health'},
+  {key:'bodyHydrationPct', label:'Body Hydration', unit:'%', direction:'higherBetter', focus:'Hydration & recovery'},
+  {key:'proteinPct', label:'Protein', unit:'%', direction:'higherBetter', focus:'Muscle building'},
+];
+const STATUS_OPTIONS = ['','Low','Normal','Healthy','High','Very High'];
+const BRAND_MARK_SVG = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4.5 4.5L19 7.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function genOTP(){ return String(Math.floor(100000+Math.random()*900000)); }
+function getPath(obj,path){ return path.split('.').reduce((o,k)=>(o==null?undefined:o[k]),obj); }
+function setPath(obj,path,value){
+  const keys=path.split('.'); let o=obj;
+  for(let i=0;i<keys.length-1;i++){ if(o[keys[i]]==null||typeof o[keys[i]]!=='object') o[keys[i]]={}; o=o[keys[i]]; }
+  o[keys[keys.length-1]]=value;
+}
+function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+async function sha256Hex(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* =========================================================
+   STORAGE
+========================================================= */
+async function loadAccounts(){
+  try{ const r = await window.storage.get('accounts', false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
+}
+async function saveAccounts(){ await window.storage.set('accounts', JSON.stringify(accounts), false); }
+async function loadSession(){
+  try{ const r = await window.storage.get('session', false); return r?JSON.parse(r.value):null; }catch(e){ return null; }
+}
+async function saveSession(s){ await window.storage.set('session', JSON.stringify(s), false); }
+async function clearSession(){ try{ await window.storage.delete('session', false); }catch(e){} }
+
+function blankProfile(id,name){
+  return {
+    id, name, createdAt:new Date().toISOString(),
+    basic:{ name:name||'', place:'', dob:'', sex:'', heightCm:'', weightKg:'', activity:'' },
+    measurements:{ waist:'', chest:'', arms:'', stomach:'', hips:'', thighs:'', calf:'', neck:'', photoFileId:'' },
+    foodPrefs:{ dietType:'', cuisines:[], spice:'', dislikes:'', allergies:'', cookTime:'', proteinSources:[], nonVegFreq:'', comfortFoods:'' },
+    medical:{ conditions:[], conditionsOther:'', medications:'', reportFileIds:[], kneePain:'', kneeCause:'', kneeTime:'', backPain:'', backCause:'', backTime:'', otherPain:'' },
+    goals:{ targets:[], targetWeight:'', lastFitWhen:'', lastFitWeight:'', reason:'', timeline:'' },
+    analysis:{ findings:null, summary:'', addressIssues:null, generatedAt:'' },
+    assistance:{ wantsDiet:false, wantsWorkout:false, wantsOther:false, other:'', proteinPowder:'', cookingTools:[] },
+    plan:{ calorieTarget:null, proteinG:null, carbsG:null, fatG:null, dietPlan:null, workoutPlan:null, guidance:'', medicalNote:'', generatedAt:'', recipes:{}, exerciseGuides:{} }
+  };
+}
+async function loadProfile(id){ const r=await window.storage.get('profile:'+id,false); return r?JSON.parse(r.value):null; }
+async function saveProfile(){ if(!currentProfile) return; await window.storage.set('profile:'+currentProfile.id, JSON.stringify(currentProfile), false); }
+async function saveFileBlob(fileId,obj){ await window.storage.set('file:'+fileId, JSON.stringify(obj), false); }
+async function getFileBlob(fileId){ const r=await window.storage.get('file:'+fileId,false); return r?JSON.parse(r.value):null; }
+
+async function getMealsForDate(profileId,dateISO){
+  try{ const r=await window.storage.get('meals:'+profileId+':'+dateISO,false); return r?JSON.parse(r.value):{}; }catch(e){ return {}; }
+}
+async function saveMealsForDate(profileId,dateISO,obj){ await window.storage.set('meals:'+profileId+':'+dateISO, JSON.stringify(obj), false); }
+async function getWeightLog(profileId){
+  try{ const r=await window.storage.get('weights:'+profileId,false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
+}
+async function saveWeightLog(profileId,arr){ await window.storage.set('weights:'+profileId, JSON.stringify(arr), false); }
+async function getCompositionLog(profileId){
+  try{ const r=await window.storage.get('composition:'+profileId,false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
+}
+async function saveCompositionLog(profileId,arr){ await window.storage.set('composition:'+profileId, JSON.stringify(arr), false); }
+
+/* =========================================================
+   CLAUDE API
+========================================================= */
+async function claudeCall(content, system){
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000, system, messages:[{role:'user', content}] })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || 'AI request failed');
+  return (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+}
+async function claudeJSON(content, system){
+  const text = await claudeCall(content, system + ' Respond with ONLY valid JSON. No markdown fences, no preamble, no explanation.');
+  const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+  const start = cleaned.indexOf('{'), end = cleaned.lastIndexOf('}');
+  return JSON.parse(start>=0&&end>=0 ? cleaned.slice(start,end+1) : cleaned);
+}
+
+/* =========================================================
+   HEALTH MATH
+========================================================= */
+function calcAge(dob){
+  if(!dob) return null;
+  const d=new Date(dob), n=new Date();
+  let age=n.getFullYear()-d.getFullYear();
+  const m=n.getMonth()-d.getMonth();
+  if(m<0||(m===0&&n.getDate()<d.getDate())) age--;
+  return age;
+}
+function calcBMI(w,h){ if(!w||!h) return null; const m=h/100; return +(w/(m*m)).toFixed(1); }
+function estimateCalorieTarget(p){
+  const {sex,dob,heightCm,weightKg} = p.basic;
+  const age = calcAge(dob)||30, w=parseFloat(weightKg)||65, h=parseFloat(heightCm)||165;
+  let bmr = sex==='Female' ? (10*w+6.25*h-5*age-161) : (10*w+6.25*h-5*age+5);
+  const actFactor = {Sedentary:1.2, Light:1.375, Moderate:1.55, Active:1.725}[p.basic.activity] || 1.375;
+  let tdee = bmr*actFactor;
+  if(p.goals.targets.includes('Lose weight')) tdee-=450;
+  if(p.goals.targets.includes('Gain weight')||p.goals.targets.includes('Build muscle')) tdee+=300;
+  return Math.round(tdee);
+}
+function computeAutoComposition(p){
+  const w=parseFloat(p.basic.weightKg), h=parseFloat(p.basic.heightCm), age=calcAge(p.basic.dob), sex=p.basic.sex;
+  const bmi = calcBMI(w,h);
+  let bmiCategory=null;
+  if(bmi){ bmiCategory = bmi<18.5?'Underweight': bmi<25?'Normal': bmi<30?'Overweight':'Obese'; }
+  let bmr=null;
+  if(w&&h&&age) bmr = Math.round(sex==='Female' ? (10*w+6.25*h-5*age-161) : (10*w+6.25*h-5*age+5));
+  const waist=parseFloat(p.measurements.waist), neck=parseFloat(p.measurements.neck), hip=parseFloat(p.measurements.hips);
+  let bodyFatPct=null;
+  if(waist&&neck&&h&&(sex!=='Female'||hip)){
+    let v = sex==='Female'
+      ? 495/(1.29579 - 0.35004*Math.log10(waist+hip-neck) + 0.22100*Math.log10(h)) - 450
+      : 495/(1.0324 - 0.19077*Math.log10(waist-neck) + 0.15456*Math.log10(h)) - 450;
+    if(isFinite(v)&&v>0&&v<70) bodyFatPct=+v.toFixed(1);
+  }
+  let bodyFatCategory=null;
+  if(bodyFatPct!=null){
+    const bands = sex==='Female'
+      ? [[0,14,'Essential'],[14,21,'Athletic'],[21,25,'Fitness'],[25,32,'Average'],[32,100,'High']]
+      : [[0,6,'Essential'],[6,14,'Athletic'],[14,18,'Fitness'],[18,25,'Average'],[25,100,'High']];
+    const b = bands.find(b=>bodyFatPct>=b[0]&&bodyFatPct<b[1]);
+    bodyFatCategory = b?b[2]:null;
+  }
+  let leanMassKg=null, fatMassKg=null;
+  if(w&&bodyFatPct!=null){ fatMassKg=+(w*bodyFatPct/100).toFixed(1); leanMassKg=+(w-fatMassKg).toFixed(1); }
+  let whtr=null, whtrFlag=false;
+  if(waist&&h){ whtr=+(waist/h).toFixed(2); whtrFlag = whtr>0.5; }
+  const targetWeight = parseFloat(p.goals.targetWeight);
+  let targets=[];
+  if(targetWeight&&w){
+    const ratio = targetWeight/w;
+    ['waist','chest','arms','stomach','hips','thighs','calf','neck'].forEach(f=>{
+      const cur=parseFloat(p.measurements[f]);
+      if(cur){ const tgt=+(cur*ratio).toFixed(1); targets.push({key:f, current:cur, target:tgt, delta:+(cur-tgt).toFixed(1)}); }
+    });
+  }
+  return {bmi,bmiCategory,bmr,bodyFatPct,bodyFatCategory,leanMassKg,fatMassKg,whtr,whtrFlag,targets,targetWeight};
+}
+function computeFocusAreas(auto, smartLatest){
+  const areas=[];
+  if(auto.bmiCategory==='Overweight') areas.push({label:'BMI', focus:'Overall weight', status:'Overweight', severity:1});
+  if(auto.bmiCategory==='Obese') areas.push({label:'BMI', focus:'Overall weight', status:'Obese', severity:2});
+  if(auto.bodyFatCategory==='High') areas.push({label:'Body fat (estimated)', focus:'Fat reduction', status:'High', severity:2});
+  if(auto.bodyFatCategory==='Average') areas.push({label:'Body fat (estimated)', focus:'Fat reduction', status:'Average', severity:1});
+  if(auto.whtrFlag) areas.push({label:'Waist-to-height ratio', focus:'Visceral / core fat reduction', status:'Above 0.5', severity:2});
+  if(smartLatest){
+    SMART_FIELDS.forEach(f=>{
+      const status = smartLatest[f.key+'Status'];
+      if(!status) return;
+      const isConcern = (f.direction==='lowerBetter'&&(status==='High'||status==='Very High')) || (f.direction==='higherBetter'&&status==='Low');
+      if(isConcern) areas.push({label:f.label+' (device)', focus:f.focus, status, severity: status==='Very High'?2:1});
+    });
+  }
+  areas.sort((a,b)=>b.severity-a.severity);
+  return areas;
+}
+
+/* =========================================================
+   BOOT + ROOT RENDER
+========================================================= */
+async function boot(){
+  accounts = await loadAccounts();
+  const s = await loadSession();
+  if(s && accounts.find(a=>a.id===s.accountId)){
+    session = s;
+    currentProfile = await loadProfile(s.accountId) || blankProfile(s.accountId, s.name);
+  }
+  render();
+}
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML='';
+  if(!session){ app.appendChild(renderAuthScreen()); return; }
+  app.appendChild(renderMasthead());
+  app.appendChild(renderStepper());
+  const grid = el('<div class="content-grid"></div>');
+  const sheetWrap = el('<div class="sheet-wrap"></div>');
+  sheetWrap.appendChild(renderStep());
+  grid.appendChild(sheetWrap);
+  grid.appendChild(renderSnapshot());
+  app.appendChild(grid);
+}
+
+/* =========================================================
+   AUTH SCREENS
+========================================================= */
+function renderAuthScreen(){
+  const wrap = el('<div class="auth-wrap"></div>');
+  const card = el('<div class="auth-card"></div>');
+  wrap.appendChild(card);
+  if(authView==='verify'){ card.appendChild(renderVerify()); return wrap; }
+  if(authView==='forgot'){ card.appendChild(renderForgot()); return wrap; }
+  if(authView==='reset'){ card.appendChild(renderReset()); return wrap; }
+
+  card.appendChild(el(`<div class="auth-logo"><div class="brand-mark">${BRAND_MARK_SVG}</div></div>`));
+  card.appendChild(el(`<div class="auth-title">It's Doable</div>`));
+  card.appendChild(el(`<div class="auth-tagline">Start small. Finish strong.</div>`));
+  card.appendChild(el(`<div class="auth-sub">Your personal health record — private to you.</div>`));
+  const tabs = el(`<div class="auth-tabs">
+    <div class="auth-tab ${authView==='login'?'active':''}" data-v="login">Log in</div>
+    <div class="auth-tab ${authView==='signup'?'active':''}" data-v="signup">Create account</div>
+  </div>`);
+  tabs.querySelectorAll('.auth-tab').forEach(t=> t.onclick=()=>{ authView=t.dataset.v; authError=''; render(); });
+  card.appendChild(tabs);
+  if(authError) card.appendChild(el(`<div class="err-box">${authError}</div>`));
+  card.appendChild(authView==='signup' ? renderSignupForm() : renderLoginForm());
+  return wrap;
+}
+
+function renderLoginForm(){
+  const form = el(`<div>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+    <button class="btn btn-primary btn-block" id="loginBtn">Log in</button>
+    <div class="auth-link"><a id="forgotLink">Forgot password?</a></div>
+  </div>`);
+  form.querySelector('#forgotLink').onclick = ()=>{ authView='forgot'; authError=''; render(); };
+  form.querySelector('#loginBtn').onclick = async ()=>{
+    const btn = form.querySelector('#loginBtn');
+    const email = form.querySelector('#loginEmail').value.trim().toLowerCase();
+    const password = form.querySelector('#loginPassword').value;
+    if(!email || !password){ authError='Enter your email and password.'; render(); return; }
+    const account = accounts.find(a=>a.email===email);
+    if(!account){ authError='No account found with that email.'; render(); return; }
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Checking…';
+    const hash = await sha256Hex(account.salt+password);
+    if(hash !== account.passwordHash){ authError='Incorrect email or password.'; render(); return; }
+    session = {accountId:account.id, email:account.email, name:account.name};
+    await saveSession(session);
+    currentProfile = await loadProfile(account.id) || blankProfile(account.id, account.name);
+    currentStep=0; authError='';
+    render();
+  };
+  return form;
+}
+function renderSignupForm(){
+  const form = el(`<div>
+    <div class="field"><label>Your name</label><input type="text" id="suName" placeholder="Prashant Kumar"></div>
+    <div class="field"><label>Email</label><input type="email" id="suEmail" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="suPassword" placeholder="At least 6 characters"></div>
+    <div class="field"><label>Confirm password</label><input type="password" id="suConfirm" placeholder="Re-enter password"></div>
+    <button class="btn btn-primary btn-block" id="suBtn">Continue</button>
+  </div>`);
+  form.querySelector('#suBtn').onclick = async ()=>{
+    const name = form.querySelector('#suName').value.trim();
+    const email = form.querySelector('#suEmail').value.trim().toLowerCase();
+    const password = form.querySelector('#suPassword').value;
+    const confirm = form.querySelector('#suConfirm').value;
+    if(!name||!email||!password){ authError='Please fill in every field.'; render(); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ authError='Enter a valid email address.'; render(); return; }
+    if(password.length<6){ authError='Password must be at least 6 characters.'; render(); return; }
+    if(password!==confirm){ authError="Passwords don't match."; render(); return; }
+    if(accounts.find(a=>a.email===email)){ authError='An account with this email already exists — try logging in instead.'; render(); return; }
+    const salt = uid();
+    const passwordHash = await sha256Hex(salt+password);
+    pendingSignup = {name, email, passwordHash, salt, otp:genOTP(), expiresAt:Date.now()+10*60*1000};
+    authView='verify'; authError='';
+    render();
+  };
+  return form;
+}
+function renderVerify(){
+  const p = pendingSignup;
+  const wrap = el(`<div>
+    <div class="auth-title" style="font-size:20px;">Verify your email</div>
+    <div class="auth-sub">One-time code for ${p.email}</div>
+    <div class="otp-callout">
+      <div class="otp-title">Verification code</div>
+      <div class="otp-code">${p.otp}</div>
+      <div class="otp-note">It's Doable is a self-contained browser app and doesn't have a backend email service, so it can't actually deliver this to your inbox — it's shown here so you can complete verification. In a hosted version, this code would be emailed to you instead.</div>
+    </div>
+    <div class="field"><label>Enter the 6-digit code</label><input type="text" id="otpInput" maxlength="6" placeholder="000000"></div>
+    <button class="btn btn-primary btn-block" id="verifyBtn">Verify & create account</button>
+    <div class="auth-link"><a id="cancelVerify">Cancel</a></div>
+  </div>`);
+  if(authError) wrap.insertBefore(el(`<div class="err-box">${authError}</div>`), wrap.querySelector('.field'));
+  wrap.querySelector('#cancelVerify').onclick = ()=>{ pendingSignup=null; authView='signup'; authError=''; render(); };
+  wrap.querySelector('#verifyBtn').onclick = async ()=>{
+    const code = wrap.querySelector('#otpInput').value.trim();
+    if(Date.now()>p.expiresAt){ authError='That code expired — please sign up again.'; pendingSignup=null; authView='signup'; render(); return; }
+    if(code!==p.otp){ authError='Incorrect code, please try again.'; render(); return; }
+    const id = uid();
+    accounts.push({id, email:p.email, name:p.name, passwordHash:p.passwordHash, salt:p.salt, createdAt:new Date().toISOString()});
+    await saveAccounts();
+    const profile = blankProfile(id, p.name);
+    currentProfile = profile;
+    await saveProfile();
+    session = {accountId:id, email:p.email, name:p.name};
+    await saveSession(session);
+    pendingSignup=null; currentStep=0; authError='';
+    render();
+  };
+  return wrap;
+}
+function renderForgot(){
+  const wrap = el(`<div>
+    <div class="auth-title" style="font-size:20px;">Reset password</div>
+    <div class="auth-sub">Enter your account email</div>
+    <div class="field"><label>Email</label><input type="email" id="fpEmail" placeholder="you@example.com"></div>
+    <button class="btn btn-primary btn-block" id="fpBtn">Send reset code</button>
+    <div class="auth-link"><a id="backToLogin">Back to log in</a></div>
+  </div>`);
+  if(authError) wrap.insertBefore(el(`<div class="err-box">${authError}</div>`), wrap.querySelector('.field'));
+  wrap.querySelector('#backToLogin').onclick = ()=>{ authView='login'; authError=''; render(); };
+  wrap.querySelector('#fpBtn').onclick = ()=>{
+    const email = wrap.querySelector('#fpEmail').value.trim().toLowerCase();
+    const account = accounts.find(a=>a.email===email);
+    if(!account){ authError='No account found with that email.'; render(); return; }
+    pendingReset = {accountId:account.id, email, otp:genOTP(), expiresAt:Date.now()+10*60*1000};
+    authView='reset'; authError='';
+    render();
+  };
+  return wrap;
+}
+function renderReset(){
+  const p = pendingReset;
+  const wrap = el(`<div>
+    <div class="auth-title" style="font-size:20px;">Enter reset code</div>
+    <div class="otp-callout">
+      <div class="otp-title">Verification code</div>
+      <div class="otp-code">${p.otp}</div>
+      <div class="otp-note">As with sign-up, this browser-only app can't send a real email, so the code is shown here directly.</div>
+    </div>
+    <div class="field"><label>Code</label><input type="text" id="rpOtp" maxlength="6" placeholder="000000"></div>
+    <div class="field"><label>New password</label><input type="password" id="rpPass" placeholder="At least 6 characters"></div>
+    <button class="btn btn-primary btn-block" id="rpBtn">Reset password</button>
+    <div class="auth-link"><a id="cancelReset">Cancel</a></div>
+  </div>`);
+  if(authError) wrap.insertBefore(el(`<div class="err-box">${authError}</div>`), wrap.querySelector('.field'));
+  wrap.querySelector('#cancelReset').onclick = ()=>{ pendingReset=null; authView='login'; authError=''; render(); };
+  wrap.querySelector('#rpBtn').onclick = async ()=>{
+    const code = wrap.querySelector('#rpOtp').value.trim();
+    const newPass = wrap.querySelector('#rpPass').value;
+    if(Date.now()>p.expiresAt){ authError='Code expired — start over.'; pendingReset=null; authView='forgot'; render(); return; }
+    if(code!==p.otp){ authError='Incorrect code.'; render(); return; }
+    if(newPass.length<6){ authError='Password must be at least 6 characters.'; render(); return; }
+    const account = accounts.find(a=>a.id===p.accountId);
+    account.salt = uid();
+    account.passwordHash = await sha256Hex(account.salt+newPass);
+    await saveAccounts();
+    pendingReset=null; authView='login'; authError='Password updated — log in with your new password.';
+    render();
+  };
+  return wrap;
+}
+
+/* =========================================================
+   MASTHEAD + STEPPER
+========================================================= */
+function renderMasthead(){
+  const h = el(`<div class="masthead">
+    <div class="brand"><div class="brand-mark">${BRAND_MARK_SVG}</div><div><div class="brand-name">It's Doable</div><div class="brand-tagline">Start small. Finish strong.</div></div></div>
+    <div class="user-chip"><span class="uname">${session.name}</span><button id="logoutBtn">Log out</button></div>
+  </div>`);
+  h.querySelector('#logoutBtn').onclick = async ()=>{
+    await clearSession();
+    session=null; currentProfile=null; currentStep=0; authView='login';
+    render();
+  };
+  return h;
+}
+function renderStepper(){
+  const rail = el('<div class="stepper"></div>');
+  STEP_META.forEach((s,i)=>{
+    const dot = el(`<div class="step-dot ${i===currentStep?'active':''} ${i<currentStep?'done':''}" style="--step-color:${s.color}">
+      <div class="step-circle">${i<currentStep?'✓':i+1}</div>
+      <div class="step-label">${s.label}</div>
+    </div>`);
+    dot.onclick = ()=>{ currentStep=i; render(); };
+    rail.appendChild(dot);
+    if(i<STEP_META.length-1) rail.appendChild(el('<div class="step-line"></div>'));
+  });
+  return rail;
+}
+
+/* =========================================================
+   SNAPSHOT PANEL
+========================================================= */
+function renderSnapshot(){
+  const p = currentProfile;
+  const rows=[];
+  if(p.basic.name) rows.push(['Name', p.basic.name]);
+  const age = calcAge(p.basic.dob);
+  if(age) rows.push(['Age', age+' yrs']);
+  const bmi = calcBMI(parseFloat(p.basic.weightKg), parseFloat(p.basic.heightCm));
+  if(bmi) rows.push(['BMI', bmi]);
+  if(p.measurements.waist) rows.push(['Waist', p.measurements.waist+' cm']);
+  if(p.foodPrefs.dietType) rows.push(['Diet type', p.foodPrefs.dietType]);
+  if(p.medical.conditions&&p.medical.conditions.length) rows.push(['Conditions', p.medical.conditions.join(', ')]);
+  if(p.goals.targets&&p.goals.targets.length) rows.push(['Goal', p.goals.targets.join(', ')]);
+  if(p.plan.calorieTarget) rows.push(['Calorie target', p.plan.calorieTarget+' kcal']);
+  const wrap = el('<div class="snapshot"><div class="snapshot-title">Your Snapshot</div></div>');
+  if(rows.length===0){ wrap.appendChild(el('<div class="snapshot-empty">Fill in your record to see it summarized here.</div>')); }
+  else rows.forEach(([k,v])=> wrap.appendChild(el(`<div class="stat-card"><div class="stat-k">${k}</div><div class="stat-v">${v}</div></div>`)));
+  return wrap;
+}
+
+/* =========================================================
+   GENERIC BINDING
+========================================================= */
+function bindGenericInputs(container){
+  container.querySelectorAll('[data-path]').forEach(elm=>{
+    const evt = (elm.tagName==='SELECT'||elm.type==='radio'||elm.type==='checkbox') ? 'change':'input';
+    elm.addEventListener(evt, async ()=>{
+      const path = elm.dataset.path;
+      if(elm.type==='checkbox'&&elm.dataset.multi){
+        let arr = getPath(currentProfile,path)||[]; arr=Array.isArray(arr)?arr.slice():[];
+        const val = elm.dataset.value;
+        if(elm.checked){ if(!arr.includes(val)) arr.push(val); } else { arr=arr.filter(v=>v!==val); }
+        setPath(currentProfile,path,arr);
+      } else if(elm.type==='checkbox'){ setPath(currentProfile,path,elm.checked); }
+      else { setPath(currentProfile,path,elm.value); }
+      await saveProfile();
+      const s = document.querySelector('.snapshot'); if(s) s.replaceWith(renderSnapshot());
+      if(elm.dataset.rerender) render();
+    });
+  });
+}
+
+/* =========================================================
+   STEP ROUTER
+========================================================= */
+function renderStep(){
+  switch(STEP_META[currentStep].key){
+    case 'basic': return stepBasic();
+    case 'measurements': return stepMeasurements();
+    case 'food': return stepFood();
+    case 'medical': return stepMedical();
+    case 'goals': return stepGoals();
+    case 'composition': return stepComposition();
+    case 'summary': return stepSummary();
+    case 'assist': return stepAssist();
+    case 'plan': return stepPlan();
+    case 'track': return stepTrack();
+  }
+}
+function stepColor(){ return STEP_META[currentStep].color; }
+function navButtons(container, {nextLabel='Next', onNext=null}={}){
+  const row = el(`<div class="btn-row">
+    <button class="btn btn-ghost" id="backBtn" ${currentStep===0?'disabled':''}>&larr; Back</button>
+    <button class="btn btn-primary" id="nextBtn">${nextLabel} &rarr;</button>
+  </div>`);
+  row.querySelector('#backBtn').onclick = ()=>{ currentStep=Math.max(0,currentStep-1); render(); };
+  row.querySelector('#nextBtn').onclick = async ()=>{
+    if(onNext){ const ok = await onNext(); if(ok===false) return; }
+    currentStep=Math.min(STEP_META.length-1,currentStep+1); render();
+  };
+  container.appendChild(row);
+}
+function sheetOpen(title,sub){
+  return el(`<div class="sheet" style="--step-color:${stepColor()}">
+    <div class="sheet-eyebrow">Step ${String(currentStep+1).padStart(2,'0')}</div>
+    <div class="sheet-title">${title}</div>
+    <div class="sheet-sub">${sub}</div>
+  </div>`);
+}
+
+/* =========================================================
+   STEP: BASIC INFO
+========================================================= */
+function stepBasic(){
+  const b = currentProfile.basic;
+  const sheet = sheetOpen('Basic Information','The starting page of your record.');
+  sheet.appendChild(el(`<div class="field-grid">
+    <div class="field"><label>Full name</label><input type="text" data-path="basic.name" value="${b.name}"></div>
+    <div class="field"><label>Place of residence</label><input type="text" data-path="basic.place" value="${b.place}"></div>
+    <div class="field"><label>Date of birth</label><input type="date" data-path="basic.dob" value="${b.dob}"></div>
+    <div class="field"><label>Sex</label><select data-path="basic.sex"><option value="">Select</option>${['Male','Female','Other'].map(o=>`<option value="${o}" ${b.sex===o?'selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="field"><label>Height (cm)</label><input type="number" data-path="basic.heightCm" value="${b.heightCm}" placeholder="e.g. 172"></div>
+    <div class="field"><label>Weight (kg)</label><input type="number" data-path="basic.weightKg" value="${b.weightKg}" placeholder="e.g. 78"></div>
+    <div class="field"><label>Activity level</label><select data-path="basic.activity"><option value="">Select</option>${['Sedentary','Light','Moderate','Active'].map(o=>`<option value="${o}" ${b.activity===o?'selected':''}>${o}</option>`).join('')}</select></div>
+  </div>`));
+  bindGenericInputs(sheet);
+  navButtons(sheet);
+  return sheet;
+}
+
+/* =========================================================
+   STEP: MEASUREMENTS
+========================================================= */
+function stepMeasurements(){
+  const m = currentProfile.measurements;
+  const fields=['waist','chest','arms','stomach','hips','thighs','calf','neck'];
+  const labels={waist:'Waist',chest:'Chest',arms:'Arms',stomach:'Stomach',hips:'Hips',thighs:'Thighs',calf:'Calf muscles',neck:'Neck'};
+  const sheet = sheetOpen('Body Measurements','All measurements in centimeters. Waist and neck (and hips, if female) also power the auto body-composition estimate later.');
+  sheet.appendChild(el(`<div class="field-grid">${fields.map(f=>`<div class="field"><label>${labels[f]} (cm)</label><input type="number" data-path="measurements.${f}" value="${m[f]}"></div>`).join('')}</div>`));
+  const photoField = el(`<div class="field" style="max-width:360px;">
+    <label>Progress photo (optional)</label>
+    <div class="file-drop"><div style="font-size:12.5px;color:var(--ink-soft);">JPG or PNG</div><input type="file" id="photoInput" accept="image/*"></div>
+    <div class="file-list" id="photoStatus"></div>
+  </div>`);
+  sheet.appendChild(photoField);
+  const status = photoField.querySelector('#photoStatus');
+  if(m.photoFileId){
+    status.appendChild(el(`<div class="file-item"><span>Photo saved ✓</span><button id="removePhoto">Remove</button></div>`));
+    photoField.querySelector('#removePhoto').onclick = async ()=>{ m.photoFileId=''; await saveProfile(); render(); };
+  }
+  photoField.querySelector('#photoInput').onchange = async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async ()=>{
+      const base64 = reader.result.split(',')[1];
+      const fileId = uid();
+      await saveFileBlob(fileId, {name:file.name, type:file.type, data:base64, kind:'photo'});
+      m.photoFileId = fileId; await saveProfile(); render();
+    };
+    reader.readAsDataURL(file);
+  };
+  bindGenericInputs(sheet);
+  navButtons(sheet);
+  return sheet;
+}
+
+/* =========================================================
+   STEP: FOOD PREFERENCES
+========================================================= */
+function stepFood(){
+  const f = currentProfile.foodPrefs;
+  const sheet = sheetOpen('Food Preferences',"A handful of smart questions to understand what you like — and what you don't.");
+  const body = el(`<div>
+    <div class="field">
+      <label>1. What best describes your diet?</label>
+      <div class="big-choice">${['Vegetarian','Eggetarian','Non-vegetarian','Vegan'].map(o=>`<label><input type="radio" name="dietType" value="${o}" ${f.dietType===o?'checked':''}><div class="bc-label">${o}</div></label>`).join('')}</div>
+    </div>
+    <div class="field">
+      <label>2. Which cuisines do you enjoy most? <span class="hint">(pick any)</span></label>
+      <div class="chip-group">${['North Indian','South Indian','Continental','Chinese','Italian','Mexican','Other'].map(c=>`<label class="chip ${f.cuisines.includes(c)?'checked':''}"><input type="checkbox" data-path="foodPrefs.cuisines" data-multi="1" data-value="${c}" ${f.cuisines.includes(c)?'checked':''}>${c}</label>`).join('')}</div>
+    </div>
+    <div class="field">
+      <label>3. How spicy do you like your food?</label>
+      <div class="radio-row">${['Mild','Medium','Spicy'].map(o=>`<label><input type="radio" name="spice" data-path="foodPrefs.spice" value="${o}" ${f.spice===o?'checked':''}><span>${o}</span></label>`).join('')}</div>
+    </div>
+    <div class="field"><label>4. Any foods you actively dislike or avoid?</label><textarea data-path="foodPrefs.dislikes" placeholder="e.g. bitter gourd, mushrooms, very sweet desserts">${f.dislikes}</textarea></div>
+    <div class="field"><label>5. Any allergies or intolerances?</label><textarea data-path="foodPrefs.allergies" placeholder="e.g. lactose intolerant, nut allergy, gluten sensitivity">${f.allergies}</textarea></div>
+    <div class="field">
+      <label>6. How much time can you typically give to cooking a meal?</label>
+      <div class="radio-row">${['Under 15 min','15–30 min','30–60 min','60+ min'].map(o=>`<label><input type="radio" name="cookTime" data-path="foodPrefs.cookTime" value="${o}" ${f.cookTime===o?'checked':''}><span>${o}</span></label>`).join('')}</div>
+    </div>
+    <div class="field" id="branchQ">${renderBranchQuestion(f)}</div>
+    <div class="field"><label>8. Comfort foods or cheat meals you'd hate to give up?</label><textarea data-path="foodPrefs.comfortFoods" placeholder="e.g. biryani on weekends, chocolate">${f.comfortFoods}</textarea></div>
+  </div>`);
+  sheet.appendChild(body);
+  body.querySelectorAll('input[name="dietType"]').forEach(r=>{
+    r.addEventListener('change', async ()=>{ f.dietType=r.value; f.proteinSources=[]; await saveProfile(); render(); });
+  });
+  bindGenericInputs(sheet);
+  body.querySelectorAll('.chip').forEach(chip=> chip.addEventListener('click', ()=> setTimeout(()=>{ chip.classList.toggle('checked', chip.querySelector('input').checked); },0)));
+  navButtons(sheet);
+  return sheet;
+}
+function renderBranchQuestion(f){
+  if(f.dietType==='Non-vegetarian'){
+    const opts=['Chicken','Mutton','Fish','Eggs','Seafood','Pork','Beef'];
+    return `<label>7. Which non-veg proteins do you enjoy, and how often per week?</label>
+      <div class="chip-group">${opts.map(c=>`<label class="chip ${f.proteinSources.includes(c)?'checked':''}"><input type="checkbox" data-path="foodPrefs.proteinSources" data-multi="1" data-value="${c}" ${f.proteinSources.includes(c)?'checked':''}>${c}</label>`).join('')}</div>
+      <input type="text" data-path="foodPrefs.nonVegFreq" placeholder="Typical frequency, e.g. non-veg 4x/week" value="${f.nonVegFreq}" style="margin-top:10px;width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px;">`;
+  }
+  if(f.dietType==='Vegan'){
+    const opts=['Tofu','Tempeh','Legumes/Dal','Soy chunks','Seitan','Nuts & seeds','Plant-based protein powder'];
+    return `<label>7. Which plant protein sources do you enjoy?</label><div class="chip-group">${opts.map(c=>`<label class="chip ${f.proteinSources.includes(c)?'checked':''}"><input type="checkbox" data-path="foodPrefs.proteinSources" data-multi="1" data-value="${c}" ${f.proteinSources.includes(c)?'checked':''}>${c}</label>`).join('')}</div>`;
+  }
+  if(f.dietType==='Vegetarian'){
+    const opts=['Paneer','Curd/Yogurt','Milk','Legumes/Dal','Soy chunks','Nuts & seeds','Mock meats'];
+    return `<label>7. Which dairy & protein sources do you enjoy?</label><div class="chip-group">${opts.map(c=>`<label class="chip ${f.proteinSources.includes(c)?'checked':''}"><input type="checkbox" data-path="foodPrefs.proteinSources" data-multi="1" data-value="${c}" ${f.proteinSources.includes(c)?'checked':''}>${c}</label>`).join('')}</div>`;
+  }
+  if(f.dietType==='Eggetarian'){
+    const opts=['Eggs','Paneer','Curd/Yogurt','Milk','Legumes/Dal','Soy chunks','Nuts & seeds'];
+    return `<label>7. Which egg, dairy & protein sources do you enjoy?</label><div class="chip-group">${opts.map(c=>`<label class="chip ${f.proteinSources.includes(c)?'checked':''}"><input type="checkbox" data-path="foodPrefs.proteinSources" data-multi="1" data-value="${c}" ${f.proteinSources.includes(c)?'checked':''}>${c}</label>`).join('')}</div>
+      <input type="text" data-path="foodPrefs.nonVegFreq" placeholder="Typical frequency, e.g. eggs 5x/week" value="${f.nonVegFreq}" style="margin-top:10px;width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px;">`;
+  }
+  return `<div class="hint">Select a diet type above to see a tailored question here.</div>`;
+}
+
+/* =========================================================
+   STEP: MEDICAL HISTORY
+========================================================= */
+function stepMedical(){
+  const m = currentProfile.medical;
+  const condOpts=['Diabetes','Hypertension','Thyroid','PCOS/PCOD','Heart disease','None','Other'];
+  const sheet = sheetOpen('Medical History','This helps flag anything that needs more than diet and exercise.');
+  const body = el(`<div>
+    <div class="field">
+      <label>Existing diagnosed conditions</label>
+      <div class="chip-group">${condOpts.map(c=>`<label class="chip ${m.conditions.includes(c)?'checked':''}"><input type="checkbox" data-path="medical.conditions" data-multi="1" data-value="${c}" ${m.conditions.includes(c)?'checked':''}>${c}</label>`).join('')}</div>
+      <input type="text" data-path="medical.conditionsOther" placeholder="If other, specify" value="${m.conditionsOther}" style="margin-top:8px;width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px;">
+    </div>
+    <div class="field"><label>Current medications</label><textarea data-path="medical.medications" placeholder="Name, dosage, frequency if known">${m.medications}</textarea></div>
+    <div class="field">
+      <label>Doctor's reports / checkup uploads</label>
+      <div class="file-drop"><div style="font-size:12.5px;color:var(--ink-soft);">PDF, JPG or PNG — lab reports, checkup summaries, prescriptions</div><input type="file" id="reportInput" accept="application/pdf,image/*" multiple></div>
+      <div class="file-list" id="reportList"></div>
+    </div>
+    <hr class="rule">
+    <div class="field-grid">
+      <div class="field"><label>Knee pain?</label><div class="radio-row">${['Yes','No'].map(o=>`<label><input type="radio" name="kneePain" data-path="medical.kneePain" value="${o}" ${m.kneePain===o?'checked':''}><span>${o}</span></label>`).join('')}</div></div>
+      <div class="field"><label>Back pain?</label><div class="radio-row">${['Yes','No'].map(o=>`<label><input type="radio" name="backPain" data-path="medical.backPain" value="${o}" ${m.backPain===o?'checked':''}><span>${o}</span></label>`).join('')}</div></div>
+    </div>
+    <div id="painSub"></div>
+    <div class="field"><label>Other pain / discomfort worth noting</label><textarea data-path="medical.otherPain" placeholder="Anything else — shoulder stiffness, joint issues, etc.">${m.otherPain}</textarea></div>
+  </div>`);
+  sheet.appendChild(body);
+
+  function renderPainSub(){
+    const holder = body.querySelector('#painSub'); holder.innerHTML='';
+    if(m.kneePain==='Yes'){
+      holder.appendChild(el(`<div class="field-grid" style="margin-bottom:0;">
+        <div class="field"><label>Knee pain — likely cause</label><select data-path="medical.kneeCause"><option value="">Select</option>${['Weight-related','Old injury','Not sure'].map(o=>`<option value="${o}" ${m.kneeCause===o?'selected':''}>${o}</option>`).join('')}</select></div>
+        <div class="field"><label>Knee pain — worst time of day</label><select data-path="medical.kneeTime"><option value="">Select</option>${['Morning','After activity','Evening','Constant'].map(o=>`<option value="${o}" ${m.kneeTime===o?'selected':''}>${o}</option>`).join('')}</select></div>
+      </div>`));
+    }
+    if(m.backPain==='Yes'){
+      holder.appendChild(el(`<div class="field-grid" style="margin-bottom:0;">
+        <div class="field"><label>Back pain — likely cause</label><select data-path="medical.backCause"><option value="">Select</option>${['Weight-related','Old injury','Posture/desk work','Not sure'].map(o=>`<option value="${o}" ${m.backCause===o?'selected':''}>${o}</option>`).join('')}</select></div>
+        <div class="field"><label>Back pain — worst time of day</label><select data-path="medical.backTime"><option value="">Select</option>${['Morning','After activity','Evening','Constant'].map(o=>`<option value="${o}" ${m.backTime===o?'selected':''}>${o}</option>`).join('')}</select></div>
+      </div>`));
+    }
+    bindGenericInputs(holder);
+  }
+  renderPainSub();
+  body.querySelectorAll('input[name="kneePain"],input[name="backPain"]').forEach(r=> r.addEventListener('change', ()=> setTimeout(renderPainSub,0)));
+
+  function renderReportList(){
+    const list = body.querySelector('#reportList'); list.innerHTML='';
+    m.reportFileIds.forEach(fid=>{
+      const item = el(`<div class="file-item"><span>Loading…</span><button>Remove</button></div>`);
+      getFileBlob(fid).then(blob=>{ if(blob) item.querySelector('span').textContent = blob.name; });
+      item.querySelector('button').onclick = async ()=>{ m.reportFileIds = m.reportFileIds.filter(x=>x!==fid); await saveProfile(); renderReportList(); };
+      list.appendChild(item);
+    });
+  }
+  renderReportList();
+  body.querySelector('#reportInput').onchange = async (e)=>{
+    const files = Array.from(e.target.files);
+    for(const file of files){
+      const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
+      const fileId = uid();
+      await saveFileBlob(fileId, {name:file.name, type:file.type, data:base64, kind:'report'});
+      m.reportFileIds.push(fileId);
+    }
+    await saveProfile(); renderReportList();
+  };
+  bindGenericInputs(sheet);
+  navButtons(sheet);
+  return sheet;
+}
+
+/* =========================================================
+   STEP: GOALS
+========================================================= */
+function stepGoals(){
+  const g = currentProfile.goals;
+  const sheet = sheetOpen('Goals','What are you working toward? Your target weight also powers the auto target-measurement estimates on the next page.');
+  sheet.appendChild(el(`<div>
+    <div class="field">
+      <label>Primary goal <span class="hint">(pick any that apply)</span></label>
+      <div class="chip-group">${['Lose weight','Gain weight','Maintain','Build muscle','Improve fitness'].map(o=>`<label class="chip ${g.targets.includes(o)?'checked':''}"><input type="checkbox" data-path="goals.targets" data-multi="1" data-value="${o}" ${g.targets.includes(o)?'checked':''}>${o}</label>`).join('')}</div>
+    </div>
+    <div class="field-grid">
+      <div class="field"><label>Target weight (kg)</label><input type="number" data-path="goals.targetWeight" value="${g.targetWeight}"></div>
+      <div class="field"><label>Desired timeline</label><select data-path="goals.timeline"><option value="">Select</option>${['3 months','6 months','1 year','No rush'].map(o=>`<option value="${o}" ${g.timeline===o?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>When were you last at a weight/fitness level you were happy with?</label><input type="text" data-path="goals.lastFitWhen" placeholder="e.g. 2 years ago" value="${g.lastFitWhen}"></div>
+      <div class="field"><label>What was your weight then? (optional)</label><input type="number" data-path="goals.lastFitWeight" value="${g.lastFitWeight}"></div>
+    </div>
+    <div class="field"><label>What do you think caused the change?</label><textarea data-path="goals.reason" placeholder="e.g. desk job, stress, injury, pregnancy, aging, lifestyle change">${g.reason}</textarea></div>
+  </div>`));
+  bindGenericInputs(sheet);
+  sheet.querySelectorAll('.chip').forEach(chip=> chip.addEventListener('click', ()=> setTimeout(()=>{ chip.classList.toggle('checked', chip.querySelector('input').checked); },0)));
+  navButtons(sheet);
+  return sheet;
+}
+
+/* =========================================================
+   STEP: BODY COMPOSITION (auto-populated)
+========================================================= */
+function stepComposition(){
+  const sheet = sheetOpen('Body Composition & Targets', "Estimated automatically from your weight, height, age and measurements — no smart scale required. If you do have one, you can add its readings too for a sharper picture.");
+  const area = el('<div></div>');
+  sheet.appendChild(area);
+  renderCompositionArea(area);
+  navButtons(sheet);
+  return sheet;
+}
+async function renderCompositionArea(area){
+  const p = currentProfile;
+  const auto = computeAutoComposition(p);
+  const compLog = await getCompositionLog(p.id);
+  const latest = compLog.length ? compLog[compLog.length-1] : null;
+
+  area.innerHTML='';
+  area.appendChild(el(`<div class="stat-grid">
+    <div class="stat-tile"><div class="tv">${auto.bmi ?? '—'}</div><div class="tl">BMI</div>${auto.bmiCategory?`<div class="tc"><span class="badge manageable">${auto.bmiCategory}</span></div>`:''}</div>
+    <div class="stat-tile"><div class="tv">${auto.bmr ?? '—'}</div><div class="tl">BMR (kcal/day)</div></div>
+    <div class="stat-tile"><div class="tv">${auto.bodyFatPct ?? '—'}${auto.bodyFatPct!=null?'%':''}</div><div class="tl">Body Fat (estimated)</div>${auto.bodyFatCategory?`<div class="tc"><span class="badge ${auto.bodyFatCategory==='High'?'medical':'manageable'}">${auto.bodyFatCategory}</span></div>`:''}</div>
+    <div class="stat-tile"><div class="tv">${auto.leanMassKg ?? '—'}</div><div class="tl">Lean Mass (kg)</div></div>
+    <div class="stat-tile"><div class="tv">${auto.fatMassKg ?? '—'}</div><div class="tl">Fat Mass (kg)</div></div>
+    <div class="stat-tile"><div class="tv">${auto.whtr ?? '—'}</div><div class="tl">Waist / Height</div>${auto.whtrFlag?`<div class="tc"><span class="badge medical">Above 0.5</span></div>`:''}</div>
+  </div>`));
+  if(!auto.bodyFatPct){
+    area.appendChild(el(`<div class="callout" style="background:var(--sky-soft);color:#1e4a8c;">Add your <b>waist</b> and <b>neck</b> measurements (and hips, if female) on the Measurements page to get a body-fat estimate here.</div>`));
+  }
+
+  if(auto.targets.length){
+    area.appendChild(el(`<h4 style="font-family:var(--display);margin:18px 0 8px;">Estimated targets to reach ${auto.targetWeight} kg</h4>`));
+    const labels={waist:'Waist',chest:'Chest',arms:'Arms',stomach:'Stomach',hips:'Hips',thighs:'Thighs',calf:'Calf',neck:'Neck'};
+    const table = el(`<table class="target-table"><thead><tr><th>Measurement</th><th>Current</th><th>Estimated target</th><th>Estimated change</th></tr></thead><tbody></tbody></table>`);
+    const tbody = table.querySelector('tbody');
+    auto.targets.forEach(t=>{
+      tbody.appendChild(el(`<tr><td>${labels[t.key]}</td><td>${t.current} cm</td><td>${t.target} cm</td><td>${t.delta>0?'−':''}${Math.abs(t.delta)} cm</td></tr>`));
+    });
+    area.appendChild(table);
+    area.appendChild(el(`<div class="hint" style="font-size:11.5px;color:var(--ink-faint);margin-top:8px;">These are rough, proportional estimates based on your target weight vs. current weight — actual results vary by individual and where your body tends to lose from first.</div>`));
+  } else {
+    area.appendChild(el(`<div class="callout" style="background:var(--amber-soft);color:#7a5205;margin-top:16px;">Set a target weight on the Goals page to see estimated target measurements here.</div>`));
+  }
+
+  const focusAreas = computeFocusAreas(auto, latest);
+  area.appendChild(el('<hr class="rule">'));
+  area.appendChild(el('<h4 style="font-family:var(--display);margin-bottom:8px;">Focus areas for your workout plan</h4>'));
+  if(focusAreas.length===0){
+    area.appendChild(el('<div class="callout good">Nothing flagged yet — your workout plan can stay general.</div>'));
+  } else {
+    focusAreas.forEach(a=>{
+      area.appendChild(el(`<div class="finding-item ${a.severity===2?'medical':''}"><div class="finding-top"><span class="finding-label">${a.label} — ${a.focus}</span><span class="badge ${a.severity===2?'medical':'manageable'}">${a.status}</span></div></div>`));
+    });
+  }
+
+  // Optional smart scale
+  const toggle = el(`<div class="details-toggle">+ Have a smart scale? Add its readings for a sharper estimate</div>`);
+  const smartForm = el('<div style="display:none;"></div>');
+  toggle.onclick = ()=>{ const show = smartForm.style.display==='none'; smartForm.style.display = show?'block':'none'; toggle.textContent = show? '− Hide smart scale readings' : '+ Have a smart scale? Add its readings for a sharper estimate'; };
+  area.appendChild(toggle);
+  area.appendChild(smartForm);
+
+  const draft = {};
+  SMART_FIELDS.forEach(f=>{ draft[f.key]= latest? (latest[f.key] ?? '') : ''; draft[f.key+'Status'] = latest? (latest[f.key+'Status'] ?? '') : ''; });
+  const grid = el('<div class="field-grid"></div>');
+  SMART_FIELDS.forEach(f=>{
+    grid.appendChild(el(`<div class="field"><label>${f.label} ${f.unit?('('+f.unit+')'):''}</label>
+      <div style="display:flex;gap:6px;">
+        <input type="number" step="0.01" style="flex:1;" data-comp="${f.key}" value="${draft[f.key]}">
+        <select data-comp="${f.key}Status" style="width:110px;padding:11px 6px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-size:12px;">${STATUS_OPTIONS.map(o=>`<option value="${o}" ${draft[f.key+'Status']===o?'selected':''}>${o||'Status…'}</option>`).join('')}</select>
+      </div></div>`));
+  });
+  smartForm.appendChild(grid);
+  smartForm.querySelectorAll('[data-comp]').forEach(inp=> inp.addEventListener('input', ()=> draft[inp.dataset.comp]=inp.value) );
+  smartForm.querySelectorAll('select[data-comp]').forEach(inp=> inp.addEventListener('change', ()=> draft[inp.dataset.comp]=inp.value) );
+  const saveBtn = el(`<button class="btn btn-ghost btn-sm" style="margin-top:10px;">Save scale reading</button>`);
+  saveBtn.onclick = async ()=>{
+    const date = todayISO();
+    const reading = {date};
+    SMART_FIELDS.forEach(f=>{ reading[f.key] = draft[f.key]===''? null : (parseFloat(draft[f.key])||draft[f.key]); reading[f.key+'Status'] = draft[f.key+'Status']||''; });
+    let newLog = compLog.filter(r=>r.date!==date); newLog.push(reading); newLog.sort((a,b)=>a.date.localeCompare(b.date));
+    await saveCompositionLog(p.id, newLog);
+    renderCompositionArea(area);
+  };
+  smartForm.appendChild(saveBtn);
+}
+
+/* =========================================================
+   STEP: SUMMARY & ANALYSIS
+========================================================= */
+function stepSummary(){
+  const p = currentProfile;
+  const bmi = calcBMI(parseFloat(p.basic.weightKg), parseFloat(p.basic.heightCm));
+  const sheet = sheetOpen('Summary & Report Analysis', "Everything you've entered, in a nutshell — plus what your reports say, if you've uploaded any.");
+  sheet.appendChild(el(`<div>
+    <div class="recap-card"><h4>Profile</h4>
+      <div class="recap-row"><span>Name</span><span>${p.basic.name||'—'}</span></div>
+      <div class="recap-row"><span>Age / Sex</span><span>${calcAge(p.basic.dob)||'—'} / ${p.basic.sex||'—'}</span></div>
+      <div class="recap-row"><span>Height / Weight</span><span>${p.basic.heightCm||'—'} cm / ${p.basic.weightKg||'—'} kg</span></div>
+      <div class="recap-row"><span>BMI</span><span>${bmi||'—'}</span></div>
+    </div>
+    <div class="recap-card"><h4>Measurements</h4>
+      <div class="recap-row"><span>Waist / Chest</span><span>${p.measurements.waist||'—'} / ${p.measurements.chest||'—'} cm</span></div>
+      <div class="recap-row"><span>Hips / Stomach</span><span>${p.measurements.hips||'—'} / ${p.measurements.stomach||'—'} cm</span></div>
+    </div>
+    <div class="recap-card"><h4>Food preferences</h4>
+      <div class="recap-row"><span>Diet type</span><span>${p.foodPrefs.dietType||'—'}</span></div>
+      <div class="recap-row"><span>Cuisines</span><span>${p.foodPrefs.cuisines.join(', ')||'—'}</span></div>
+    </div>
+    <div class="recap-card"><h4>Medical</h4>
+      <div class="recap-row"><span>Conditions</span><span>${p.medical.conditions.join(', ')||'—'}</span></div>
+      <div class="recap-row"><span>Reports uploaded</span><span>${p.medical.reportFileIds.length}</span></div>
+    </div>
+    <div class="recap-card"><h4>Goals</h4>
+      <div class="recap-row"><span>Target</span><span>${(p.goals.targets&&p.goals.targets.length)?p.goals.targets.join(', '):'—'}</span></div>
+      <div class="recap-row"><span>Target weight</span><span>${p.goals.targetWeight||'—'}</span></div>
+    </div>
+    <hr class="rule">
+    <div id="analysisArea"></div>
+  </div>`));
+  renderAnalysisArea(sheet.querySelector('#analysisArea'));
+  navButtons(sheet);
+  return sheet;
+}
+function renderAnalysisArea(area){
+  const p = currentProfile;
+  area.innerHTML='';
+  if(p.medical.reportFileIds.length===0){
+    area.appendChild(el(`<div class="snapshot-empty">No reports uploaded — nothing to analyze. You can continue to the next step.</div>`));
+    return;
+  }
+  if(!p.analysis.findings){
+    const btn = el(`<button class="btn btn-primary">Analyze my uploaded reports</button>`);
+    btn.onclick = async ()=>{
+      btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Reading reports…';
+      try{
+        const content=[];
+        for(const fid of p.medical.reportFileIds){
+          const blob = await getFileBlob(fid); if(!blob) continue;
+          if(blob.type==='application/pdf') content.push({type:'document', source:{type:'base64', media_type:'application/pdf', data:blob.data}});
+          else content.push({type:'image', source:{type:'base64', media_type:blob.type, data:blob.data}});
+        }
+        content.push({type:'text', text:'Review the attached medical/lab report(s). Extract the key findings as JSON with this exact schema: {"findings":[{"label":"","value":"","referenceRange":"","status":"low|normal|high","severity":"manageable|medical","note":""}],"summary":""}. Mark severity as "medical" only for findings that likely need clinician involvement or medication beyond diet/exercise. Use "manageable" for things diet/exercise/lifestyle can reasonably address. Limit to at most 8 of the most relevant findings. The "summary" field should be 2-3 plain-language sentences. This is not a diagnosis — keep language cautious and informative.'});
+        const result = await claudeJSON(content, 'You are a careful, conservative clinical-literacy assistant helping a layperson understand their lab reports. You never diagnose; you summarize and flag.');
+        p.analysis.findings = result.findings||[]; p.analysis.summary = result.summary||''; p.analysis.generatedAt = new Date().toISOString();
+        await saveProfile(); renderAnalysisArea(area);
+        const s = document.querySelector('.snapshot'); if(s) s.replaceWith(renderSnapshot());
+      }catch(err){
+        area.appendChild(el(`<div class="err-box">Couldn't analyze the reports right now (${err.message}). You can try again, or continue without analysis.</div>`));
+        btn.disabled=false; btn.textContent='Try again';
+      }
+    };
+    area.appendChild(el('<h4 style="font-family:var(--display);margin-bottom:10px;">Report analysis</h4>'));
+    area.appendChild(btn);
+    return;
+  }
+  area.appendChild(el('<h4 style="font-family:var(--display);margin-bottom:6px;">Report analysis</h4>'));
+  if(p.analysis.summary) area.appendChild(el(`<div class="quote-block">${p.analysis.summary}</div>`));
+  const hasMedical = p.analysis.findings.some(f=>f.severity==='medical');
+  if(hasMedical) area.appendChild(el(`<div class="callout">Some findings below are flagged <b>medical</b> — these may need a doctor's evaluation or medication, and diet and exercise alone may not fully address them.</div>`));
+  else if(p.analysis.findings.length) area.appendChild(el(`<div class="callout good">Nothing in these reports looks like it needs more than a solid diet and exercise plan — but keep your doctor in the loop for anything that concerns you.</div>`));
+  p.analysis.findings.forEach(f=>{
+    area.appendChild(el(`<div class="finding-item ${f.severity==='medical'?'medical':''}">
+      <div class="finding-top"><span class="finding-label">${f.label}</span><span class="badge ${f.severity}">${f.severity}</span></div>
+      <div class="finding-value">${f.value||''} ${f.referenceRange?('· ref: '+f.referenceRange):''} ${f.status?('· '+f.status):''}</div>
+      ${f.note?`<div class="finding-note">${f.note}</div>`:''}
+    </div>`));
+  });
+  area.appendChild(el(`<div class="field" style="margin-top:16px;">
+    <label>Would you like your diet and workout plan to specifically address these findings?</label>
+    <div class="radio-row">
+      <label><input type="radio" name="addressIssues" value="yes" ${p.analysis.addressIssues===true?'checked':''}><span>Yes, please</span></label>
+      <label><input type="radio" name="addressIssues" value="no" ${p.analysis.addressIssues===false?'checked':''}><span>No, keep it general</span></label>
+    </div>
+  </div>`));
+  area.querySelectorAll('input[name="addressIssues"]').forEach(r=> r.addEventListener('change', async ()=>{ p.analysis.addressIssues = r.value==='yes'; await saveProfile(); }));
+  const reBtn = el(`<button class="btn btn-ghost btn-sm" style="margin-top:8px;">Re-analyze reports</button>`);
+  reBtn.onclick = async ()=>{ p.analysis.findings=null; await saveProfile(); renderAnalysisArea(area); };
+  area.appendChild(reBtn);
+}
+
+/* =========================================================
+   STEP: CHOOSE ASSISTANCE
+========================================================= */
+function stepAssist(){
+  const a = currentProfile.assistance;
+  const sheet = sheetOpen('Choose Your Assistance','What would you like help with? Pick any that apply.');
+  const body = el(`<div>
+    <div class="field"><div class="chip-group">
+      <label class="chip ${a.wantsDiet?'checked':''}"><input type="checkbox" data-path="assistance.wantsDiet" ${a.wantsDiet?'checked':''} data-rerender="1">Diet plan</label>
+      <label class="chip ${a.wantsWorkout?'checked':''}"><input type="checkbox" data-path="assistance.wantsWorkout" ${a.wantsWorkout?'checked':''}>Workout plan</label>
+      <label class="chip ${a.wantsOther?'checked':''}"><input type="checkbox" data-path="assistance.wantsOther" ${a.wantsOther?'checked':''} data-rerender="1">Other</label>
+    </div></div>
+    <div id="otherQ"></div>
+    <div id="proteinQ"></div>
+  </div>`);
+  sheet.appendChild(body);
+  function renderOtherQ(){
+    const holder = body.querySelector('#otherQ'); holder.innerHTML='';
+    if(a.wantsOther){
+      holder.appendChild(el(`<div class="field"><label>What else would you like help with?</label><input type="text" data-path="assistance.other" value="${a.other}" placeholder="e.g. sleep habits, stress management"></div>`));
+      bindGenericInputs(holder);
+    }
+  }
+  function renderProteinQ(){
+    const holder = body.querySelector('#proteinQ'); holder.innerHTML='';
+    if(a.wantsDiet){
+      holder.appendChild(el(`<div class="field"><label>Would you like to include a protein powder / supplement in your diet plan?</label>
+        <div class="radio-row">${['Yes','No','Not sure'].map(o=>`<label><input type="radio" name="proteinPowder" data-path="assistance.proteinPowder" value="${o}" ${a.proteinPowder===o?'checked':''}><span>${o}</span></label>`).join('')}</div></div>`));
+      const toolOpts = ['Air Fryer','Pressure Cooker / Instant Pot','Microwave','Oven / OTG','Blender / Mixer','Non-stick Cookware','Grill / Tandoor','None of these'];
+      holder.appendChild(el(`<div class="field"><label>Which cooking tools do you have at home? <span class="hint">(so recipes can suggest lower-oil methods where possible)</span></label>
+        <div class="chip-group">${toolOpts.map(c=>`<label class="chip ${a.cookingTools.includes(c)?'checked':''}"><input type="checkbox" data-path="assistance.cookingTools" data-multi="1" data-value="${c}" ${a.cookingTools.includes(c)?'checked':''}>${c}</label>`).join('')}</div></div>`));
+      bindGenericInputs(holder);
+      holder.querySelectorAll('.chip').forEach(chip=> chip.addEventListener('click', ()=> setTimeout(()=>{ chip.classList.toggle('checked', chip.querySelector('input').checked); },0)));
+    }
+  }
+  renderOtherQ();
+  renderProteinQ();
+  bindGenericInputs(sheet);
+  body.querySelector('[data-path="assistance.wantsDiet"]').addEventListener('change', ()=> setTimeout(renderProteinQ,0));
+  body.querySelector('[data-path="assistance.wantsOther"]').addEventListener('change', ()=> setTimeout(renderOtherQ,0));
+  navButtons(sheet, {nextLabel:'Continue to Plan'});
+  return sheet;
+}
+
+/* =========================================================
+   STEP: YOUR PLAN
+========================================================= */
+async function generatePlan(){
+  const p = currentProfile;
+  const findingsText = (p.analysis.addressIssues && p.analysis.findings) ? JSON.stringify(p.analysis.findings) : 'none flagged / not requested';
+  const auto = computeAutoComposition(p);
+  const compLog = await getCompositionLog(p.id);
+  const latestComp = compLog.length ? compLog[compLog.length-1] : null;
+  const focusAreas = computeFocusAreas(auto, latestComp);
+  const promptObj = {
+    basic:p.basic, measurements:p.measurements, foodPrefs:p.foodPrefs,
+    medicalConditions:p.medical.conditions, kneePain:p.medical.kneePain, backPain:p.medical.backPain,
+    goals:p.goals, wantsDiet:p.assistance.wantsDiet, wantsWorkout:p.assistance.wantsWorkout,
+    proteinPowder:p.assistance.proteinPowder, cookingTools:p.assistance.cookingTools, addressFindings:p.analysis.addressIssues, findings:findingsText,
+    bodyComposition:auto, bodyCompositionFocusAreas: focusAreas.map(a=>`${a.label} is ${a.status} — prioritize ${a.focus}`)
+  };
+  const text = `Create a personalized health plan from this profile JSON: ${JSON.stringify(promptObj)}.
+Return ONLY JSON with this schema:
+{"calorieTarget":0,"proteinG":0,"carbsG":0,"fatG":0,
+"dietPlan":[{"day":"Pattern A","meals":[{"name":"Breakfast","items":"short phrase","approxCalories":0}]}],
+"workoutPlan":[{"day":"Day 1 - Focus","exercises":[{"name":"","setsReps":""}]}],
+"guidance":"2-3 short sentences of practical guidance",
+"medicalNote":"empty string if no medical-severity findings, else a short caution to see a doctor"}
+Rules: Respect the diet type and dislikes/allergies strictly. If proteinPowder is "Yes", include it naturally in one meal slot. Only include dietPlan if wantsDiet is true; only include workoutPlan if wantsWorkout is true. Keep it compact: 3 sample day-patterns for diet, 5 days for workout if requested. Short phrases, not full sentences. Adapt around knee/back pain if reported. If bodyCompositionFocusAreas is non-empty, weight the workout split and diet macros toward those specific areas and briefly say why in "guidance". Where cookingTools includes things like an air fryer, favor meal items that could be made with less oil using that tool (this will be elaborated later in individual recipes, so just keep items compatible). Stay under 700 words total.`;
+  const result = await claudeJSON([{type:'text', text}], 'You are a knowledgeable, practical diet and fitness coach who writes concise, usable plans and never prescribes medication.');
+  p.plan = {...p.plan, ...result, generatedAt:new Date().toISOString()};
+  await saveProfile();
+  return result;
+}
+function stepPlan(){
+  const p = currentProfile;
+  const sheet = sheetOpen('Your Plan','Generated from everything in your record — including your body composition focus areas.');
+  const area = el('<div></div>');
+  sheet.appendChild(area);
+  renderPlanArea(area);
+  navButtons(sheet, {nextLabel:'Go to Tracking'});
+  return sheet;
+}
+function renderPlanArea(area){
+  const p = currentProfile;
+  area.innerHTML='';
+  if(!p.assistance.wantsDiet && !p.assistance.wantsWorkout){
+    area.appendChild(el(`<div class="snapshot-empty">You didn't select diet or workout help on the previous step. Go back if you'd like a plan generated.</div>`));
+    return;
+  }
+  if(!p.plan.dietPlan && !p.plan.workoutPlan){
+    const btn = el(`<button class="btn btn-primary">Generate my plan</button>`);
+    btn.onclick = async ()=>{
+      btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Building your plan…';
+      try{ await generatePlan(); renderPlanArea(area); const s=document.querySelector('.snapshot'); if(s) s.replaceWith(renderSnapshot()); }
+      catch(err){ area.appendChild(el(`<div class="err-box">Couldn't generate the plan (${err.message}). Please try again.</div>`)); btn.disabled=false; btn.textContent='Try again'; }
+    };
+    area.appendChild(btn);
+    return;
+  }
+  renderPlanDisplay(area, p.plan);
+  const regen = el(`<button class="btn btn-ghost btn-sm" style="margin-top:14px;">Regenerate plan</button>`);
+  regen.onclick = async ()=>{ p.plan.dietPlan=null; p.plan.workoutPlan=null; await saveProfile(); renderPlanArea(area); };
+  area.appendChild(regen);
+}
+function renderPlanDisplay(area, plan){
+  if(plan.medicalNote) area.appendChild(el(`<div class="callout">${plan.medicalNote}</div>`));
+  area.appendChild(el(`<div class="macro-row">
+    <div class="macro-chip"><div class="mv">${plan.calorieTarget||'—'}</div><div class="mk">kcal / day</div></div>
+    <div class="macro-chip"><div class="mv">${plan.proteinG||'—'}g</div><div class="mk">protein</div></div>
+    <div class="macro-chip"><div class="mv">${plan.carbsG||'—'}g</div><div class="mk">carbs</div></div>
+    <div class="macro-chip"><div class="mv">${plan.fatG||'—'}g</div><div class="mk">fat</div></div>
+  </div>`));
+  if(plan.guidance) area.appendChild(el(`<div class="quote-block">${plan.guidance}</div>`));
+  if(plan.dietPlan&&plan.dietPlan.length){
+    area.appendChild(el('<h4 style="font-family:var(--display);margin:16px 0 8px;">Diet — sample day patterns</h4>'));
+    plan.dietPlan.forEach(d=>{
+      const card = el(`<div class="day-card"><h5>${d.day}</h5></div>`);
+      (d.meals||[]).forEach(m=>{
+        const row = el(`<div class="meal-line-row"><span><b>${m.name}</b> — ${m.items} ${m.approxCalories?('<span style="color:var(--ink-faint);">('+m.approxCalories+' kcal)</span>'):''}</span></div>`);
+        const btn = el(`<button class="line-btn">Recipe</button>`);
+        btn.onclick = ()=> showRecipe(d.day, m);
+        row.appendChild(btn);
+        card.appendChild(row);
+      });
+      area.appendChild(card);
+    });
+  }
+  if(plan.workoutPlan&&plan.workoutPlan.length){
+    area.appendChild(el('<h4 style="font-family:var(--display);margin:16px 0 8px;">Workout split</h4>'));
+    plan.workoutPlan.forEach(d=>{
+      const card = el(`<div class="day-card"><h5>${d.day}</h5></div>`);
+      (d.exercises||[]).forEach(x=>{
+        const row = el(`<div class="meal-line-row"><span><b>${x.name}</b>${x.setsReps?(' — '+x.setsReps):''}</span></div>`);
+        const btn = el(`<button class="line-btn">How to</button>`);
+        btn.onclick = ()=> showExerciseGuide(x.name);
+        row.appendChild(btn);
+        card.appendChild(row);
+      });
+      area.appendChild(card);
+    });
+  }
+}
+
+/* =========================================================
+   MODAL + RECIPES + EXERCISE GUIDES
+========================================================= */
+function closeModal(){ const o=document.getElementById('modalOverlay'); if(o) o.remove(); }
+function openModal(title){
+  closeModal();
+  const overlay = el(`<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div style="font-family:var(--display);font-weight:700;font-size:19px;margin-bottom:14px;padding-right:20px;">${title}</div>
+      <div id="modalBody"><div class="snapshot-empty">Loading…</div></div>
+    </div>
+  </div>`);
+  overlay.querySelector('#modalClose').onclick = closeModal;
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+  document.body.appendChild(overlay);
+  return overlay.querySelector('#modalBody');
+}
+
+async function getExerciseGuide(name){
+  const p = currentProfile;
+  if(!p.plan.exerciseGuides) p.plan.exerciseGuides={};
+  if(p.plan.exerciseGuides[name]) return p.plan.exerciseGuides[name];
+  const text = `Provide a clear how-to guide for the exercise "${name}" as part of a home/gym workout plan. Return ONLY JSON: {"description":"one sentence on what it targets","steps":["short step",...],"posture":["form cue",...],"cautions":["safety caution",...],"muscles":["muscle",...],"modification":"one easier beginner variation"}. Keep each list to at most 5 short, plain-language items.`;
+  const result = await claudeJSON([{type:'text', text}], 'You are a certified fitness coach who explains exercises safely and clearly for beginners.');
+  p.plan.exerciseGuides[name] = result;
+  await saveProfile();
+  return result;
+}
+async function showExerciseGuide(name){
+  const body = openModal(name);
+  try{
+    const g = await getExerciseGuide(name);
+    body.innerHTML='';
+    if(g.description) body.appendChild(el(`<div style="font-size:13.5px;color:var(--ink-soft);margin-bottom:6px;">${g.description}</div>`));
+    if(g.steps&&g.steps.length){ body.appendChild(el('<div class="guide-section-title">How to do it</div>')); const ol=el('<ol class="guide-list"></ol>'); g.steps.forEach(s=>ol.appendChild(el(`<li>${s}</li>`))); body.appendChild(ol); }
+    if(g.posture&&g.posture.length){ body.appendChild(el('<div class="guide-section-title">Posture &amp; form</div>')); const ul=el('<ul class="guide-list"></ul>'); g.posture.forEach(s=>ul.appendChild(el(`<li>${s}</li>`))); body.appendChild(ul); }
+    if(g.cautions&&g.cautions.length){ const c=el('<div class="callout"></div>'); c.innerHTML = '<b>Cautions</b><br>'+g.cautions.join('<br>'); body.appendChild(c); }
+    if(g.muscles&&g.muscles.length){ body.appendChild(el('<div class="guide-section-title">Muscles worked</div>')); const row=el('<div class="chip-row-sm"></div>'); g.muscles.forEach(m=>row.appendChild(el(`<span class="chip-sm">${m}</span>`))); body.appendChild(row); }
+    if(g.modification) body.appendChild(el(`<div class="quote-block" style="font-size:13px;">Easier variation: ${g.modification}</div>`));
+    const ytUrl = 'https://www.youtube.com/results?search_query='+encodeURIComponent(name+' proper form tutorial');
+    const link = el(`<a href="${ytUrl}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-block;text-decoration:none;">▶ Watch a video demo</a>`);
+    body.appendChild(link);
+  }catch(err){
+    body.innerHTML = `<div class="err-box">Couldn't load this guide (${err.message}). Close and try again.</div>`;
+  }
+}
+
+async function getRecipe(day, meal){
+  const p = currentProfile;
+  const key = day+'|'+meal.name+'|'+meal.items;
+  if(!p.plan.recipes) p.plan.recipes={};
+  if(p.plan.recipes[key]) return p.plan.recipes[key];
+  const tools = (p.assistance.cookingTools||[]).filter(t=>t!=='None of these');
+  const text = `Write a simple home recipe for this meal from a diet plan: "${meal.items}" (meal slot: ${meal.name}). Diet type: ${p.foodPrefs.dietType||'not specified'}. Avoid: ${p.foodPrefs.dislikes||'none noted'}. Allergies: ${p.foodPrefs.allergies||'none noted'}. Available cooking tools: ${tools.length?tools.join(', '):'standard stovetop only'}. Return ONLY JSON: {"title":"","servings":1,"prepTime":"","cookTime":"","ingredients":["quantity + item",...],"steps":["short step",...],"oilTip":"one specific tip to reduce oil using the available tools, or empty string if not applicable"}. Keep ingredients and steps concise, at most 8 items each.`;
+  const result = await claudeJSON([{type:'text', text}], 'You are a practical home cook who writes clear, achievable recipes and looks for ways to cut down oil using whatever tools the person has.');
+  p.plan.recipes[key] = result;
+  await saveProfile();
+  return result;
+}
+async function showRecipe(day, meal){
+  const body = openModal(meal.name+' — '+meal.items);
+  try{
+    const r = await getRecipe(day, meal);
+    body.innerHTML='';
+    body.appendChild(el(`<div class="recipe-meta">${r.servings?`<span>${r.servings} serving${r.servings>1?'s':''}</span>`:''}${r.prepTime?`<span>Prep: ${r.prepTime}</span>`:''}${r.cookTime?`<span>Cook: ${r.cookTime}</span>`:''}</div>`));
+    if(r.ingredients&&r.ingredients.length){ body.appendChild(el('<div class="guide-section-title">Ingredients</div>')); const ul=el('<ul class="guide-list"></ul>'); r.ingredients.forEach(i=>ul.appendChild(el(`<li>${i}</li>`))); body.appendChild(ul); }
+    if(r.steps&&r.steps.length){ body.appendChild(el('<div class="guide-section-title">Method</div>')); const ol=el('<ol class="guide-list"></ol>'); r.steps.forEach(s=>ol.appendChild(el(`<li>${s}</li>`))); body.appendChild(ol); }
+    if(r.oilTip) body.appendChild(el(`<div class="callout good"><b>Lower-oil tip:</b> ${r.oilTip}</div>`));
+  }catch(err){
+    body.innerHTML = `<div class="err-box">Couldn't load this recipe (${err.message}). Close and try again.</div>`;
+  }
+}
+
+/* =========================================================
+   STEP: TRACKING
+========================================================= */
+function targets(){
+  const p = currentProfile;
+  if(p.plan.calorieTarget) return {cal:p.plan.calorieTarget, protein:p.plan.proteinG||0, carbs:p.plan.carbsG||0, fat:p.plan.fatG||0};
+  const cal = estimateCalorieTarget(p); const w = parseFloat(p.basic.weightKg)||65;
+  return {cal, protein:Math.round(w*1.6), carbs:Math.round(cal*0.45/4), fat:Math.round(cal*0.25/9)};
+}
+function stepTrack(){
+  const sheet = sheetOpen('Tracking', 'Log meals by time of day, watch your macros, and see how you\'re tracking toward your goal.');
+  const tabs = el(`<div class="tabs">
+    <div class="tab ${dashboardTab==='today'?'active':''}" data-tab="today">Today</div>
+    <div class="tab ${dashboardTab==='weekly'?'active':''}" data-tab="weekly">Weekly</div>
+    <div class="tab ${dashboardTab==='monthly'?'active':''}" data-tab="monthly">Monthly</div>
+  </div>`);
+  tabs.querySelectorAll('.tab').forEach(t=> t.onclick=()=>{ dashboardTab=t.dataset.tab; render(); });
+  sheet.appendChild(tabs);
+  const body = el('<div id="dashBody"></div>');
+  sheet.appendChild(body);
+  if(dashboardTab==='today') renderToday(body);
+  else if(dashboardTab==='weekly') renderPeriod(body,7);
+  else renderPeriod(body,30);
+  const back = el(`<div class="btn-row" style="justify-content:flex-start;"><button class="btn btn-ghost" id="toPlanBtn">&larr; Back to Plan</button></div>`);
+  back.querySelector('#toPlanBtn').onclick = ()=>{ currentStep = STEP_META.findIndex(s=>s.key==='plan'); render(); };
+  sheet.appendChild(back);
+  return sheet;
+}
+async function renderToday(body){
+  body.innerHTML='<div class="snapshot-empty">Loading…</div>';
+  const p = currentProfile; const date = todayISO();
+  const meals = await getMealsForDate(p.id, date);
+  const t = targets();
+  let totals = {cal:0,protein:0,carbs:0,fat:0};
+  MEAL_SLOTS.forEach(s=> (meals[s.key]||[]).forEach(m=>{ totals.cal+=m.calories||0; totals.protein+=m.proteinG||0; totals.carbs+=m.carbsG||0; totals.fat+=m.fatG||0; }));
+
+  body.innerHTML='';
+  body.appendChild(el(`<div class="macro-summary">
+    <div class="item">Calories<b>${totals.cal} / ${t.cal}</b><div class="progress"><div class="progress-fill ${totals.cal>t.cal?'over':''}" style="width:${Math.min(100,totals.cal/t.cal*100)}%"></div></div></div>
+    <div class="item">Protein (g)<b>${totals.protein} / ${t.protein}</b><div class="progress"><div class="progress-fill ${totals.protein>t.protein?'over':''}" style="width:${Math.min(100,totals.protein/t.protein*100)}%"></div></div></div>
+    <div class="item">Carbs (g)<b>${totals.carbs} / ${t.carbs}</b><div class="progress"><div class="progress-fill ${totals.carbs>t.carbs?'over':''}" style="width:${Math.min(100,totals.carbs/t.carbs*100)}%"></div></div></div>
+    <div class="item">Fat (g)<b>${totals.fat} / ${t.fat}</b><div class="progress"><div class="progress-fill ${totals.fat>t.fat?'over':''}" style="width:${Math.min(100,totals.fat/t.fat*100)}%"></div></div></div>
+  </div>`));
+
+  MEAL_SLOTS.forEach(slot=>{
+    const entries = meals[slot.key]||[];
+    const card = el(`<div class="meal-slot" style="--slot-color:${slot.color}"><h5><span class="dot"></span>${slot.label}</h5></div>`);
+    entries.forEach((m,i)=>{
+      const line = el(`<div class="entry"><span>${m.text} <span style="color:var(--ink-faint);">(${m.calories} kcal · ${m.proteinG}p / ${m.carbsG}c / ${m.fatG}f)</span></span><button>✕</button></div>`);
+      line.querySelector('button').onclick = async ()=>{
+        const fresh = await getMealsForDate(p.id,date);
+        fresh[slot.key].splice(i,1);
+        await saveMealsForDate(p.id,date,fresh);
+        renderToday(document.getElementById('dashBody'));
+      };
+      card.appendChild(line);
+    });
+    const form = el(`<div class="slot-form"><textarea placeholder="What did you have?"></textarea><button>Add</button></div>`);
+    form.querySelector('button').onclick = async ()=>{
+      const ta = form.querySelector('textarea'); const text = ta.value.trim(); if(!text) return;
+      const btn = form.querySelector('button'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+      try{
+        const result = await claudeJSON([{type:'text', text:`Estimate the nutrition for this meal, considering it may be an Indian home-cooked or general meal: "${text}". Return JSON: {"calories":0,"proteinG":0,"carbsG":0,"fatG":0,"cholesterolMg":0}. Give your best reasonable numeric estimate.`}], 'You are a nutrition estimation assistant. Give concise, reasonable numeric estimates, not ranges.');
+        const fresh = await getMealsForDate(p.id,date);
+        if(!fresh[slot.key]) fresh[slot.key]=[];
+        fresh[slot.key].push({text, calories:result.calories||0, proteinG:result.proteinG||0, carbsG:result.carbsG||0, fatG:result.fatG||0, cholesterolMg:result.cholesterolMg||0});
+        await saveMealsForDate(p.id,date,fresh);
+        renderToday(document.getElementById('dashBody'));
+      }catch(err){
+        body.appendChild(el(`<div class="err-box">Couldn't estimate that (${err.message}).</div>`));
+        btn.disabled=false; btn.textContent='Add';
+      }
+    };
+    card.appendChild(form);
+    body.appendChild(card);
+  });
+
+  // weekly weigh-in widget
+  const wLog = await getWeightLog(p.id);
+  const last = wLog.length ? wLog[wLog.length-1] : null;
+  let canLog = true, nextDate = null;
+  if(last){
+    const nd = new Date(last.date); nd.setDate(nd.getDate()+7);
+    if(new Date(todayISO()) < nd){ canLog=false; nextDate = nd.toISOString().slice(0,10); }
+  }
+  const wrow = el(`<div class="weekly-weigh"></div>`);
+  if(canLog){
+    wrow.appendChild(el(`<div class="field"><label>Weekly weigh-in (kg)</label><input type="number" id="weightInput" value="${last?last.weightKg:(p.basic.weightKg||'')}"></div>`));
+    const btn = el(`<button class="btn btn-primary btn-sm">Log weight</button>`);
+    btn.onclick = async ()=>{
+      const val = parseFloat(wrow.querySelector('#weightInput').value); if(!val) return;
+      let list = await getWeightLog(p.id); list = list.filter(w=>w.date!==date); list.push({date,weightKg:val}); list.sort((a,b)=>a.date.localeCompare(b.date));
+      await saveWeightLog(p.id,list); p.basic.weightKg=String(val); await saveProfile();
+      const s=document.querySelector('.snapshot'); if(s) s.replaceWith(renderSnapshot());
+      renderToday(document.getElementById('dashBody'));
+    };
+    wrow.appendChild(btn);
+    wrow.appendChild(el(`<div class="info">We only ask for this weekly — day-to-day weight swings aren't meaningful.</div>`));
+  } else {
+    wrow.appendChild(el(`<div class="info">Weight logged on ${last.date} (${last.weightKg} kg). Next weigh-in available ${nextDate}.</div>`));
+  }
+  body.appendChild(wrow);
+}
+async function renderPeriod(body, days){
+  body.innerHTML = '<div class="snapshot-empty">Crunching the numbers…</div>';
+  const p = currentProfile; const t = targets();
+  const dates=[]; for(let i=days-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); dates.push(d.toISOString().slice(0,10)); }
+  const allMeals = await Promise.all(dates.map(d=>getMealsForDate(p.id,d)));
+  let totalCal=0,totalProtein=0,totalCarbs=0,totalFat=0,loggedDays=0;
+  allMeals.forEach(obj=>{
+    const entries = MEAL_SLOTS.flatMap(s=>obj[s.key]||[]);
+    if(entries.length){ loggedDays++; entries.forEach(m=>{ totalCal+=m.calories||0; totalProtein+=m.proteinG||0; totalCarbs+=m.carbsG||0; totalFat+=m.fatG||0; }); }
+  });
+  const n = Math.max(1,loggedDays);
+  const avgCal=Math.round(totalCal/n), avgProtein=Math.round(totalProtein/n), avgCarbs=Math.round(totalCarbs/n), avgFat=Math.round(totalFat/n);
+  const wLog = await getWeightLog(p.id);
+  const inRange = wLog.filter(w=>w.date>=dates[0]&&w.date<=dates[dates.length-1]);
+  let actualChange=null;
+  if(inRange.length>=2) actualChange = +(inRange[inRange.length-1].weightKg - inRange[0].weightKg).toFixed(1);
+  const expectedChange = loggedDays ? +(-((t.cal-avgCal)*loggedDays)/7700).toFixed(1) : null;
+
+  body.innerHTML='';
+  body.appendChild(el(`<div class="macro-summary">
+    <div class="item">Avg calories/day<b>${loggedDays?avgCal:'—'}</b><div class="hint">target ${t.cal}</div></div>
+    <div class="item">Avg protein/day<b>${loggedDays?avgProtein+'g':'—'}</b><div class="hint">target ${t.protein}g</div></div>
+    <div class="item">Avg carbs/day<b>${loggedDays?avgCarbs+'g':'—'}</b><div class="hint">target ${t.carbs}g</div></div>
+    <div class="item">Avg fat/day<b>${loggedDays?avgFat+'g':'—'}</b><div class="hint">target ${t.fat}g</div></div>
+  </div>`));
+  body.appendChild(el(`<div class="hint" style="margin-bottom:14px;">Based on ${loggedDays} logged day(s) out of the last ${days}.</div>`));
+  if(loggedDays===0){ body.appendChild(el(`<div class="snapshot-empty">No meals logged in this period yet.</div>`)); return; }
+
+  const deficiencies=[];
+  ['protein','carbs','fat'].forEach(k=>{
+    const avg={protein:avgProtein,carbs:avgCarbs,fat:avgFat}[k]; const tgt=t[k];
+    if(tgt>0){ const pct=Math.round((avg-tgt)/tgt*100); if(Math.abs(pct)>=15) deficiencies.push(`${k} is ${Math.abs(pct)}% ${pct>0?'over':'under'} target (avg ${avg}g vs ${tgt}g)`); }
+  });
+  if(deficiencies.length) body.appendChild(el(`<div class="callout">${deficiencies.join('<br>')}</div>`));
+
+  if(actualChange!==null && expectedChange!==null){
+    const diff = Math.abs(actualChange-expectedChange), onTrack = diff<=0.7;
+    body.appendChild(el(`<div class="recap-card"><h4>Weight reconciliation</h4>
+      <div class="recap-row"><span>Actual weight change</span><span>${actualChange>0?'+':''}${actualChange} kg</span></div>
+      <div class="recap-row"><span>Expected from logged intake</span><span>${expectedChange>0?'+':''}${expectedChange} kg</span></div></div>`));
+    if(onTrack) body.appendChild(el(`<div class="callout good">You're tracking in line with your plan. Keep it up.</div>`));
+    else{
+      body.appendChild(el(`<div class="callout">Your actual weight change doesn't quite line up with your logged intake. Consider regenerating your plan with fresh numbers.</div>`));
+      const regenBtn = el(`<button class="btn btn-primary btn-sm">Request an adjusted plan</button>`);
+      regenBtn.onclick = async ()=>{
+        regenBtn.disabled=true; regenBtn.innerHTML='<span class="spinner"></span>Adjusting…';
+        try{
+          const text = `The person's current plan: ${JSON.stringify(p.plan)}. Over the last ${days} days their average intake was ${avgCal} kcal/day (target was ${t.cal}), and their actual weight change was ${actualChange}kg vs an expected ${expectedChange}kg. Their goals: ${p.goals.targets.join(', ')||'not specified'}. Revise the plan to better fit reality. Return ONLY JSON with the same schema: {"calorieTarget":0,"proteinG":0,"carbsG":0,"fatG":0,"dietPlan":[...],"workoutPlan":[...],"guidance":"","medicalNote":""}. Keep it under 700 words.`;
+          const result = await claudeJSON([{type:'text', text}], 'You are a practical diet and fitness coach adjusting a plan based on real tracked results.');
+          p.plan = {...p.plan, ...result, generatedAt:new Date().toISOString()};
+          await saveProfile(); currentStep = STEP_META.findIndex(s=>s.key==='plan'); render();
+        }catch(err){ body.appendChild(el(`<div class="err-box">Couldn't adjust the plan (${err.message}).</div>`)); regenBtn.disabled=false; regenBtn.textContent='Request an adjusted plan'; }
+      };
+      body.appendChild(regenBtn);
+    }
+  } else {
+    body.appendChild(el(`<div class="hint">Log your weekly weigh-in on at least two occasions in this period to see a reconciliation against your goal.</div>`));
+  }
+  if(wLog.length>=2){ body.appendChild(el('<h4 style="font-family:var(--display);margin:18px 0 6px;">Weight trend</h4>')); body.appendChild(renderWeightChart(wLog)); }
+}
+function renderWeightChart(wLog){
+  const w=600,h=150,pad=24;
+  const vals=wLog.map(x=>x.weightKg); const min=Math.min(...vals)-1, max=Math.max(...vals)+1;
+  const pts = wLog.map((d,i)=>{ const x=pad+(i/(wLog.length-1||1))*(w-2*pad); const y=h-pad-((d.weightKg-min)/(max-min||1))*(h-2*pad); return [x,y]; });
+  const path = pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const circles = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#5B5FEF"/>`).join('');
+  return el(`<svg class="chart" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#E6E8F5"/>
+    <path d="${path}" fill="none" stroke="#5B5FEF" stroke-width="2.5"/>${circles}
+  </svg>`);
+}
+
+/* =========================================================
+   BOOT
+========================================================= */
+boot();
+</script>
+</body>
+</html>
