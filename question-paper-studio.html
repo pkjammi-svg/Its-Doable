@@ -160,7 +160,15 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .exam-nav-row .left-group,.exam-nav-row .right-group{display:flex;gap:8px;flex-wrap:wrap;}
 
 /* ---- Flashcard / study ---- */
-.flashcard{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:44px 32px;text-align:center;min-height:240px;display:flex;flex-direction:column;justify-content:center;gap:18px;}
+.study-layout{display:grid;grid-template-columns:1fr 170px;gap:18px;align-items:start;}
+@media (max-width:760px){.study-layout{grid-template-columns:1fr;} .study-side{order:-1;}}
+.study-side{position:sticky;top:20px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:16px;text-align:center;}
+.study-side .ss-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);font-weight:700;margin-bottom:8px;}
+.study-side .ss-value{font-family:var(--display);font-size:19px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+.study-side .ss-bar{background:var(--surface-2);border-radius:6px;height:8px;overflow:hidden;}
+.study-side .ss-bar-fill{height:100%;background:var(--teal);}
+.flashcard-stage{min-height:56vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.flashcard{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:44px 32px;text-align:center;min-height:240px;display:flex;flex-direction:column;justify-content:center;gap:18px;max-width:640px;width:100%;}
 .flashcard-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
 .flashcard-q{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.4;}
 .answer-pill{display:inline-block;background:var(--lime-soft);color:#3f5c0a;border:2px solid var(--lime);border-radius:14px;padding:14px 22px;font-weight:700;font-size:16px;margin:0 auto;}
@@ -215,8 +223,9 @@ let sets = [];         // [{id, name, createdAt, questionIds:[...]}]
 let leftover = [];     // [questionId...] not currently in any full set
 let results = [];      // exam attempt history (frozen snapshots)
 let known = {};         // {questionId: true|false} study-mode memorization tracking
+let wrongPool = {};     // {questionId: true} — questions currently answered wrong in mock exams
 
-let currentView = 'bank';          // bank | sets | study | exam | history
+let currentView = 'bank';          // bank | study | exam | history | wrong
 let bankSearch = '';
 let bankShown = 50;                // pagination for bank list
 
@@ -233,12 +242,18 @@ let studyOrder = [];
 let studyIndex = 0;
 let studyRevealed = false;
 
-let examSetup = { setId:null, timed:true, minutes:150, shuffleQ:true, shuffleOpt:true };
+let examSetup = { setId:null, timed:true, minutes:147 };
 let examState = null;              // active/submitted exam in-memory state
 let lastResultView = null;         // a result object being viewed (from history or fresh submit)
 
-const SET_SIZE_DEFAULT = 150;
-let setSizeInput = 150;
+let wrongLayout = 'flashcard';     // flashcard | list
+let wrongShuffleOn = true;
+let wrongOrder = [];
+let wrongIndex = 0;
+let wrongRevealed = false;
+
+const FIXED_SET_COUNT = 8;
+const FIXED_SET_SIZE = 147;
 
 const OPTION_LETTERS = 'ABCDEFGH'.split('');
 const BRAND_MARK_SVG = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4.5 4.5L19 7.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -268,10 +283,11 @@ async function loadJSON(key, fallback){
 }
 async function saveJSON(key, value){ await window.storage.set(key, JSON.stringify(value), false); }
 
-async function saveBank(){ await saveJSON('qp:bank', bank); }
+async function saveBank(){ await saveJSON('qp:bank', bank); await maybeAutoGenerateSets(); }
 async function saveSets(){ await saveJSON('qp:sets', sets); await saveJSON('qp:leftover', leftover); }
 async function saveResults(){ await saveJSON('qp:results', results); }
 async function saveKnown(){ await saveJSON('qp:known', known); }
+async function saveWrongPool(){ await saveJSON('qp:wrongPool', wrongPool); }
 
 /* =========================================================
    CLAUDE API (optional AI-assisted parsing)
@@ -354,17 +370,22 @@ function parseJSONText(text){
 
 /* =========================================================
    SET GENERATION
+   Fixed, automatic: exactly FIXED_SET_COUNT sets of FIXED_SET_SIZE
+   questions each, generated once (as soon as the bank has enough
+   questions) and never reshuffled afterward — "Set 1", "Set 2", etc.
+   always contain the same questions once created.
 ========================================================= */
-function generateSets(setSize){
+async function maybeAutoGenerateSets(){
+  if(sets.length>0) return;                                   // already generated — permanent
+  if(bank.length < FIXED_SET_COUNT*FIXED_SET_SIZE) return;     // not enough questions yet
   const ids = shuffle(bank.map(q=>q.id));
   const newSets = [];
-  let idx = 0;
-  while(ids.length-idx >= setSize){
-    newSets.push({ id:uid(), name:'Set '+(newSets.length+1), createdAt:new Date().toISOString(), questionIds: ids.slice(idx, idx+setSize) });
-    idx += setSize;
+  for(let i=0;i<FIXED_SET_COUNT;i++){
+    newSets.push({ id:uid(), name:'Set '+(i+1), createdAt:new Date().toISOString(), questionIds: ids.slice(i*FIXED_SET_SIZE, (i+1)*FIXED_SET_SIZE) });
   }
-  const newLeftover = ids.slice(idx);
-  return {newSets, newLeftover};
+  sets = newSets;
+  leftover = ids.slice(FIXED_SET_COUNT*FIXED_SET_SIZE);
+  await saveSets();
 }
 function bankById(id){ return bank.find(q=>q.id===id); }
 function availableQuestionsForSet(set){ return set.questionIds.map(bankById).filter(Boolean); }
@@ -378,6 +399,8 @@ async function boot(){
   leftover = await loadJSON('qp:leftover', []);
   results = await loadJSON('qp:results', []);
   known = await loadJSON('qp:known', {});
+  wrongPool = await loadJSON('qp:wrongPool', {});
+  await maybeAutoGenerateSets(); // safety net: covers a bank that already had ≥1,176 questions but no sets yet
   render();
 }
 function render(){
@@ -387,12 +410,24 @@ function render(){
   app.appendChild(renderNavTabs());
   const container = el('<div class="view-container"></div>');
   if(currentView==='bank') container.appendChild(renderBankView());
-  else if(currentView==='sets') container.appendChild(renderSetsView());
   else if(currentView==='study') container.appendChild(renderStudyView());
   else if(currentView==='exam') container.appendChild(renderExamView());
   else if(currentView==='history') container.appendChild(renderHistoryView());
+  else if(currentView==='wrong') container.appendChild(renderWrongView());
   app.appendChild(container);
+  adjustFlashcardStage();
 }
+// Sizes the flashcard stage to fill the viewport space actually left below the
+// masthead/tabs/controls, so the card lands in the middle of what the user can
+// see rather than being pushed down by everything rendered above it.
+function adjustFlashcardStage(){
+  const stage = document.querySelector('.flashcard-stage');
+  if(!stage) return;
+  const top = stage.getBoundingClientRect().top;
+  const avail = window.innerHeight - top - 24;
+  stage.style.minHeight = Math.max(280, avail) + 'px';
+}
+window.addEventListener('resize', adjustFlashcardStage);
 
 /* =========================================================
    MASTHEAD + NAV
@@ -406,7 +441,8 @@ function renderMasthead(){
 }
 function renderNavTabs(){
   const tabsMeta = [
-    ['bank','Question Bank'], ['sets','Paper Sets'], ['study','Study Mode'], ['exam','Mock Exam'], ['history','History']
+    ['bank','Question Bank'], ['study','Study Mode'], ['exam','Mock Exam'],
+    ['wrong','Wrong Questions'+(wrongPoolCount()?' ('+wrongPoolCount()+')':'')], ['history','History']
   ];
   const rail = el('<div class="tabs"></div>');
   tabsMeta.forEach(([key,label])=>{
@@ -427,7 +463,7 @@ function renderBankView(){
     wrap.appendChild(el(`<div class="sheet">
       <div class="sheet-eyebrow">Step 1</div>
       <div class="sheet-title">Build your question bank</div>
-      <div class="sheet-sub">Paste your questions with answers below, or add them one at a time. Once you have at least ${SET_SIZE_DEFAULT} questions, you can generate 150-question paper sets.</div>
+      <div class="sheet-sub">Paste your questions with answers below, or add them one at a time. Once you have at least ${FIXED_SET_COUNT*FIXED_SET_SIZE} questions, ${FIXED_SET_COUNT} fixed ${FIXED_SET_SIZE}-question paper sets are generated automatically.</div>
     </div>`));
   }
 
@@ -607,7 +643,7 @@ function renderBankListCard(){
   </div>`);
   toolRow.querySelector('#bankSearchInput').oninput = (e)=>{ bankSearch=e.target.value; bankShown=50; renderBankListInPlace(); };
   toolRow.querySelector('#exportBtn').onclick = ()=>{
-    download('exam-prep-backup-'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify({bank,sets,leftover,results,known,exportedAt:new Date().toISOString()}, null, 2));
+    download('exam-prep-backup-'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify({bank,sets,leftover,results,known,wrongPool,exportedAt:new Date().toISOString()}, null, 2));
   };
   toolRow.querySelector('#importBackupFile').onchange = (e)=>{
     const file = e.target.files[0]; if(!file) return;
@@ -616,8 +652,8 @@ function renderBankListCard(){
       try{
         const data = JSON.parse(reader.result);
         if(!confirm('This will replace all current data in this app with the backup file. Continue?')) return;
-        bank = data.bank||[]; sets = data.sets||[]; leftover = data.leftover||[]; results = data.results||[]; known = data.known||{};
-        await saveBank(); await saveSets(); await saveResults(); await saveKnown();
+        bank = data.bank||[]; sets = data.sets||[]; leftover = data.leftover||[]; results = data.results||[]; known = data.known||{}; wrongPool = data.wrongPool||{};
+        await saveBank(); await saveSets(); await saveResults(); await saveKnown(); await saveWrongPool();
         render();
       }catch(err){ alert('Could not read backup file: '+err.message); }
     };
@@ -626,8 +662,8 @@ function renderBankListCard(){
   toolRow.querySelector('#clearAllBtn').onclick = async ()=>{
     if(!confirm('This permanently deletes ALL questions, paper sets, and exam history from this app. Are you sure?')) return;
     if(!confirm('Really sure? This cannot be undone.')) return;
-    bank=[]; sets=[]; leftover=[]; results=[]; known={};
-    await saveBank(); await saveSets(); await saveResults(); await saveKnown();
+    bank=[]; sets=[]; leftover=[]; results=[]; known={}; wrongPool={};
+    await saveBank(); await saveSets(); await saveResults(); await saveKnown(); await saveWrongPool();
     render();
   };
   card.appendChild(toolRow);
@@ -764,76 +800,12 @@ function openQuestionModal(existing){
 }
 
 /* =========================================================
-   PAPER SETS VIEW
+   PAPER SETS
+   No manual generation UI — maybeAutoGenerateSets() (see SET
+   GENERATION above) creates the 8 fixed 147-question sets as soon as
+   the bank has enough questions, and they're picked from the Study
+   Mode scope dropdown and the Mock Exam set dropdown.
 ========================================================= */
-function renderSetsView(){
-  const wrap = el('<div></div>');
-  const card = el(`<div class="sheet">
-    <div class="sheet-eyebrow">Paper Sets</div>
-    <div class="sheet-title">Generate 150-question mock exam sets</div>
-    <div class="sheet-sub">Splits your question bank into non-overlapping sets so you never see the same question twice across sets until you've gone through the whole bank.</div>
-  </div>`);
-
-  const controlRow = el(`<div class="field-grid" style="align-items:end;margin-bottom:6px;">
-    <div class="field" style="margin-bottom:0;"><label>Questions per set</label><input type="number" id="setSizeInput" min="10" value="${setSizeInput}"></div>
-    <div class="field" style="margin-bottom:0;"><button class="btn btn-primary btn-block" id="genBtn">${sets.length? 'Regenerate all sets' : 'Generate sets'}</button></div>
-  </div>`);
-  controlRow.querySelector('#setSizeInput').oninput = (e)=>{ setSizeInput = parseInt(e.target.value,10)||SET_SIZE_DEFAULT; };
-  controlRow.querySelector('#genBtn').onclick = async ()=>{
-    const size = setSizeInput || SET_SIZE_DEFAULT;
-    if(bank.length < size){ alert(`You need at least ${size} questions in your bank to generate one full set. You currently have ${bank.length}.`); return; }
-    if(sets.length && !confirm('This replaces your current sets with a fresh shuffle of the whole bank. Past exam results stay intact either way. Continue?')) return;
-    const {newSets, newLeftover} = generateSets(size);
-    sets = newSets; leftover = newLeftover;
-    await saveSets();
-    render();
-  };
-  card.appendChild(controlRow);
-
-  if(bank.length>0 && bank.length < (setSizeInput||SET_SIZE_DEFAULT)){
-    card.appendChild(el(`<div class="info-box">You have ${bank.length} question(s) — add ${(setSizeInput||SET_SIZE_DEFAULT)-bank.length} more to generate your first full set.</div>`));
-  }
-  if(leftover.length>0){
-    card.appendChild(el(`<div class="info-box">${leftover.length} question(s) left over (not enough to fill another full set). They're still available to study — regenerate sets after adding more questions to fold them in.</div>`));
-  }
-  wrap.appendChild(card);
-
-  if(sets.length){
-    const listCard = el('<div class="sheet" style="margin-top:18px;"><div class="sheet-eyebrow">Your sets</div><div class="sheet-title">'+sets.length+' set(s)</div></div>');
-    sets.forEach(s=>{
-      const avail = availableQuestionsForSet(s).length;
-      const attemptCount = results.filter(r=>r.setId===s.id).length;
-      const row = el(`<div class="set-card">
-        <div class="set-info">
-          <input class="set-name-input" value="${esc(s.name)}">
-          <div class="set-meta">${avail}/${s.questionIds.length} questions available${attemptCount?' · '+attemptCount+' attempt(s)':''}</div>
-        </div>
-        <div class="set-actions"></div>
-      </div>`);
-      row.querySelector('.set-name-input').onchange = async (e)=>{ s.name=e.target.value.trim()||s.name; await saveSets(); };
-      const actions = row.querySelector('.set-actions');
-      const studyBtn = el('<button class="btn btn-ghost btn-sm">📖 Study</button>');
-      studyBtn.onclick = ()=>{ studyScope=s.id; studyIndex=0; studyRevealed=false; studyOrder=[]; currentView='study'; render(); };
-      const examBtn = el('<button class="btn btn-teal btn-sm">📝 Mock exam</button>');
-      examBtn.onclick = ()=>{ examSetup.setId=s.id; examSetup.minutes = s.questionIds.length; examState=null; currentView='exam'; render(); };
-      const printBtn = el('<button class="btn btn-ghost btn-sm">🖨 Print paper</button>');
-      printBtn.onclick = ()=> printSet(s);
-      const delBtn = el('<button class="btn btn-ghost btn-sm" style="color:var(--red);">Delete</button>');
-      delBtn.onclick = async ()=>{
-        if(!confirm('Delete "'+s.name+'"? Past exam results based on this set stay in your history.')) return;
-        sets = sets.filter(x=>x.id!==s.id);
-        await saveSets(); render();
-      };
-      actions.appendChild(studyBtn); actions.appendChild(examBtn); actions.appendChild(printBtn); actions.appendChild(delBtn);
-      listCard.appendChild(row);
-    });
-    wrap.appendChild(listCard);
-  }else{
-    wrap.appendChild(el('<div class="empty-state"><div class="big">🗂️</div>No paper sets yet. Generate your first set above.</div>'));
-  }
-  return wrap;
-}
-
 function printSet(set){
   const qs = availableQuestionsForSet(set);
   const area = document.getElementById('printArea');
@@ -901,14 +873,16 @@ function renderStudyView(){
     return wrap;
   }
 
-  const progressCard = el(`<div class="sheet" style="margin-top:18px;padding-top:20px;padding-bottom:20px;">
-    <div class="q-progress">Known: ${knownCount} / ${totalInScope}</div>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${totalInScope?Math.round(knownCount/totalInScope*100):0}%"></div></div>
-  </div>`);
-  wrap.appendChild(progressCard);
-
-  if(studyLayout==='flashcard') wrap.appendChild(renderFlashcard());
-  else wrap.appendChild(renderStudyList());
+  const layout = el('<div class="study-layout"></div>');
+  const main = el('<div></div>');
+  main.appendChild(studyLayout==='flashcard' ? renderFlashcard() : renderStudyList());
+  layout.appendChild(main);
+  layout.appendChild(el(`<div class="study-side">
+    <div class="ss-label">Studied</div>
+    <div class="ss-value">${knownCount} / ${totalInScope}</div>
+    <div class="ss-bar"><div class="ss-bar-fill" style="width:${totalInScope?Math.round(knownCount/totalInScope*100):0}%"></div></div>
+  </div>`));
+  wrap.appendChild(layout);
 
   return wrap;
 }
@@ -916,8 +890,8 @@ function renderStudyView(){
 function renderFlashcard(){
   const qid = studyOrder[studyIndex];
   const q = bankById(qid);
-  const wrap = el('<div style="margin-top:18px;"></div>');
-  if(!q){ wrap.appendChild(el('<div class="empty-state">Question no longer exists.</div>')); return wrap; }
+  const stage = el('<div class="flashcard-stage"></div>');
+  if(!q){ stage.appendChild(el('<div class="empty-state">Question no longer exists.</div>')); return stage; }
   const correct = q.options.find(o=>o.id===q.correctOptionId);
   const card = el(`<div class="flashcard">
     <div class="flashcard-eyebrow">Card ${studyIndex+1} of ${studyOrder.length}${known[q.id]?' · ✅ known':''}</div>
@@ -925,7 +899,7 @@ function renderFlashcard(){
     ${studyRevealed ? `<div class="answer-pill">✓ ${esc(correct?correct.text:'')}</div>` : `<button class="btn btn-primary" id="revealBtn" style="margin:0 auto;">Show correct answer</button>`}
   </div>`);
   if(!studyRevealed) card.querySelector('#revealBtn').onclick = ()=>{ studyRevealed=true; render(); };
-  wrap.appendChild(card);
+  stage.appendChild(card);
 
   const nav = el('<div class="flashcard-controls"></div>');
   const prevBtn = el(`<button class="btn btn-ghost btn-sm" ${studyIndex===0?'disabled':''}>&larr; Prev</button>`);
@@ -935,7 +909,7 @@ function renderFlashcard(){
   nextBtn.onclick = ()=>{ studyIndex=Math.min(studyOrder.length-1,studyIndex+1); studyRevealed=false; render(); };
   shuffleBtn.onclick = ()=>{ buildStudyOrder(); render(); };
   nav.appendChild(prevBtn); nav.appendChild(shuffleBtn); nav.appendChild(nextBtn);
-  wrap.appendChild(nav);
+  stage.appendChild(nav);
 
   if(studyRevealed){
     const knowRow = el('<div class="know-row"></div>');
@@ -944,9 +918,9 @@ function renderFlashcard(){
     stillBtn.onclick = async ()=>{ known[q.id]=false; await saveKnown(); advanceFlashcard(); };
     gotBtn.onclick = async ()=>{ known[q.id]=true; await saveKnown(); advanceFlashcard(); };
     knowRow.appendChild(stillBtn); knowRow.appendChild(gotBtn);
-    wrap.appendChild(knowRow);
+    stage.appendChild(knowRow);
   }
-  return wrap;
+  return stage;
 }
 function advanceFlashcard(){
   if(studyOnlyLearning){ buildStudyOrder(); render(); return; }
@@ -991,6 +965,97 @@ function renderStudyList(){
 function renderStudyListRefresh(){ render(); }
 
 /* =========================================================
+   WRONG QUESTIONS
+   Auto-collected from Mock Exam attempts: a question lands here the
+   moment it's answered incorrectly, and drops out automatically the
+   next time it's answered correctly in a later attempt (see
+   submitExam()). One entry per unique question — no duplicates.
+========================================================= */
+function wrongPoolCount(){ return Object.keys(wrongPool).filter(id=>wrongPool[id]).length; }
+function wrongPoolQuestions(){ return Object.keys(wrongPool).filter(id=>wrongPool[id]).map(bankById).filter(Boolean); }
+function buildWrongOrder(){
+  let ids = wrongPoolQuestions().map(q=>q.id);
+  if(wrongShuffleOn) ids = shuffle(ids);
+  wrongOrder = ids;
+  wrongIndex = 0; wrongRevealed = false;
+}
+function wrongOrderStale(){
+  const currentIds = new Set(Object.keys(wrongPool).filter(id=>wrongPool[id]));
+  if(currentIds.size !== wrongOrder.length) return true;
+  return wrongOrder.some(id=>!currentIds.has(id));
+}
+
+function renderWrongView(){
+  const wrap = el('<div></div>');
+  const count = wrongPoolCount();
+  const card = el(`<div class="sheet">
+    <div class="sheet-eyebrow">Wrong Questions</div>
+    <div class="sheet-title">${count} question${count===1?'':'s'} to review</div>
+    <div class="sheet-sub">Automatically collected from Mock Exam attempts you got wrong, across all sets. Answer one correctly on a later attempt and it drops off this list by itself.</div>
+  </div>`);
+
+  if(count===0){
+    card.appendChild(el('<div class="empty-state"><div class="big">🎉</div>Nothing to review — you haven\'t missed any mock exam questions yet (or you\'ve cleared them all).</div>'));
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  const controlRow = el(`<div class="field-grid" style="align-items:end;">
+    <div class="field" style="margin-bottom:0;"><label>Layout</label><select id="wrongLayoutSel"><option value="flashcard" ${wrongLayout==='flashcard'?'selected':''}>Flashcard (one at a time)</option><option value="list" ${wrongLayout==='list'?'selected':''}>List (scan all)</option></select></div>
+    <div class="field" style="margin-bottom:0;"><label class="checkbox-row" style="margin-bottom:0;"><input type="checkbox" id="wrongShufToggle" ${wrongShuffleOn?'checked':''}> Shuffle order</label></div>
+  </div>`);
+  controlRow.querySelector('#wrongLayoutSel').onchange = (e)=>{ wrongLayout=e.target.value; render(); };
+  controlRow.querySelector('#wrongShufToggle').onchange = (e)=>{ wrongShuffleOn=e.target.checked; buildWrongOrder(); render(); };
+  card.appendChild(controlRow);
+  wrap.appendChild(card);
+
+  if(wrongOrderStale()) buildWrongOrder();
+
+  wrap.appendChild(wrongLayout==='flashcard' ? renderWrongFlashcard() : renderWrongList());
+  return wrap;
+}
+
+function renderWrongFlashcard(){
+  const qid = wrongOrder[wrongIndex];
+  const q = bankById(qid);
+  const stage = el('<div class="flashcard-stage"></div>');
+  if(!q){ stage.appendChild(el('<div class="empty-state">Question no longer exists.</div>')); return stage; }
+  const correct = q.options.find(o=>o.id===q.correctOptionId);
+  const card = el(`<div class="flashcard">
+    <div class="flashcard-eyebrow">Card ${wrongIndex+1} of ${wrongOrder.length}</div>
+    <div class="flashcard-q">${esc(q.question)}</div>
+    ${wrongRevealed ? `<div class="answer-pill">✓ ${esc(correct?correct.text:'')}</div>` : `<button class="btn btn-primary" id="wrongRevealBtn" style="margin:0 auto;">Show correct answer</button>`}
+  </div>`);
+  if(!wrongRevealed) card.querySelector('#wrongRevealBtn').onclick = ()=>{ wrongRevealed=true; render(); };
+  stage.appendChild(card);
+
+  const nav = el('<div class="flashcard-controls"></div>');
+  const prevBtn = el(`<button class="btn btn-ghost btn-sm" ${wrongIndex===0?'disabled':''}>&larr; Prev</button>`);
+  const nextBtn = el(`<button class="btn btn-ghost btn-sm" ${wrongIndex>=wrongOrder.length-1?'disabled':''}>Next &rarr;</button>`);
+  const shuffleBtn = el('<button class="btn btn-ghost btn-sm">🔀 Reshuffle</button>');
+  prevBtn.onclick = ()=>{ wrongIndex=Math.max(0,wrongIndex-1); wrongRevealed=false; render(); };
+  nextBtn.onclick = ()=>{ wrongIndex=Math.min(wrongOrder.length-1,wrongIndex+1); wrongRevealed=false; render(); };
+  shuffleBtn.onclick = ()=>{ buildWrongOrder(); render(); };
+  nav.appendChild(prevBtn); nav.appendChild(shuffleBtn); nav.appendChild(nextBtn);
+  stage.appendChild(nav);
+  return stage;
+}
+
+function renderWrongList(){
+  const wrap = el('<div style="margin-top:18px;"></div>');
+  wrongOrder.forEach(qid=>{
+    const q = bankById(qid);
+    if(!q) return;
+    const correct = q.options.find(o=>o.id===q.correctOptionId);
+    wrap.appendChild(el(`<div class="qa-list-item">
+      <div class="qa-q">${esc(q.question)}</div>
+      <div class="answer-pill" style="font-size:14px;padding:9px 16px;">✓ ${esc(correct?correct.text:'')}</div>
+    </div>`));
+  });
+  return wrap;
+}
+
+/* =========================================================
    MOCK EXAM VIEW
 ========================================================= */
 function renderExamView(){
@@ -1003,32 +1068,33 @@ function renderExamSetup(){
   const card = el(`<div class="sheet">
     <div class="sheet-eyebrow">Mock Exam</div>
     <div class="sheet-title">Set up your mock exam</div>
-    <div class="sheet-sub">Pick a paper set and start a timed (or untimed) run. Options are shuffled per attempt so you're tested on knowledge, not position.</div>
+    <div class="sheet-sub">Pick one of the ${FIXED_SET_COUNT} fixed ${FIXED_SET_SIZE}-question sets and start a timed (or untimed) run. Questions and options always appear in the same fixed order — no shuffling.</div>
   </div>`);
 
-  if(sets.length===0){ card.appendChild(el('<div class="empty-state"><div class="big">📝</div>Generate a paper set first, from the Paper Sets tab.</div>')); wrap.appendChild(card); return wrap; }
+  if(sets.length===0){ card.appendChild(el(`<div class="empty-state"><div class="big">📝</div>Paper sets appear automatically once your question bank has at least ${FIXED_SET_COUNT*FIXED_SET_SIZE} questions (currently ${bank.length}).</div>`)); wrap.appendChild(card); return wrap; }
 
   const setOpts = sets.map(s=>`<option value="${s.id}" ${examSetup.setId===s.id?'selected':''}>${esc(s.name)} (${availableQuestionsForSet(s).length} q)</option>`).join('');
   const form = el(`<div>
     <div class="field"><label>Paper set</label><select id="esSet"><option value="">Choose a set…</option>${setOpts}</select></div>
-    <div class="field-grid">
-      <div class="field"><label class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="esTimed" ${examSetup.timed?'checked':''}> Timed exam</label>
-        <input type="number" id="esMinutes" min="1" value="${examSetup.minutes}" ${examSetup.timed?'':'disabled'}> <span class="hint">minutes</span></div>
-      <div class="field">
-        <label class="checkbox-row"><input type="checkbox" id="esShufQ" ${examSetup.shuffleQ?'checked':''}> Shuffle question order</label>
-        <label class="checkbox-row"><input type="checkbox" id="esShufO" ${examSetup.shuffleOpt?'checked':''}> Shuffle option order</label>
-      </div>
+    <div class="field">
+      <label class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="esTimed" ${examSetup.timed?'checked':''}> Timed exam</label>
+      <input type="number" id="esMinutes" min="1" value="${examSetup.minutes}" ${examSetup.timed?'':'disabled'}> <span class="hint">minutes</span>
     </div>
-    <button class="btn btn-primary btn-block" id="esStart">Start exam</button>
+    <div class="btn-row" style="justify-content:flex-start;margin-top:20px;">
+      <button class="btn btn-primary" id="esStart">Start exam</button>
+      <button class="btn btn-ghost" id="esPrint" ${examSetup.setId?'':'disabled'}>🖨 Print this set</button>
+    </div>
   </div>`);
   form.querySelector('#esSet').onchange = (e)=>{ examSetup.setId=e.target.value||null; const s=sets.find(x=>x.id===examSetup.setId); if(s) examSetup.minutes = availableQuestionsForSet(s).length; render(); };
   form.querySelector('#esTimed').onchange = (e)=>{ examSetup.timed=e.target.checked; render(); };
   form.querySelector('#esMinutes').oninput = (e)=>{ examSetup.minutes=parseInt(e.target.value,10)||1; };
-  form.querySelector('#esShufQ').onchange = (e)=>{ examSetup.shuffleQ=e.target.checked; };
-  form.querySelector('#esShufO').onchange = (e)=>{ examSetup.shuffleOpt=e.target.checked; };
   form.querySelector('#esStart').onclick = ()=>{
     if(!examSetup.setId){ alert('Choose a paper set first.'); return; }
     startExam();
+  };
+  form.querySelector('#esPrint').onclick = ()=>{
+    const s = sets.find(x=>x.id===examSetup.setId);
+    if(s) printSet(s);
   };
   card.appendChild(form);
   wrap.appendChild(card);
@@ -1037,12 +1103,11 @@ function renderExamSetup(){
 
 function startExam(){
   const set = sets.find(s=>s.id===examSetup.setId);
-  let qs = availableQuestionsForSet(set);
-  if(examSetup.shuffleQ) qs = shuffle(qs);
+  const qs = availableQuestionsForSet(set); // fixed order — no shuffling
   const questions = qs.map(q=>({
     id: q.id,
     question: q.question,
-    options: examSetup.shuffleOpt ? shuffle(q.options) : q.options.slice(),
+    options: q.options.slice(), // fixed order — no shuffling
     correctOptionId: q.correctOptionId
   }));
   examState = {
@@ -1157,12 +1222,20 @@ async function submitExam(){
   const ex = examState;
   stopExamTimer();
   let correct=0;
+  let wrongPoolChanged = false;
   const detail = ex.questions.map(q=>{
     const selected = ex.answers[q.id]||null;
     const isCorrect = selected===q.correctOptionId;
     if(isCorrect) correct++;
-    return { question:q.question, options:q.options, correctOptionId:q.correctOptionId, selectedOptionId:selected };
+    // Wrong Questions pool: drop it on a correct answer, add it on a wrong one.
+    // Unattempted questions are left untouched (they weren't "answered incorrectly").
+    if(selected){
+      if(isCorrect){ if(wrongPool[q.id]){ delete wrongPool[q.id]; wrongPoolChanged=true; } }
+      else{ if(!wrongPool[q.id]){ wrongPool[q.id]=true; wrongPoolChanged=true; } }
+    }
+    return { id:q.id, question:q.question, options:q.options, correctOptionId:q.correctOptionId, selectedOptionId:selected };
   });
+  if(wrongPoolChanged) await saveWrongPool();
   const total = ex.questions.length;
   const unattempted = total - Object.keys(ex.answers).length;
   const result = {
