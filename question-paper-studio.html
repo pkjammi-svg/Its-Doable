@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>It's Doable — Exam Prep Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#F6F7FC;
+  --surface:#FFFFFF;
+  --surface-2:#F0F1FA;
+  --ink:#1A1D2E;
+  --ink-soft:#666B85;
+  --ink-faint:#9BA0BC;
+  --line:#E6E8F5;
+
+  --primary:#5B5FEF;
+  --primary-dark:#4438CA;
+  --primary-soft:#EDEDFC;
+
+  --teal:#0EA5A0;
+  --teal-soft:#E1F7F5;
+  --coral:#FF7A59;
+  --coral-soft:#FFEDE6;
+  --violet:#8B5CF6;
+  --violet-soft:#F1EBFE;
+  --amber:#F0A020;
+  --amber-soft:#FFF3DC;
+  --red:#EF4444;
+  --red-soft:#FDE8E8;
+  --lime:#65A30D;
+  --lime-soft:#EEF6DD;
+  --sky:#3B82F6;
+  --sky-soft:#E7F0FE;
+
+  --radius:16px;
+  --radius-sm:10px;
+  --display:'Space Grotesk',sans-serif;
+  --sans:'Inter',sans-serif;
+  --shadow:0 2px 14px rgba(30,30,70,0.07);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:var(--sans);}
+::selection{background:var(--primary-soft);}
+
+.app-shell{max-width:1180px;margin:0 auto;padding:22px 20px 60px;}
+
+/* ---- Masthead ---- */
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:11px;}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--violet));display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 3px 10px rgba(91,95,239,0.35);}
+.brand-name{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-0.01em;}
+.brand-tagline{font-size:11.5px;color:var(--ink-faint);font-weight:500;letter-spacing:.01em;margin-top:-1px;}
+.stats-chip{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:9px 18px;box-shadow:var(--shadow);font-size:12.5px;color:var(--ink-soft);font-weight:600;}
+.stats-chip b{color:var(--ink);}
+
+/* ---- Buttons ---- */
+.btn{border:none;background:var(--ink);color:#fff;padding:11px 22px;border-radius:999px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow);cursor:pointer;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--violet));}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:none;}
+.btn-danger{background:var(--red);}
+.btn-teal{background:var(--teal);}
+.btn-sm{padding:7px 14px;font-size:12.5px;}
+.btn-block{width:100%;}
+
+/* ---- Tabs ---- */
+.tabs{display:flex;gap:6px;margin-bottom:20px;background:var(--surface-2);border-radius:999px;padding:4px;width:fit-content;flex-wrap:wrap;}
+.tab{padding:8px 16px;font-size:13px;color:var(--ink-soft);border-radius:999px;cursor:pointer;font-weight:600;white-space:nowrap;}
+.tab.active{color:#fff;background:var(--primary);}
+
+/* ---- Sheet / cards ---- */
+.sheet{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:28px 30px;min-height:300px;border-top:5px solid var(--primary);}
+.sheet-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:6px;}
+.sheet-title{font-family:var(--display);font-size:24px;font-weight:700;margin-bottom:4px;}
+.sheet-sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:20px;}
+.sheet hr.rule{border:none;border-top:1px solid var(--line);margin:20px 0;}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+.field input[type=text],.field input[type=email],.field input[type=password],.field input[type=number],.field input[type=date],.field select,.field textarea{
+  width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);font-size:14px;color:var(--ink);
+}
+.field textarea{font-family:var(--sans);min-height:70px;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary);}
+.field .hint{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
+.err-box{border:1px solid var(--red);background:var(--red-soft);color:#a12727;padding:10px 12px;border-radius:var(--radius-sm);font-size:12.5px;margin:12px 0;}
+.ok-box{border:1px solid var(--lime);background:var(--lime-soft);color:#3f5c0a;padding:10px 12px;border-radius:var(--radius-sm);font-size:12.5px;margin:12px 0;}
+.info-box{border:1px solid var(--sky);background:var(--sky-soft);color:#1d4c8f;padding:10px 12px;border-radius:var(--radius-sm);font-size:12.5px;margin:12px 0;}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;}
+@media (max-width:560px){.field-grid{grid-template-columns:1fr;}}
+.checkbox-row{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;}
+.checkbox-row input{width:16px;height:16px;}
+
+table.log-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;}
+table.log-table th{text-align:left;font-size:10.5px;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--line);padding:6px 4px;}
+table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+@media (max-width:700px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-tile{background:var(--bg);border-radius:14px;padding:14px;text-align:center;}
+.stat-tile .tv{font-family:var(--display);font-size:22px;font-weight:800;}
+.stat-tile .tl{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
+/* ---- Modal ---- */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,22,40,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.modal-box{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;padding:28px 28px 26px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.25);}
+.modal-box.wide{max-width:760px;}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--surface-2);border:none;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;color:var(--ink-soft);}
+.modal-close:hover{background:var(--red-soft);color:var(--red);}
+.modal-title{font-family:var(--display);font-weight:700;font-size:19px;margin-bottom:16px;padding-right:24px;}
+
+/* ---- Set cards ---- */
+.set-card{background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.set-card .set-info{display:flex;flex-direction:column;gap:4px;}
+.set-name{font-family:var(--display);font-weight:700;font-size:16px;}
+.set-meta{font-size:12px;color:var(--ink-soft);}
+.set-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.set-name-input{font-family:var(--display);font-weight:700;font-size:16px;border:none;border-bottom:1.5px dashed var(--line);background:transparent;padding:2px 0;width:180px;}
+.set-name-input:focus{outline:none;border-color:var(--primary);}
+
+/* ---- Question option / exam UI ---- */
+.option-btn{display:flex;align-items:center;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:10px;background:var(--bg);cursor:pointer;font-size:14px;color:var(--ink);}
+.option-btn:hover{border-color:var(--primary);}
+.option-btn.selected{border-color:var(--primary);background:var(--primary-soft);font-weight:600;}
+.option-btn.correct{border-color:var(--lime);background:var(--lime-soft);}
+.option-btn.incorrect{border-color:var(--red);background:var(--red-soft);}
+.option-letter{display:inline-flex;flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--surface-2);align-items:center;justify-content:center;font-weight:700;font-size:12px;margin-right:12px;}
+.option-btn.selected .option-letter{background:var(--primary);color:#fff;}
+.option-btn.correct .option-letter{background:var(--lime);color:#fff;}
+.option-btn.incorrect .option-letter{background:var(--red);color:#fff;}
+.option-tag{margin-left:auto;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 9px;border-radius:999px;flex:0 0 auto;}
+.option-tag.yours{background:var(--primary);color:#fff;}
+.option-tag.correct{background:var(--lime);color:#fff;}
+
+.exam-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.timer-chip{background:var(--coral-soft);color:var(--coral);font-weight:700;padding:9px 18px;border-radius:999px;font-family:var(--display);font-size:15px;}
+.timer-chip.low{background:var(--red-soft);color:var(--red);}
+.exam-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;}
+@media (max-width:880px){.exam-layout{grid-template-columns:1fr;} .palette-panel{order:2;}}
+.palette-panel{position:sticky;top:20px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:16px;}
+.palette-title{font-family:var(--display);font-weight:700;font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
+.palette-legend{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--ink-soft);margin-bottom:12px;}
+.palette-legend span{display:inline-flex;align-items:center;gap:6px;}
+.palette-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;max-height:360px;overflow-y:auto;}
+.palette-btn{width:34px;height:34px;border-radius:8px;border:none;font-size:11.5px;font-weight:700;cursor:pointer;background:var(--surface-2);color:var(--ink-soft);}
+.palette-btn.visited{background:var(--amber-soft);color:var(--amber);}
+.palette-btn.answered{background:var(--teal);color:#fff;}
+.palette-btn.marked{background:var(--violet);color:#fff;}
+.palette-btn.current{outline:3px solid var(--primary);outline-offset:1px;}
+.q-progress{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:4px;}
+.q-text{font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:20px;line-height:1.45;}
+.exam-nav-row{display:flex;justify-content:space-between;margin-top:22px;gap:8px;flex-wrap:wrap;}
+.exam-nav-row .left-group,.exam-nav-row .right-group{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ---- Flashcard / study ---- */
+.flashcard{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:44px 32px;text-align:center;min-height:240px;display:flex;flex-direction:column;justify-content:center;gap:18px;}
+.flashcard-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
+.flashcard-q{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.4;}
+.answer-pill{display:inline-block;background:var(--lime-soft);color:#3f5c0a;border:2px solid var(--lime);border-radius:14px;padding:14px 22px;font-weight:700;font-size:16px;margin:0 auto;}
+.flashcard-controls{display:flex;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.know-row{display:flex;justify-content:center;gap:10px;margin-top:6px;}
+.progress-bar-wrap{background:var(--surface-2);border-radius:6px;height:8px;overflow:hidden;margin-bottom:16px;}
+.progress-bar-fill{height:100%;background:var(--teal);}
+.qa-list-item{background:var(--surface);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
+.qa-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.qa-know-btns{display:flex;gap:6px;margin-top:10px;}
+
+/* ---- Import preview ---- */
+.import-row-ok{color:var(--ink);}
+.import-row-err{color:var(--red);}
+.tag-pill{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--lime-soft);color:#3f5c0a;}
+.tag-pill.err{background:var(--red-soft);color:var(--red);}
+.tag-pill.dup{background:var(--amber-soft);color:var(--amber);}
+
+/* ---- History ---- */
+.history-row{background:var(--surface);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;cursor:pointer;}
+.history-row:hover{border:1px solid var(--primary);}
+.score-badge{font-family:var(--display);font-weight:800;font-size:18px;padding:6px 14px;border-radius:999px;}
+.score-badge.good{background:var(--lime-soft);color:#3f5c0a;}
+.score-badge.mid{background:var(--amber-soft);color:#8a5a00;}
+.score-badge.bad{background:var(--red-soft);color:var(--red);}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--ink-faint);}
+.empty-state .big{font-size:40px;margin-bottom:10px;}
+
+#printArea{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  #printArea, #printArea *{visibility:visible;}
+  #printArea{display:block;position:absolute;left:0;top:0;width:100%;padding:10px;}
+  .print-q{margin-bottom:14px;page-break-inside:avoid;}
+  .print-q .pq-text{font-weight:600;margin-bottom:4px;}
+  .print-opt{margin-left:14px;font-size:13px;}
+  .print-answer{color:#2a6b00;font-weight:700;}
+}
+</style>
+</head>
+<body>
+<div class="app-shell" id="app"></div>
+<div id="printArea"></div>
+
+<script>
+/* =========================================================
+   STATE
+========================================================= */
+let bank = [];         // [{id, question, options:[{id,text}], correctOptionId, createdAt}]
+let sets = [];         // [{id, name, createdAt, questionIds:[...]}]
+let leftover = [];     // [questionId...] not currently in any full set
+let results = [];      // exam attempt history (frozen snapshots)
+let known = {};         // {questionId: true|false} study-mode memorization tracking
+
+let currentView = 'bank';          // bank | sets | study | exam | history
+let bankSearch = '';
+let bankShown = 50;                // pagination for bank list
+
+let importMode = 'pipe';           // pipe | json
+let importPreview = null;          // {results:[...]} from parse
+let aiParseBusy = false;
+let aiParseError = '';
+
+let studyScope = null;             // 'all' | 'leftover' | setId
+let studyLayout = 'flashcard';     // flashcard | list
+let studyShuffleOn = true;
+let studyOnlyLearning = false;
+let studyOrder = [];
+let studyIndex = 0;
+let studyRevealed = false;
+
+let examSetup = { setId:null, timed:true, minutes:150, shuffleQ:true, shuffleOpt:true };
+let examState = null;              // active/submitted exam in-memory state
+let lastResultView = null;         // a result object being viewed (from history or fresh submit)
+
+const SET_SIZE_DEFAULT = 150;
+let setSizeInput = 150;
+
+const OPTION_LETTERS = 'ABCDEFGH'.split('');
+const BRAND_MARK_SVG = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4.5 4.5L19 7.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* =========================================================
+   UTIL
+========================================================= */
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fmtTime(sec){ sec=Math.max(0,Math.round(sec)); const m=Math.floor(sec/60), s=sec%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleString(); }catch(e){ return iso; } }
+function normQ(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,' '); }
+function download(filename, text){
+  const blob = new Blob([text], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* =========================================================
+   STORAGE
+========================================================= */
+async function loadJSON(key, fallback){
+  try{ const r = await window.storage.get(key, false); return r ? JSON.parse(r.value) : fallback; }catch(e){ return fallback; }
+}
+async function saveJSON(key, value){ await window.storage.set(key, JSON.stringify(value), false); }
+
+async function saveBank(){ await saveJSON('qp:bank', bank); }
+async function saveSets(){ await saveJSON('qp:sets', sets); await saveJSON('qp:leftover', leftover); }
+async function saveResults(){ await saveJSON('qp:results', results); }
+async function saveKnown(){ await saveJSON('qp:known', known); }
+
+/* =========================================================
+   CLAUDE API (optional AI-assisted parsing)
+========================================================= */
+async function claudeCall(content, system){
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4096, system, messages:[{role:'user', content}] })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || 'AI request failed');
+  return (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+}
+async function claudeJSON(content, system){
+  const text = await claudeCall(content, system + ' Respond with ONLY valid JSON. No markdown fences, no preamble, no explanation.');
+  const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+  const start = cleaned.indexOf('['), end = cleaned.lastIndexOf(']');
+  return JSON.parse(start>=0&&end>=0 ? cleaned.slice(start,end+1) : cleaned);
+}
+
+/* =========================================================
+   QUESTION PARSING (bulk import)
+========================================================= */
+function resolveCorrectIndex(token, optionTexts){
+  const t = String(token==null?'':token).trim();
+  if(!t) return -1;
+  if(/^[A-Za-z]$/.test(t)){
+    const idx = t.toUpperCase().charCodeAt(0)-65;
+    if(idx>=0 && idx<optionTexts.length) return idx;
+  }
+  if(/^\d+$/.test(t)){
+    const idx = parseInt(t,10)-1;
+    if(idx>=0 && idx<optionTexts.length) return idx;
+  }
+  const lower = t.toLowerCase();
+  const idx = optionTexts.findIndex(o=>o.trim().toLowerCase()===lower);
+  return idx;
+}
+function parsePipeText(text){
+  const lines = text.split(/\r?\n/);
+  const results = [];
+  lines.forEach((raw,i)=>{
+    const line = raw.trim();
+    if(!line || line.startsWith('#')) return;
+    const parts = line.split('|').map(p=>p.trim());
+    if(parts.length<4){ results.push({ok:false, lineNo:i+1, raw:line, reason:'Need at least: Question | Option | Option | CorrectAnswer'}); return; }
+    const question = parts[0];
+    const correctToken = parts[parts.length-1];
+    const optionTexts = parts.slice(1, parts.length-1);
+    if(!question){ results.push({ok:false, lineNo:i+1, raw:line, reason:'Missing question text'}); return; }
+    if(optionTexts.some(o=>!o)){ results.push({ok:false, lineNo:i+1, raw:line, reason:'Empty option text'}); return; }
+    const idx = resolveCorrectIndex(correctToken, optionTexts);
+    if(idx<0){ results.push({ok:false, lineNo:i+1, raw:line, reason:'Correct answer "'+correctToken+'" doesn\'t match any option (use a letter, number, or exact option text)'}); return; }
+    const options = optionTexts.map(t=>({id:uid(), text:t}));
+    results.push({ok:true, q:{ id:uid(), question, options, correctOptionId:options[idx].id, createdAt:new Date().toISOString() }});
+  });
+  return results;
+}
+function parseJSONText(text){
+  let data;
+  try{ data = JSON.parse(text); }catch(e){ return {error:'Invalid JSON: '+e.message}; }
+  if(!Array.isArray(data)) return {error:'JSON must be an array of question objects.'};
+  const results = [];
+  data.forEach((item,i)=>{
+    const question = String(item.question||item.q||'').trim();
+    let optionTexts = item.options||item.choices||[];
+    if(!Array.isArray(optionTexts)) optionTexts=[];
+    optionTexts = optionTexts.map(o=>String(o).trim());
+    if(!question || optionTexts.length<2){ results.push({ok:false, lineNo:i+1, raw:JSON.stringify(item).slice(0,90), reason:'Missing question or fewer than 2 options'}); return; }
+    let idx = -1;
+    if(item.correctIndex!=null && Number.isInteger(item.correctIndex)) idx = item.correctIndex;
+    else if(item.correct!=null) idx = resolveCorrectIndex(item.correct, optionTexts);
+    else if(item.answer!=null) idx = resolveCorrectIndex(item.answer, optionTexts);
+    if(idx<0 || idx>=optionTexts.length){ results.push({ok:false, lineNo:i+1, raw:JSON.stringify(item).slice(0,90), reason:'Could not determine the correct option'}); return; }
+    const options = optionTexts.map(t=>({id:uid(), text:t}));
+    results.push({ok:true, q:{ id:uid(), question, options, correctOptionId:options[idx].id, createdAt:new Date().toISOString() }});
+  });
+  return {results};
+}
+
+/* =========================================================
+   SET GENERATION
+========================================================= */
+function generateSets(setSize){
+  const ids = shuffle(bank.map(q=>q.id));
+  const newSets = [];
+  let idx = 0;
+  while(ids.length-idx >= setSize){
+    newSets.push({ id:uid(), name:'Set '+(newSets.length+1), createdAt:new Date().toISOString(), questionIds: ids.slice(idx, idx+setSize) });
+    idx += setSize;
+  }
+  const newLeftover = ids.slice(idx);
+  return {newSets, newLeftover};
+}
+function bankById(id){ return bank.find(q=>q.id===id); }
+function availableQuestionsForSet(set){ return set.questionIds.map(bankById).filter(Boolean); }
+
+/* =========================================================
+   BOOT + ROOT RENDER
+========================================================= */
+async function boot(){
+  bank = await loadJSON('qp:bank', []);
+  sets = await loadJSON('qp:sets', []);
+  leftover = await loadJSON('qp:leftover', []);
+  results = await loadJSON('qp:results', []);
+  known = await loadJSON('qp:known', {});
+  render();
+}
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(renderMasthead());
+  app.appendChild(renderNavTabs());
+  const container = el('<div class="view-container"></div>');
+  if(currentView==='bank') container.appendChild(renderBankView());
+  else if(currentView==='sets') container.appendChild(renderSetsView());
+  else if(currentView==='study') container.appendChild(renderStudyView());
+  else if(currentView==='exam') container.appendChild(renderExamView());
+  else if(currentView==='history') container.appendChild(renderHistoryView());
+  app.appendChild(container);
+}
+
+/* =========================================================
+   MASTHEAD + NAV
+========================================================= */
+function renderMasthead(){
+  const h = el(`<div class="masthead">
+    <div class="brand"><div class="brand-mark">${BRAND_MARK_SVG}</div><div><div class="brand-name">It's Doable</div><div class="brand-tagline">Exam Prep Studio — build, memorize, mock-test.</div></div></div>
+    <div class="stats-chip"><span><b>${bank.length}</b> questions</span><span><b>${sets.length}</b> paper sets</span><span><b>${results.length}</b> attempts</span></div>
+  </div>`);
+  return h;
+}
+function renderNavTabs(){
+  const tabsMeta = [
+    ['bank','Question Bank'], ['sets','Paper Sets'], ['study','Study Mode'], ['exam','Mock Exam'], ['history','History']
+  ];
+  const rail = el('<div class="tabs"></div>');
+  tabsMeta.forEach(([key,label])=>{
+    const t = el(`<div class="tab ${currentView===key?'active':''}">${label}</div>`);
+    t.onclick = ()=>{ currentView=key; if(key==='exam'&&!examState) { /* keep setup */ } render(); };
+    rail.appendChild(t);
+  });
+  return rail;
+}
+
+/* =========================================================
+   QUESTION BANK VIEW
+========================================================= */
+function renderBankView(){
+  const wrap = el('<div></div>');
+
+  if(bank.length===0){
+    wrap.appendChild(el(`<div class="sheet">
+      <div class="sheet-eyebrow">Step 1</div>
+      <div class="sheet-title">Build your question bank</div>
+      <div class="sheet-sub">Paste your questions with answers below, or add them one at a time. Once you have at least ${SET_SIZE_DEFAULT} questions, you can generate 150-question paper sets.</div>
+    </div>`));
+  }
+
+  wrap.appendChild(renderImportCard());
+  wrap.appendChild(renderBankListCard());
+  return wrap;
+}
+
+function renderImportCard(){
+  const card = el(`<div class="sheet" style="margin-top:18px;">
+    <div class="sheet-eyebrow">Import</div>
+    <div class="sheet-title">Add questions</div>
+    <div class="sheet-sub">Bulk-paste in a simple pipe-delimited format, paste JSON, or add a single question manually.</div>
+  </div>`);
+
+  const modeRow = el(`<div class="tabs" style="margin-bottom:16px;">
+    <div class="tab ${importMode==='pipe'?'active':''}" data-m="pipe">Pipe-delimited</div>
+    <div class="tab ${importMode==='json'?'active':''}" data-m="json">JSON</div>
+  </div>`);
+  modeRow.querySelectorAll('.tab').forEach(t=> t.onclick=()=>{ importMode=t.dataset.m; importPreview=null; render(); });
+  card.appendChild(modeRow);
+
+  const helpText = importMode==='pipe'
+    ? 'One question per line: <code>Question | Option A | Option B | Option C | Option D | CorrectAnswer</code><br>The last field can be the correct letter (A/B/C…), option number (1,2,3…), or the exact option text. Lines starting with # are ignored.'
+    : 'Paste a JSON array, e.g. <code>[{"question":"2+2=?","options":["3","4","5"],"correct":"B"}]</code>. Accepts <code>correct</code> (letter/number/text) or <code>correctIndex</code> (0-based).';
+  card.appendChild(el(`<div class="hint" style="margin-bottom:10px;line-height:1.6;">${helpText}</div>`));
+
+  const ta = el(`<div class="field"><textarea id="importTa" placeholder="${importMode==='pipe' ? 'What is the capital of France? | Berlin | Madrid | Paris | Rome | Paris' : '[\\n  {"question":"...","options":["...","...","..."],"correct":"A"}\\n]'}" style="min-height:150px;font-family:monospace;font-size:13px;"></textarea></div>`);
+  card.appendChild(ta);
+
+  const btnRow = el('<div class="btn-row" style="justify-content:flex-start;margin-top:0;"></div>');
+  const exampleBtn = el('<button class="btn btn-ghost btn-sm">Load example</button>');
+  const parseBtn = el('<button class="btn btn-primary btn-sm">Parse &amp; preview</button>');
+  const aiBtn = el('<button class="btn btn-ghost btn-sm">✨ AI-assist: structure messy text</button>');
+  btnRow.appendChild(exampleBtn); btnRow.appendChild(parseBtn); btnRow.appendChild(aiBtn);
+  card.appendChild(btnRow);
+
+  exampleBtn.onclick = ()=>{
+    const textarea = card.querySelector('#importTa');
+    textarea.value = importMode==='pipe'
+      ? `# Example — edit or replace with your own questions\nWhat is the capital of France? | Berlin | Madrid | Paris | Rome | Paris\nWhich planet is known as the Red Planet? | Venus | Mars | Jupiter | Saturn | B\n2 + 2 * 2 = ? | 6 | 8 | 4 | 10 | 6`
+      : `[\n  {"question":"What is the capital of France?","options":["Berlin","Madrid","Paris","Rome"],"correct":"Paris"},\n  {"question":"Which planet is known as the Red Planet?","options":["Venus","Mars","Jupiter","Saturn"],"correct":"B"}\n]`;
+  };
+  parseBtn.onclick = ()=>{
+    const text = card.querySelector('#importTa').value;
+    doParse(text);
+  };
+  aiBtn.onclick = async ()=>{
+    const text = card.querySelector('#importTa').value.trim();
+    if(!text){ aiParseError='Paste some text first.'; render(); return; }
+    aiParseBusy = true; aiParseError=''; render();
+    try{
+      const data = await claudeJSON(
+        text,
+        'You convert arbitrary pasted study material (question banks, quiz text, exam papers, notes with Q&A) into a strict JSON array of multiple-choice questions. Each item must be {"question": string, "options": array of 2-6 strings, "correctIndex": 0-based integer index into options}. Infer the correct answer from context (marked answers, answer keys, bold/starred text, "Ans:" lines, etc). If a question has no explicit options, generate 3 plausible distractors alongside the correct answer. Skip anything that is not a question.'
+      );
+      importMode = 'json';
+      importPreview = null;
+      render();
+      const textarea2 = document.querySelector('#importTa');
+      if(textarea2) textarea2.value = JSON.stringify(data, null, 2);
+    }catch(e){
+      aiParseError = 'AI parsing failed: ' + e.message;
+    }
+    aiParseBusy = false;
+    render();
+  };
+  if(aiParseBusy) btnRow.appendChild(el('<span class="hint" style="margin-left:8px;">Parsing with AI…</span>'));
+  if(aiParseError) card.appendChild(el(`<div class="err-box">${esc(aiParseError)}</div>`));
+
+  card.appendChild(el('<hr class="rule">'));
+  const manualBtn = el('<button class="btn btn-ghost btn-sm">+ Add a single question manually</button>');
+  manualBtn.onclick = ()=> openQuestionModal(null);
+  card.appendChild(manualBtn);
+
+  if(importPreview) card.appendChild(renderImportPreview());
+
+  return card;
+}
+
+function doParse(text){
+  if(!text.trim()){ importPreview={results:[], error:'Nothing to parse — paste some text first.'}; render(); return; }
+  if(importMode==='pipe'){
+    importPreview = {results: parsePipeText(text)};
+  }else{
+    const r = parseJSONText(text);
+    importPreview = r.error ? {results:[], error:r.error} : {results:r.results};
+  }
+  render();
+}
+
+function renderImportPreview(){
+  const wrap = el('<div style="margin-top:18px;"></div>');
+  if(importPreview.error){ wrap.appendChild(el(`<div class="err-box">${esc(importPreview.error)}</div>`)); return wrap; }
+  const rows = importPreview.results;
+  const existing = new Set(bank.map(q=>normQ(q.question)));
+  const seenInBatch = new Set();
+  let okCount=0, errCount=0, dupCount=0;
+  rows.forEach(r=>{
+    if(!r.ok){ errCount++; return; }
+    const n = normQ(r.q.question);
+    if(existing.has(n) || seenInBatch.has(n)){ dupCount++; return; }
+    seenInBatch.add(n); okCount++;
+  });
+  wrap.appendChild(el(`<div class="info-box">Found ${rows.length} line(s): <b>${okCount}</b> ready to import, <b>${dupCount}</b> duplicate(s) skipped, <b>${errCount}</b> error(s).</div>`));
+
+  const table = el('<table class="log-table"><thead><tr><th>#</th><th>Question</th><th>Options</th><th>Status</th></tr></thead><tbody></tbody></table>');
+  const tbody = table.querySelector('tbody');
+  const seen2 = new Set();
+  rows.slice(0,300).forEach((r,i)=>{
+    if(!r.ok){
+      tbody.appendChild(el(`<tr><td>${i+1}</td><td class="import-row-err">${esc(r.raw)}</td><td>—</td><td><span class="tag-pill err">Error: ${esc(r.reason)}</span></td></tr>`));
+      return;
+    }
+    const n = normQ(r.q.question);
+    const isDup = existing.has(n) || seen2.has(n);
+    seen2.add(n);
+    const optsStr = r.q.options.map((o,oi)=>`${OPTION_LETTERS[oi]}) ${esc(o.text)}${o.id===r.q.correctOptionId?' ✓':''}`).join('<br>');
+    tbody.appendChild(el(`<tr><td>${i+1}</td><td>${esc(r.q.question)}</td><td style="font-size:11.5px;">${optsStr}</td><td>${isDup?'<span class="tag-pill dup">Duplicate</span>':'<span class="tag-pill">Ready</span>'}</td></tr>`));
+  });
+  const tableWrap = el('<div style="max-height:340px;overflow-y:auto;"></div>');
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
+
+  const btnRow = el('<div class="btn-row" style="justify-content:flex-start;"></div>');
+  const confirmBtn = el(`<button class="btn btn-primary btn-sm" ${okCount===0?'disabled':''}>Confirm import (${okCount})</button>`);
+  const cancelBtn = el('<button class="btn btn-ghost btn-sm">Discard</button>');
+  confirmBtn.onclick = async ()=>{
+    const existing2 = new Set(bank.map(q=>normQ(q.question)));
+    const seen3 = new Set();
+    rows.forEach(r=>{
+      if(!r.ok) return;
+      const n = normQ(r.q.question);
+      if(existing2.has(n) || seen3.has(n)) return;
+      seen3.add(n);
+      bank.push(r.q);
+    });
+    await saveBank();
+    importPreview = null;
+    render();
+  };
+  cancelBtn.onclick = ()=>{ importPreview=null; render(); };
+  btnRow.appendChild(confirmBtn); btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+  return wrap;
+}
+
+function renderBankListCard(){
+  const card = el(`<div class="sheet" style="margin-top:18px;">
+    <div class="sheet-eyebrow">Bank</div>
+    <div class="sheet-title">All questions (${bank.length})</div>
+  </div>`);
+
+  const toolRow = el(`<div class="field-grid" style="margin-bottom:14px;align-items:end;">
+    <div class="field" style="margin-bottom:0;"><label>Search</label><input type="text" id="bankSearchInput" value="${esc(bankSearch)}" placeholder="Filter by question text…"></div>
+    <div class="field" style="margin-bottom:0;display:flex;gap:8px;align-items:end;">
+      <button class="btn btn-ghost btn-sm" id="exportBtn">⬇ Export backup</button>
+      <label class="btn btn-ghost btn-sm" style="margin:0;">⬆ Import backup<input type="file" id="importBackupFile" accept="application/json" style="display:none;"></label>
+      <button class="btn btn-ghost btn-sm" id="clearAllBtn" style="color:var(--red);">Clear all data</button>
+    </div>
+  </div>`);
+  toolRow.querySelector('#bankSearchInput').oninput = (e)=>{ bankSearch=e.target.value; bankShown=50; renderBankListInPlace(); };
+  toolRow.querySelector('#exportBtn').onclick = ()=>{
+    download('exam-prep-backup-'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify({bank,sets,leftover,results,known,exportedAt:new Date().toISOString()}, null, 2));
+  };
+  toolRow.querySelector('#importBackupFile').onchange = (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        if(!confirm('This will replace all current data in this app with the backup file. Continue?')) return;
+        bank = data.bank||[]; sets = data.sets||[]; leftover = data.leftover||[]; results = data.results||[]; known = data.known||{};
+        await saveBank(); await saveSets(); await saveResults(); await saveKnown();
+        render();
+      }catch(err){ alert('Could not read backup file: '+err.message); }
+    };
+    reader.readAsText(file);
+  };
+  toolRow.querySelector('#clearAllBtn').onclick = async ()=>{
+    if(!confirm('This permanently deletes ALL questions, paper sets, and exam history from this app. Are you sure?')) return;
+    if(!confirm('Really sure? This cannot be undone.')) return;
+    bank=[]; sets=[]; leftover=[]; results=[]; known={};
+    await saveBank(); await saveSets(); await saveResults(); await saveKnown();
+    render();
+  };
+  card.appendChild(toolRow);
+
+  card.appendChild(el('<div id="bankListArea"></div>'));
+  fillBankListArea(card);
+  return card;
+}
+function renderBankListInPlace(){
+  const area = document.querySelector('#bankListArea');
+  if(!area) return;
+  area.innerHTML='';
+  fillBankListArea(document.querySelector('#bankListArea').closest('.sheet'));
+}
+function fillBankListArea(card){
+  const area = card.querySelector('#bankListArea');
+  const filtered = bankSearch ? bank.filter(q=>normQ(q.question).includes(normQ(bankSearch))) : bank;
+  if(filtered.length===0){
+    area.appendChild(el('<div class="empty-state"><div class="big">📭</div>No questions yet. Import some above to get started.</div>'));
+    return;
+  }
+  const slice = filtered.slice(0, bankShown);
+  const table = el('<table class="log-table"><thead><tr><th style="width:36px;">#</th><th>Question</th><th>Options</th><th style="width:90px;"></th></tr></thead><tbody></tbody></table>');
+  const tbody = table.querySelector('tbody');
+  slice.forEach((q,i)=>{
+    const optsStr = q.options.map((o,oi)=>`${OPTION_LETTERS[oi]}) ${esc(o.text)}${o.id===q.correctOptionId?' <b style="color:var(--lime)">✓</b>':''}`).join('<br>');
+    const row = el(`<tr><td>${i+1}</td><td>${esc(q.question)}</td><td style="font-size:11.5px;">${optsStr}</td><td></td></tr>`);
+    const actions = el('<div style="display:flex;gap:6px;"></div>');
+    const editBtn = el('<button class="btn btn-ghost btn-sm">Edit</button>');
+    const delBtn = el('<button class="btn btn-ghost btn-sm" style="color:var(--red);">Del</button>');
+    editBtn.onclick = ()=> openQuestionModal(q);
+    delBtn.onclick = async ()=>{
+      if(!confirm('Delete this question from the bank?')) return;
+      bank = bank.filter(x=>x.id!==q.id);
+      await saveBank();
+      render();
+    };
+    actions.appendChild(editBtn); actions.appendChild(delBtn);
+    row.lastElementChild.appendChild(actions);
+    tbody.appendChild(row);
+  });
+  area.appendChild(table);
+  if(filtered.length>bankShown){
+    const more = el(`<button class="btn btn-ghost btn-sm">Show more (${filtered.length-bankShown} remaining)</button>`);
+    more.onclick = ()=>{ bankShown+=50; renderBankListInPlace(); };
+    area.appendChild(more);
+  }
+}
+
+/* ---- Add/Edit question modal ---- */
+function openQuestionModal(existing){
+  const overlay = el('<div class="modal-overlay"></div>');
+  const box = el('<div class="modal-box"></div>');
+  overlay.appendChild(box);
+  overlay.onclick = (e)=>{ if(e.target===overlay) overlay.remove(); };
+  const closeBtn = el('<button class="modal-close">✕</button>');
+  closeBtn.onclick = ()=> overlay.remove();
+  box.appendChild(closeBtn);
+  box.appendChild(el(`<div class="modal-title">${existing?'Edit question':'Add question'}</div>`));
+
+  const qField = el(`<div class="field"><label>Question</label><textarea id="qmText" style="min-height:60px;">${existing?esc(existing.question):''}</textarea></div>`);
+  box.appendChild(qField);
+
+  const optsWrap = el('<div id="qmOpts"></div>');
+  box.appendChild(optsWrap);
+  let optionRows = existing ? existing.options.map(o=>({id:o.id, text:o.text, correct:o.id===existing.correctOptionId})) : [
+    {id:uid(), text:'', correct:true}, {id:uid(), text:'', correct:false}, {id:uid(), text:'', correct:false}, {id:uid(), text:'', correct:false}
+  ];
+
+  function renderOptRows(){
+    optsWrap.innerHTML='';
+    optionRows.forEach((o,i)=>{
+      const row = el(`<div class="field" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input type="radio" name="qmCorrect" ${o.correct?'checked':''} style="width:18px;height:18px;flex:0 0 auto;">
+        <span class="option-letter">${OPTION_LETTERS[i]}</span>
+        <input type="text" value="${esc(o.text)}" placeholder="Option text" style="flex:1;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;">
+        <button type="button" style="background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;" ${optionRows.length<=2?'disabled':''}>✕</button>
+      </div>`);
+      const radio = row.querySelector('input[type=radio]');
+      const text = row.querySelector('input[type=text]');
+      const del = row.querySelector('button');
+      radio.onchange = ()=>{ optionRows.forEach(x=>x.correct=false); o.correct=true; };
+      text.oninput = ()=>{ o.text=text.value; };
+      del.onclick = ()=>{ optionRows = optionRows.filter(x=>x.id!==o.id); if(!optionRows.some(x=>x.correct) && optionRows[0]) optionRows[0].correct=true; renderOptRows(); };
+      optsWrap.appendChild(row);
+    });
+  }
+  renderOptRows();
+
+  const addOptBtn = el('<button type="button" class="btn btn-ghost btn-sm" style="margin-bottom:16px;">+ Add option</button>');
+  addOptBtn.onclick = ()=>{ if(optionRows.length<8){ optionRows.push({id:uid(), text:'', correct:false}); renderOptRows(); } };
+  box.appendChild(addOptBtn);
+
+  const errBox = el('<div></div>');
+  box.appendChild(errBox);
+
+  const btnRow = el('<div class="btn-row"></div>');
+  const saveBtn = el(`<button class="btn btn-primary">${existing?'Save changes':'Add question'}</button>`);
+  const cancelBtn = el('<button class="btn btn-ghost">Cancel</button>');
+  btnRow.appendChild(cancelBtn); btnRow.appendChild(saveBtn);
+  if(existing){
+    const delBtn = el('<button class="btn btn-danger" style="margin-right:auto;">Delete</button>');
+    delBtn.onclick = async ()=>{
+      if(!confirm('Delete this question?')) return;
+      bank = bank.filter(x=>x.id!==existing.id);
+      await saveBank();
+      overlay.remove(); render();
+    };
+    btnRow.insertBefore(delBtn, btnRow.firstChild);
+  }
+  box.appendChild(btnRow);
+  cancelBtn.onclick = ()=> overlay.remove();
+
+  saveBtn.onclick = async ()=>{
+    const questionText = box.querySelector('#qmText').value.trim();
+    const cleanOpts = optionRows.filter(o=>o.text.trim());
+    errBox.innerHTML='';
+    if(!questionText){ errBox.appendChild(el('<div class="err-box">Question text is required.</div>')); return; }
+    if(cleanOpts.length<2){ errBox.appendChild(el('<div class="err-box">Provide at least 2 options.</div>')); return; }
+    if(!cleanOpts.some(o=>o.correct)){ errBox.appendChild(el('<div class="err-box">Select the correct option.</div>')); return; }
+    const options = cleanOpts.map(o=>({id:o.id, text:o.text.trim()}));
+    const correctOptionId = cleanOpts.find(o=>o.correct).id;
+    if(existing){
+      existing.question = questionText; existing.options = options; existing.correctOptionId = correctOptionId;
+    }else{
+      bank.push({ id:uid(), question:questionText, options, correctOptionId, createdAt:new Date().toISOString() });
+    }
+    await saveBank();
+    overlay.remove();
+    render();
+  };
+
+  document.body.appendChild(overlay);
+}
+
+/* =========================================================
+   PAPER SETS VIEW
+========================================================= */
+function renderSetsView(){
+  const wrap = el('<div></div>');
+  const card = el(`<div class="sheet">
+    <div class="sheet-eyebrow">Paper Sets</div>
+    <div class="sheet-title">Generate 150-question mock exam sets</div>
+    <div class="sheet-sub">Splits your question bank into non-overlapping sets so you never see the same question twice across sets until you've gone through the whole bank.</div>
+  </div>`);
+
+  const controlRow = el(`<div class="field-grid" style="align-items:end;margin-bottom:6px;">
+    <div class="field" style="margin-bottom:0;"><label>Questions per set</label><input type="number" id="setSizeInput" min="10" value="${setSizeInput}"></div>
+    <div class="field" style="margin-bottom:0;"><button class="btn btn-primary btn-block" id="genBtn">${sets.length? 'Regenerate all sets' : 'Generate sets'}</button></div>
+  </div>`);
+  controlRow.querySelector('#setSizeInput').oninput = (e)=>{ setSizeInput = parseInt(e.target.value,10)||SET_SIZE_DEFAULT; };
+  controlRow.querySelector('#genBtn').onclick = async ()=>{
+    const size = setSizeInput || SET_SIZE_DEFAULT;
+    if(bank.length < size){ alert(`You need at least ${size} questions in your bank to generate one full set. You currently have ${bank.length}.`); return; }
+    if(sets.length && !confirm('This replaces your current sets with a fresh shuffle of the whole bank. Past exam results stay intact either way. Continue?')) return;
+    const {newSets, newLeftover} = generateSets(size);
+    sets = newSets; leftover = newLeftover;
+    await saveSets();
+    render();
+  };
+  card.appendChild(controlRow);
+
+  if(bank.length>0 && bank.length < (setSizeInput||SET_SIZE_DEFAULT)){
+    card.appendChild(el(`<div class="info-box">You have ${bank.length} question(s) — add ${(setSizeInput||SET_SIZE_DEFAULT)-bank.length} more to generate your first full set.</div>`));
+  }
+  if(leftover.length>0){
+    card.appendChild(el(`<div class="info-box">${leftover.length} question(s) left over (not enough to fill another full set). They're still available to study — regenerate sets after adding more questions to fold them in.</div>`));
+  }
+  wrap.appendChild(card);
+
+  if(sets.length){
+    const listCard = el('<div class="sheet" style="margin-top:18px;"><div class="sheet-eyebrow">Your sets</div><div class="sheet-title">'+sets.length+' set(s)</div></div>');
+    sets.forEach(s=>{
+      const avail = availableQuestionsForSet(s).length;
+      const attemptCount = results.filter(r=>r.setId===s.id).length;
+      const row = el(`<div class="set-card">
+        <div class="set-info">
+          <input class="set-name-input" value="${esc(s.name)}">
+          <div class="set-meta">${avail}/${s.questionIds.length} questions available${attemptCount?' · '+attemptCount+' attempt(s)':''}</div>
+        </div>
+        <div class="set-actions"></div>
+      </div>`);
+      row.querySelector('.set-name-input').onchange = async (e)=>{ s.name=e.target.value.trim()||s.name; await saveSets(); };
+      const actions = row.querySelector('.set-actions');
+      const studyBtn = el('<button class="btn btn-ghost btn-sm">📖 Study</button>');
+      studyBtn.onclick = ()=>{ studyScope=s.id; studyIndex=0; studyRevealed=false; studyOrder=[]; currentView='study'; render(); };
+      const examBtn = el('<button class="btn btn-teal btn-sm">📝 Mock exam</button>');
+      examBtn.onclick = ()=>{ examSetup.setId=s.id; examSetup.minutes = s.questionIds.length; examState=null; currentView='exam'; render(); };
+      const printBtn = el('<button class="btn btn-ghost btn-sm">🖨 Print paper</button>');
+      printBtn.onclick = ()=> printSet(s);
+      const delBtn = el('<button class="btn btn-ghost btn-sm" style="color:var(--red);">Delete</button>');
+      delBtn.onclick = async ()=>{
+        if(!confirm('Delete "'+s.name+'"? Past exam results based on this set stay in your history.')) return;
+        sets = sets.filter(x=>x.id!==s.id);
+        await saveSets(); render();
+      };
+      actions.appendChild(studyBtn); actions.appendChild(examBtn); actions.appendChild(printBtn); actions.appendChild(delBtn);
+      listCard.appendChild(row);
+    });
+    wrap.appendChild(listCard);
+  }else{
+    wrap.appendChild(el('<div class="empty-state"><div class="big">🗂️</div>No paper sets yet. Generate your first set above.</div>'));
+  }
+  return wrap;
+}
+
+function printSet(set){
+  const qs = availableQuestionsForSet(set);
+  const area = document.getElementById('printArea');
+  const paper = qs.map((q,i)=>`<div class="print-q"><div class="pq-text">${i+1}. ${esc(q.question)}</div>${q.options.map((o,oi)=>`<div class="print-opt">${OPTION_LETTERS[oi]}) ${esc(o.text)}</div>`).join('')}</div>`).join('');
+  const key = qs.map((q,i)=>{ const ci = q.options.findIndex(o=>o.id===q.correctOptionId); return `${i+1}. ${OPTION_LETTERS[ci]}`; }).join('&nbsp;&nbsp;&nbsp;');
+  area.innerHTML = `<h2>${esc(set.name)} — Question Paper</h2><p>${qs.length} questions</p>${paper}
+    <div style="page-break-before:always;"><h2>${esc(set.name)} — Answer Key</h2><p class="print-answer">${key}</p></div>`;
+  window.print();
+}
+
+/* =========================================================
+   STUDY MODE VIEW
+========================================================= */
+function studyScopeQuestions(){
+  if(studyScope==='all') return bank.slice();
+  if(studyScope==='leftover') return leftover.map(bankById).filter(Boolean);
+  const s = sets.find(x=>x.id===studyScope);
+  return s ? availableQuestionsForSet(s) : [];
+}
+function buildStudyOrder(){
+  let qs = studyScopeQuestions();
+  if(studyOnlyLearning) qs = qs.filter(q=>!known[q.id]);
+  let ids = qs.map(q=>q.id);
+  if(studyShuffleOn) ids = shuffle(ids);
+  studyOrder = ids;
+  studyIndex = 0; studyRevealed = false;
+}
+
+function renderStudyView(){
+  const wrap = el('<div></div>');
+  const card = el(`<div class="sheet">
+    <div class="sheet-eyebrow">Study Mode</div>
+    <div class="sheet-title">Memorize question &amp; correct answer</div>
+    <div class="sheet-sub">Shows the question and only the correct option — no wrong answers to confuse you. The correct answer is highlighted.</div>
+  </div>`);
+
+  const opts = [['all','All questions ('+bank.length+')']];
+  sets.forEach(s=> opts.push([s.id, s.name+' ('+s.questionIds.length+')']));
+  if(leftover.length) opts.push(['leftover','Leftover pool ('+leftover.length+')']);
+
+  const controlRow = el(`<div class="field-grid" style="align-items:end;">
+    <div class="field" style="margin-bottom:0;"><label>Scope</label><select id="studyScopeSel"><option value="">Choose…</option>${opts.map(([v,l])=>`<option value="${v}" ${studyScope===v?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
+    <div class="field" style="margin-bottom:0;"><label>Layout</label><select id="studyLayoutSel"><option value="flashcard" ${studyLayout==='flashcard'?'selected':''}>Flashcard (one at a time)</option><option value="list" ${studyLayout==='list'?'selected':''}>List (scan all)</option></select></div>
+  </div>`);
+  controlRow.querySelector('#studyScopeSel').onchange = (e)=>{ studyScope=e.target.value||null; buildStudyOrder(); render(); };
+  controlRow.querySelector('#studyLayoutSel').onchange = (e)=>{ studyLayout=e.target.value; render(); };
+  card.appendChild(controlRow);
+
+  const toggleRow = el(`<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:6px;">
+    <label class="checkbox-row"><input type="checkbox" id="shufToggle" ${studyShuffleOn?'checked':''}> Shuffle order</label>
+    <label class="checkbox-row"><input type="checkbox" id="onlyLearnToggle" ${studyOnlyLearning?'checked':''}> Only show questions I haven't marked "known" yet</label>
+  </div>`);
+  toggleRow.querySelector('#shufToggle').onchange = (e)=>{ studyShuffleOn=e.target.checked; if(studyScope) buildStudyOrder(); render(); };
+  toggleRow.querySelector('#onlyLearnToggle').onchange = (e)=>{ studyOnlyLearning=e.target.checked; if(studyScope) buildStudyOrder(); render(); };
+  card.appendChild(toggleRow);
+  wrap.appendChild(card);
+
+  if(!studyScope){ wrap.appendChild(el('<div class="empty-state"><div class="big">📖</div>Pick a scope above to start studying.</div>')); return wrap; }
+  if(!studyOrder.length && studyScopeQuestions().length) buildStudyOrder();
+  const totalInScope = studyScopeQuestions().length;
+  const knownCount = studyScopeQuestions().filter(q=>known[q.id]).length;
+
+  if(studyOrder.length===0){
+    wrap.appendChild(el(`<div class="empty-state"><div class="big">🎉</div>${studyOnlyLearning? "You've marked every question in this scope as known!" : 'No questions in this scope yet.'}</div>`));
+    return wrap;
+  }
+
+  const progressCard = el(`<div class="sheet" style="margin-top:18px;padding-top:20px;padding-bottom:20px;">
+    <div class="q-progress">Known: ${knownCount} / ${totalInScope}</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${totalInScope?Math.round(knownCount/totalInScope*100):0}%"></div></div>
+  </div>`);
+  wrap.appendChild(progressCard);
+
+  if(studyLayout==='flashcard') wrap.appendChild(renderFlashcard());
+  else wrap.appendChild(renderStudyList());
+
+  return wrap;
+}
+
+function renderFlashcard(){
+  const qid = studyOrder[studyIndex];
+  const q = bankById(qid);
+  const wrap = el('<div style="margin-top:18px;"></div>');
+  if(!q){ wrap.appendChild(el('<div class="empty-state">Question no longer exists.</div>')); return wrap; }
+  const correct = q.options.find(o=>o.id===q.correctOptionId);
+  const card = el(`<div class="flashcard">
+    <div class="flashcard-eyebrow">Card ${studyIndex+1} of ${studyOrder.length}${known[q.id]?' · ✅ known':''}</div>
+    <div class="flashcard-q">${esc(q.question)}</div>
+    ${studyRevealed ? `<div class="answer-pill">✓ ${esc(correct?correct.text:'')}</div>` : `<button class="btn btn-primary" id="revealBtn" style="margin:0 auto;">Show correct answer</button>`}
+  </div>`);
+  if(!studyRevealed) card.querySelector('#revealBtn').onclick = ()=>{ studyRevealed=true; render(); };
+  wrap.appendChild(card);
+
+  const nav = el('<div class="flashcard-controls"></div>');
+  const prevBtn = el(`<button class="btn btn-ghost btn-sm" ${studyIndex===0?'disabled':''}>&larr; Prev</button>`);
+  const nextBtn = el(`<button class="btn btn-ghost btn-sm" ${studyIndex>=studyOrder.length-1?'disabled':''}>Next &rarr;</button>`);
+  const shuffleBtn = el('<button class="btn btn-ghost btn-sm">🔀 Reshuffle</button>');
+  prevBtn.onclick = ()=>{ studyIndex=Math.max(0,studyIndex-1); studyRevealed=false; render(); };
+  nextBtn.onclick = ()=>{ studyIndex=Math.min(studyOrder.length-1,studyIndex+1); studyRevealed=false; render(); };
+  shuffleBtn.onclick = ()=>{ buildStudyOrder(); render(); };
+  nav.appendChild(prevBtn); nav.appendChild(shuffleBtn); nav.appendChild(nextBtn);
+  wrap.appendChild(nav);
+
+  if(studyRevealed){
+    const knowRow = el('<div class="know-row"></div>');
+    const stillBtn = el('<button class="btn btn-ghost btn-sm">😅 Still learning</button>');
+    const gotBtn = el('<button class="btn btn-teal btn-sm">✅ Got it</button>');
+    stillBtn.onclick = async ()=>{ known[q.id]=false; await saveKnown(); advanceFlashcard(); };
+    gotBtn.onclick = async ()=>{ known[q.id]=true; await saveKnown(); advanceFlashcard(); };
+    knowRow.appendChild(stillBtn); knowRow.appendChild(gotBtn);
+    wrap.appendChild(knowRow);
+  }
+  return wrap;
+}
+function advanceFlashcard(){
+  if(studyOnlyLearning){ buildStudyOrder(); render(); return; }
+  studyIndex = Math.min(studyOrder.length-1, studyIndex+1);
+  studyRevealed = false;
+  render();
+}
+
+function renderStudyList(){
+  const wrap = el('<div style="margin-top:18px;"></div>');
+  const printBtn = el('<button class="btn btn-ghost btn-sm" style="margin-bottom:14px;">🖨 Print study sheet</button>');
+  printBtn.onclick = ()=>{
+    const qs = studyOrder.map(bankById).filter(Boolean);
+    const area = document.getElementById('printArea');
+    area.innerHTML = `<h2>Study Sheet</h2>` + qs.map((q,i)=>{
+      const c = q.options.find(o=>o.id===q.correctOptionId);
+      return `<div class="print-q"><div class="pq-text">${i+1}. ${esc(q.question)}</div><div class="print-opt print-answer">✓ ${esc(c?c.text:'')}</div></div>`;
+    }).join('');
+    window.print();
+  };
+  wrap.appendChild(printBtn);
+
+  studyOrder.forEach(qid=>{
+    const q = bankById(qid);
+    if(!q) return;
+    const correct = q.options.find(o=>o.id===q.correctOptionId);
+    const item = el(`<div class="qa-list-item">
+      <div class="qa-q">${esc(q.question)}</div>
+      <div class="answer-pill" style="font-size:14px;padding:9px 16px;">✓ ${esc(correct?correct.text:'')}</div>
+      <div class="qa-know-btns"></div>
+    </div>`);
+    const btns = item.querySelector('.qa-know-btns');
+    const stillBtn = el(`<button class="btn btn-ghost btn-sm" style="${!known[q.id]?'outline:2px solid var(--amber);':''}">😅 Learning</button>`);
+    const gotBtn = el(`<button class="btn btn-ghost btn-sm" style="${known[q.id]?'outline:2px solid var(--lime);':''}">✅ Known</button>`);
+    stillBtn.onclick = async ()=>{ known[q.id]=false; await saveKnown(); renderStudyListRefresh(); };
+    gotBtn.onclick = async ()=>{ known[q.id]=true; await saveKnown(); renderStudyListRefresh(); };
+    btns.appendChild(stillBtn); btns.appendChild(gotBtn);
+    wrap.appendChild(item);
+  });
+  return wrap;
+}
+function renderStudyListRefresh(){ render(); }
+
+/* =========================================================
+   MOCK EXAM VIEW
+========================================================= */
+function renderExamView(){
+  if(examState && !examState.submitted) return renderExamRunner();
+  if(examState && examState.submitted) return renderExamResultDisplay(examState.result);
+  return renderExamSetup();
+}
+function renderExamSetup(){
+  const wrap = el('<div></div>');
+  const card = el(`<div class="sheet">
+    <div class="sheet-eyebrow">Mock Exam</div>
+    <div class="sheet-title">Set up your mock exam</div>
+    <div class="sheet-sub">Pick a paper set and start a timed (or untimed) run. Options are shuffled per attempt so you're tested on knowledge, not position.</div>
+  </div>`);
+
+  if(sets.length===0){ card.appendChild(el('<div class="empty-state"><div class="big">📝</div>Generate a paper set first, from the Paper Sets tab.</div>')); wrap.appendChild(card); return wrap; }
+
+  const setOpts = sets.map(s=>`<option value="${s.id}" ${examSetup.setId===s.id?'selected':''}>${esc(s.name)} (${availableQuestionsForSet(s).length} q)</option>`).join('');
+  const form = el(`<div>
+    <div class="field"><label>Paper set</label><select id="esSet"><option value="">Choose a set…</option>${setOpts}</select></div>
+    <div class="field-grid">
+      <div class="field"><label class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="esTimed" ${examSetup.timed?'checked':''}> Timed exam</label>
+        <input type="number" id="esMinutes" min="1" value="${examSetup.minutes}" ${examSetup.timed?'':'disabled'}> <span class="hint">minutes</span></div>
+      <div class="field">
+        <label class="checkbox-row"><input type="checkbox" id="esShufQ" ${examSetup.shuffleQ?'checked':''}> Shuffle question order</label>
+        <label class="checkbox-row"><input type="checkbox" id="esShufO" ${examSetup.shuffleOpt?'checked':''}> Shuffle option order</label>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" id="esStart">Start exam</button>
+  </div>`);
+  form.querySelector('#esSet').onchange = (e)=>{ examSetup.setId=e.target.value||null; const s=sets.find(x=>x.id===examSetup.setId); if(s) examSetup.minutes = availableQuestionsForSet(s).length; render(); };
+  form.querySelector('#esTimed').onchange = (e)=>{ examSetup.timed=e.target.checked; render(); };
+  form.querySelector('#esMinutes').oninput = (e)=>{ examSetup.minutes=parseInt(e.target.value,10)||1; };
+  form.querySelector('#esShufQ').onchange = (e)=>{ examSetup.shuffleQ=e.target.checked; };
+  form.querySelector('#esShufO').onchange = (e)=>{ examSetup.shuffleOpt=e.target.checked; };
+  form.querySelector('#esStart').onclick = ()=>{
+    if(!examSetup.setId){ alert('Choose a paper set first.'); return; }
+    startExam();
+  };
+  card.appendChild(form);
+  wrap.appendChild(card);
+  return wrap;
+}
+
+function startExam(){
+  const set = sets.find(s=>s.id===examSetup.setId);
+  let qs = availableQuestionsForSet(set);
+  if(examSetup.shuffleQ) qs = shuffle(qs);
+  const questions = qs.map(q=>({
+    id: q.id,
+    question: q.question,
+    options: examSetup.shuffleOpt ? shuffle(q.options) : q.options.slice(),
+    correctOptionId: q.correctOptionId
+  }));
+  examState = {
+    setId: set.id, setName: set.name,
+    questions,
+    answers: {}, marked: {}, visited: {},
+    currentIndex: 0,
+    timed: examSetup.timed,
+    durationSec: (examSetup.minutes||questions.length)*60,
+    timeLeftSec: (examSetup.minutes||questions.length)*60,
+    startedAt: Date.now(),
+    submitted: false,
+    timerHandle: null
+  };
+  examState.visited[questions[0].id] = true;
+  if(examState.timed) startExamTimer();
+  render();
+}
+function startExamTimer(){
+  stopExamTimer();
+  examState.timerHandle = setInterval(()=>{
+    if(!examState || examState.submitted){ stopExamTimer(); return; }
+    examState.timeLeftSec--;
+    const chip = document.getElementById('examTimerChip');
+    if(chip){ chip.textContent = fmtTime(examState.timeLeftSec); chip.classList.toggle('low', examState.timeLeftSec<=60); }
+    if(examState.timeLeftSec<=0){ stopExamTimer(); submitExam(); }
+  }, 1000);
+}
+function stopExamTimer(){ if(examState && examState.timerHandle){ clearInterval(examState.timerHandle); examState.timerHandle=null; } }
+
+function renderExamRunner(){
+  const wrap = el('<div></div>');
+  const ex = examState;
+  const q = ex.questions[ex.currentIndex];
+  ex.visited[q.id] = true;
+
+  const header = el(`<div class="exam-header">
+    <div><div class="sheet-eyebrow" style="margin-bottom:2px;">${esc(ex.setName)}</div><div class="q-progress">Question ${ex.currentIndex+1} of ${ex.questions.length}</div></div>
+    ${ex.timed ? `<div class="timer-chip" id="examTimerChip">${fmtTime(ex.timeLeftSec)}</div>` : ''}
+  </div>`);
+  wrap.appendChild(header);
+
+  const layout = el('<div class="exam-layout"></div>');
+  const main = el('<div class="sheet"></div>');
+  main.appendChild(el(`<div class="q-text">${esc(q.question)}</div>`));
+  q.options.forEach((o,i)=>{
+    const selected = ex.answers[q.id]===o.id;
+    const btn = el(`<div class="option-btn ${selected?'selected':''}"><span class="option-letter">${OPTION_LETTERS[i]}</span><span>${esc(o.text)}</span></div>`);
+    btn.onclick = ()=>{ ex.answers[q.id]=o.id; render(); };
+    main.appendChild(btn);
+  });
+
+  const navRow = el('<div class="exam-nav-row"></div>');
+  const leftGroup = el('<div class="left-group"></div>');
+  const rightGroup = el('<div class="right-group"></div>');
+  const prevBtn = el(`<button class="btn btn-ghost" ${ex.currentIndex===0?'disabled':''}>&larr; Previous</button>`);
+  const clearBtn = el('<button class="btn btn-ghost">Clear response</button>');
+  const markBtn = el(`<button class="btn btn-ghost">${ex.marked[q.id]?'Unmark review':'Mark for review'}</button>`);
+  const nextBtn = el(`<button class="btn btn-primary" ${ex.currentIndex>=ex.questions.length-1?'disabled':''}>Next &rarr;</button>`);
+  const submitBtn = el('<button class="btn btn-teal">Submit exam</button>');
+  prevBtn.onclick = ()=>{ ex.currentIndex=Math.max(0,ex.currentIndex-1); render(); };
+  nextBtn.onclick = ()=>{ ex.currentIndex=Math.min(ex.questions.length-1,ex.currentIndex+1); render(); };
+  clearBtn.onclick = ()=>{ delete ex.answers[q.id]; render(); };
+  markBtn.onclick = ()=>{ ex.marked[q.id]=!ex.marked[q.id]; render(); };
+  submitBtn.onclick = ()=>{
+    const answered = Object.keys(ex.answers).length;
+    const unanswered = ex.questions.length - answered;
+    if(!confirm(`Submit exam?\n\nAnswered: ${answered}\nUnanswered: ${unanswered}\n\nThis cannot be changed after submitting.`)) return;
+    submitExam();
+  };
+  leftGroup.appendChild(prevBtn); leftGroup.appendChild(clearBtn); leftGroup.appendChild(markBtn);
+  rightGroup.appendChild(nextBtn); rightGroup.appendChild(submitBtn);
+  navRow.appendChild(leftGroup); navRow.appendChild(rightGroup);
+  main.appendChild(navRow);
+  layout.appendChild(main);
+
+  const palette = el(`<div class="palette-panel">
+    <div class="palette-title">Question palette</div>
+    <div class="palette-legend">
+      <span><i style="background:var(--teal)"></i>Answered</span>
+      <span><i style="background:var(--amber-soft);border:1px solid var(--amber)"></i>Visited, unanswered</span>
+      <span><i style="background:var(--violet)"></i>Marked for review</span>
+      <span><i style="background:var(--surface-2)"></i>Not visited</span>
+    </div>
+    <div class="palette-grid"></div>
+  </div>`);
+  const grid = palette.querySelector('.palette-grid');
+  ex.questions.forEach((qq,i)=>{
+    const cls = ['palette-btn'];
+    if(ex.marked[qq.id]) cls.push('marked');
+    else if(ex.answers[qq.id]) cls.push('answered');
+    else if(ex.visited[qq.id]) cls.push('visited');
+    if(i===ex.currentIndex) cls.push('current');
+    const b = el(`<button class="${cls.join(' ')}">${i+1}</button>`);
+    b.onclick = ()=>{ ex.currentIndex=i; render(); };
+    grid.appendChild(b);
+  });
+  layout.appendChild(palette);
+  wrap.appendChild(layout);
+
+  const exitBtn = el('<button class="btn btn-ghost btn-sm" style="margin-top:16px;">Abandon exam &amp; return to setup</button>');
+  exitBtn.onclick = ()=>{
+    if(!confirm('Abandon this exam? Your progress will be lost.')) return;
+    stopExamTimer(); examState=null; render();
+  };
+  wrap.appendChild(exitBtn);
+
+  return wrap;
+}
+
+async function submitExam(){
+  const ex = examState;
+  stopExamTimer();
+  let correct=0;
+  const detail = ex.questions.map(q=>{
+    const selected = ex.answers[q.id]||null;
+    const isCorrect = selected===q.correctOptionId;
+    if(isCorrect) correct++;
+    return { question:q.question, options:q.options, correctOptionId:q.correctOptionId, selectedOptionId:selected };
+  });
+  const total = ex.questions.length;
+  const unattempted = total - Object.keys(ex.answers).length;
+  const result = {
+    id: uid(), setId: ex.setId, setName: ex.setName,
+    takenAt: new Date().toISOString(),
+    timeTakenSec: Math.round((Date.now()-ex.startedAt)/1000),
+    total, correct, incorrect: total-correct-unattempted, unattempted,
+    percentage: total? Math.round(correct/total*1000)/10 : 0,
+    detail
+  };
+  results.unshift(result);
+  await saveResults();
+  ex.submitted = true;
+  ex.result = result;
+  render();
+}
+
+function renderExamResultDisplay(result){
+  const wrap = el('<div></div>');
+  const pct = result.percentage;
+  const badgeClass = pct>=75?'good':pct>=45?'mid':'bad';
+  const summary = el(`<div class="sheet">
+    <div class="sheet-eyebrow">${esc(result.setName)}</div>
+    <div class="sheet-title">Exam results</div>
+    <div class="sheet-sub">Taken ${fmtDate(result.takenAt)} · ${fmtTime(result.timeTakenSec)} elapsed</div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="tv"><span class="score-badge ${badgeClass}">${pct}%</span></div><div class="tl">Score</div></div>
+      <div class="stat-tile"><div class="tv" style="color:var(--lime)">${result.correct}</div><div class="tl">Correct</div></div>
+      <div class="stat-tile"><div class="tv" style="color:var(--red)">${result.incorrect}</div><div class="tl">Incorrect</div></div>
+      <div class="stat-tile"><div class="tv" style="color:var(--ink-faint)">${result.unattempted}</div><div class="tl">Unattempted</div></div>
+    </div>
+  </div>`);
+  const btnRow = el('<div class="btn-row" style="justify-content:flex-start;"></div>');
+  const retakeBtn = el('<button class="btn btn-primary">Retake this set</button>');
+  const backBtn = el('<button class="btn btn-ghost">Back to setup</button>');
+  retakeBtn.onclick = ()=>{ examSetup.setId=result.setId; examState=null; startExam(); };
+  backBtn.onclick = ()=>{ examState=null; render(); };
+  btnRow.appendChild(retakeBtn); btnRow.appendChild(backBtn);
+  summary.appendChild(btnRow);
+  wrap.appendChild(summary);
+
+  const reviewCard = el('<div class="sheet" style="margin-top:18px;"><div class="sheet-eyebrow">Review</div><div class="sheet-title">Question-by-question</div></div>');
+  result.detail.forEach((d,i)=>{
+    const qBlock = el(`<div style="margin-bottom:22px;"><div class="q-text" style="font-size:14.5px;margin-bottom:10px;">${i+1}. ${esc(d.question)}</div></div>`);
+    d.options.forEach((o,oi)=>{
+      const isCorrect = o.id===d.correctOptionId;
+      const isSelected = o.id===d.selectedOptionId;
+      let cls='option-btn';
+      if(isCorrect) cls+=' correct'; else if(isSelected) cls+=' incorrect';
+      const tag = isSelected && isCorrect ? '<span class="option-tag correct">Your answer · correct</span>'
+        : isSelected ? '<span class="option-tag yours">Your answer</span>'
+        : isCorrect ? '<span class="option-tag correct">Correct answer</span>' : '';
+      qBlock.appendChild(el(`<div class="${cls}" style="cursor:default;"><span class="option-letter">${OPTION_LETTERS[oi]}</span><span>${esc(o.text)}</span>${tag}</div>`));
+    });
+    reviewCard.appendChild(qBlock);
+  });
+  wrap.appendChild(reviewCard);
+  return wrap;
+}
+
+/* =========================================================
+   HISTORY VIEW
+========================================================= */
+function renderHistoryView(){
+  const wrap = el('<div></div>');
+  const card = el(`<div class="sheet">
+    <div class="sheet-eyebrow">History</div>
+    <div class="sheet-title">Past mock exam attempts</div>
+  </div>`);
+  wrap.appendChild(card);
+
+  if(results.length===0){ wrap.appendChild(el('<div class="empty-state"><div class="big">🗒️</div>No exam attempts yet — take a mock exam to see your history here.</div>')); return wrap; }
+
+  results.forEach(r=>{
+    const badgeClass = r.percentage>=75?'good':r.percentage>=45?'mid':'bad';
+    const row = el(`<div class="history-row">
+      <div><b>${esc(r.setName)}</b><div class="set-meta">${fmtDate(r.takenAt)} · ${r.correct}/${r.total} correct · ${fmtTime(r.timeTakenSec)}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span class="score-badge ${badgeClass}">${r.percentage}%</span><button class="btn btn-ghost btn-sm" data-del="1">Delete</button></div>
+    </div>`);
+    row.onclick = (e)=>{
+      if(e.target.closest('[data-del]')) return;
+      examState = {submitted:true, result:r};
+      currentView='exam';
+      render();
+    };
+    row.querySelector('[data-del]').onclick = async (e)=>{
+      e.stopPropagation();
+      if(!confirm('Delete this exam attempt from history?')) return;
+      results = results.filter(x=>x.id!==r.id);
+      await saveResults();
+      render();
+    };
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+boot();
+</script>
+</body>
+</html>
