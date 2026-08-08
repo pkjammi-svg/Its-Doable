@@ -240,6 +240,53 @@ table.target-table td{padding:8px;border-top:1px solid var(--line);}
 .meal-line-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);}
 .meal-line-row:last-of-type{border-bottom:none;}
 .line-btn{border:1.5px solid var(--line);background:#fff;color:var(--primary-dark);border-radius:999px;padding:5px 13px;font-size:11.5px;font-weight:700;flex:0 0 auto;white-space:nowrap;}
+
+/* ---- Mock Exams ---- */
+.exam-topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.exam-topnav-tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:999px;padding:4px;}
+.exam-topnav-link{padding:8px 16px;font-size:13px;color:var(--ink-soft);border-radius:999px;cursor:pointer;font-weight:600;}
+.exam-topnav-link.active{background:var(--primary);color:#fff;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--ink-faint);font-size:13.5px;}
+.empty-state .big{font-size:34px;margin-bottom:10px;}
+.exam-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+.q-progress{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-top:2px;}
+.timer-chip{background:var(--surface-2);border-radius:999px;padding:9px 18px;font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);}
+.timer-chip.low{background:var(--red-soft);color:var(--red);}
+.exam-layout{display:grid;grid-template-columns:1fr 240px;gap:20px;align-items:start;}
+@media (max-width:880px){.exam-layout{grid-template-columns:1fr;}}
+.q-text{font-size:16px;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.option-btn{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;background:var(--bg);}
+.option-btn:hover{border-color:var(--primary);}
+.option-btn.selected{border-color:var(--primary);background:var(--primary-soft);font-weight:600;}
+.option-btn.correct{border-color:var(--lime);background:var(--lime-soft);}
+.option-btn.incorrect{border-color:var(--red);background:var(--red-soft);}
+.option-letter{width:26px;height:26px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:0 0 auto;}
+.option-btn.selected .option-letter{background:var(--primary);color:#fff;}
+.option-btn.correct .option-letter{background:var(--lime);color:#fff;}
+.option-btn.incorrect .option-letter{background:var(--red);color:#fff;}
+.option-tag{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-soft);white-space:nowrap;}
+.option-tag.correct{background:var(--lime);color:#fff;}
+.option-tag.yours{background:var(--red);color:#fff;}
+.exam-nav-row{display:flex;justify-content:space-between;margin-top:20px;flex-wrap:wrap;gap:10px;}
+.left-group,.right-group{display:flex;gap:8px;flex-wrap:wrap;}
+.palette-panel{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:18px;}
+.palette-title{font-family:var(--display);font-weight:700;font-size:13px;margin-bottom:10px;}
+.palette-legend{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--ink-soft);margin-bottom:14px;}
+.palette-legend span{display:flex;align-items:center;gap:6px;}
+.palette-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:0 0 auto;}
+.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.palette-btn{width:100%;aspect-ratio:1;border:none;border-radius:8px;background:var(--surface-2);color:var(--ink-soft);font-weight:700;font-size:12px;cursor:pointer;}
+.palette-btn.answered{background:var(--teal);color:#fff;}
+.palette-btn.visited{background:var(--amber-soft);border:1px solid var(--amber);color:#7a5205;}
+.palette-btn.marked{background:var(--violet);color:#fff;}
+.palette-btn.current{box-shadow:0 0 0 2px var(--ink);}
+.score-badge{font-family:var(--display);font-weight:800;font-size:20px;padding:6px 16px;border-radius:999px;}
+.score-badge.good{background:var(--lime-soft);color:#3f5c0a;}
+.score-badge.mid{background:var(--amber-soft);color:#7a5205;}
+.score-badge.bad{background:var(--red-soft);color:var(--red);}
+.history-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:16px;padding:14px 18px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;}
+.history-row:hover{background:var(--surface-2);}
+.set-meta{font-size:12px;color:var(--ink-soft);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -258,6 +305,17 @@ let authError = '';
 let currentProfile = null;
 let currentStep = 0;
 let dashboardTab = 'today';
+
+// Mock Exams
+let currentView = 'wizard';   // wizard | exam
+let examView = 'home';        // home | manage | setup | history  (ignored while examState is active)
+let examDataLoaded = false;
+let examSets = [];
+let results = [];
+let examDraft = null;
+let examSetup = { setId:null, timed:true, minutes:null };
+let examState = null;
+const OPTION_LETTERS = ['A','B','C','D','E','F'];
 
 const STEP_META = [
   {key:'basic', label:'Basic Info', color:'var(--primary)'},
@@ -300,6 +358,9 @@ function setPath(obj,path,value){
   o[keys[keys.length-1]]=value;
 }
 function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtTime(totalSec){ const sec=Math.max(0,Math.round(totalSec)); const m=Math.floor(sec/60), s=sec%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function fmtDate(iso){ const d=new Date(iso); return d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}); }
 async function sha256Hex(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -348,6 +409,15 @@ async function getCompositionLog(profileId){
   try{ const r=await window.storage.get('composition:'+profileId,false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
 }
 async function saveCompositionLog(profileId,arr){ await window.storage.set('composition:'+profileId, JSON.stringify(arr), false); }
+async function getExamSets(profileId){
+  try{ const r=await window.storage.get('examsets:'+profileId,false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
+}
+async function saveExamSets(profileId,arr){ await window.storage.set('examsets:'+profileId, JSON.stringify(arr), false); }
+async function getExamResults(profileId){
+  try{ const r=await window.storage.get('examresults:'+profileId,false); return r?JSON.parse(r.value):[]; }catch(e){ return []; }
+}
+async function saveExamResultsList(profileId,arr){ await window.storage.set('examresults:'+profileId, JSON.stringify(arr), false); }
+async function saveResults(){ if(!session) return; await saveExamResultsList(session.accountId, results); }
 
 /* =========================================================
    CLAUDE API
@@ -464,6 +534,7 @@ function render(){
   app.innerHTML='';
   if(!session){ app.appendChild(renderAuthScreen()); return; }
   app.appendChild(renderMasthead());
+  if(currentView==='exam'){ app.appendChild(renderExamArea()); return; }
   app.appendChild(renderStepper());
   const grid = el('<div class="content-grid"></div>');
   const sheetWrap = el('<div class="sheet-wrap"></div>');
@@ -642,11 +713,26 @@ function renderReset(){
 function renderMasthead(){
   const h = el(`<div class="masthead">
     <div class="brand"><div class="brand-mark">${BRAND_MARK_SVG}</div><div><div class="brand-name">It's Doable</div><div class="brand-tagline">Start small. Finish strong.</div></div></div>
-    <div class="user-chip"><span class="uname">${session.name}</span><button id="logoutBtn">Log out</button></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" id="examNavBtn">${currentView==='exam' ? '← Health record' : '📝 Mock Exams'}</button>
+      <div class="user-chip"><span class="uname">${session.name}</span><button id="logoutBtn">Log out</button></div>
+    </div>
   </div>`);
+  h.querySelector('#examNavBtn').onclick = async ()=>{
+    if(currentView==='exam'){ currentView='wizard'; render(); return; }
+    if(!examDataLoaded){
+      examSets = await getExamSets(session.accountId);
+      results = await getExamResults(session.accountId);
+      examDataLoaded = true;
+    }
+    currentView='exam'; examView='home'; examState=null;
+    render();
+  };
   h.querySelector('#logoutBtn').onclick = async ()=>{
+    stopExamTimer();
     await clearSession();
     session=null; currentProfile=null; currentStep=0; authView='login';
+    currentView='wizard'; examView='home'; examDataLoaded=false; examSets=[]; results=[]; examState=null; examDraft=null;
     render();
   };
   return h;
@@ -1533,6 +1619,427 @@ function renderWeightChart(wLog){
     <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#E6E8F5"/>
     <path d="${path}" fill="none" stroke="#5B5FEF" stroke-width="2.5"/>${circles}
   </svg>`);
+}
+
+/* =========================================================
+   MOCK EXAMS
+========================================================= */
+function renderExamArea(){
+  const wrap = el('<div></div>');
+  const midExam = examState && !examState.submitted;
+  if(!midExam){
+    const nav = el(`<div class="exam-topnav">
+      <div class="exam-topnav-tabs">
+        <span class="exam-topnav-link ${!examState&&examView==='home'?'active':''}" data-v="home">Question sets</span>
+        <span class="exam-topnav-link ${!examState&&examView==='history'?'active':''}" data-v="history">History</span>
+      </div>
+    </div>`);
+    nav.querySelectorAll('.exam-topnav-link').forEach(l=> l.onclick=()=>{ examView=l.dataset.v; examState=null; render(); });
+    wrap.appendChild(nav);
+  }
+  if(examState){ wrap.appendChild(examState.submitted ? renderExamResultDisplay(examState.result) : renderExamRunner()); }
+  else if(examView==='setup'){ wrap.appendChild(renderExamSetupScreen()); }
+  else if(examView==='manage'){ wrap.appendChild(renderExamManageScreen()); }
+  else if(examView==='history'){ wrap.appendChild(renderHistoryView()); }
+  else{ wrap.appendChild(renderExamHome()); }
+  return wrap;
+}
+
+/* ---- Home: list of question sets ---- */
+function blankExamDraft(){ return { id:null, name:'', questions:[] }; }
+function renderExamHome(){
+  const wrap = el('<div></div>');
+  const card = el(`<div class="sheet" style="min-height:0;">
+    <div class="sheet-eyebrow">Mock Exams</div>
+    <div class="sheet-title">Practice with timed mock exams</div>
+    <div class="sheet-sub">Build a question set once, then take it as a timed or untimed mock exam as many times as you like.</div>
+  </div>`);
+  const newBtn = el('<button class="btn btn-primary btn-sm">+ New question set</button>');
+  newBtn.onclick = ()=>{ examDraft = blankExamDraft(); examView='manage'; render(); };
+  card.appendChild(newBtn);
+  wrap.appendChild(card);
+
+  if(examSets.length===0){
+    wrap.appendChild(el('<div class="empty-state"><div class="big">📝</div>No question sets yet — create one to start practicing.</div>'));
+    return wrap;
+  }
+  examSets.forEach(s=>{
+    const row = el(`<div class="history-row">
+      <div><b>${esc(s.name)}</b><div class="set-meta">${s.questions.length} question${s.questions.length!==1?'s':''}</div></div>
+      <div style="display:flex;gap:8px;align-items:center;" data-actions="1">
+        <button class="btn btn-teal btn-sm" data-start="1">Start exam</button>
+        <button class="btn btn-ghost btn-sm" data-edit="1">Edit</button>
+        <button class="btn btn-ghost btn-sm" data-del="1">Delete</button>
+      </div>
+    </div>`);
+    row.onclick = (e)=>{ if(e.target.closest('[data-actions]')) return; };
+    row.querySelector('[data-start]').onclick = (e)=>{ e.stopPropagation(); examSetup.setId=s.id; examView='setup'; render(); };
+    row.querySelector('[data-edit]').onclick = (e)=>{ e.stopPropagation(); examDraft = JSON.parse(JSON.stringify(s)); examView='manage'; render(); };
+    row.querySelector('[data-del]').onclick = async (e)=>{
+      e.stopPropagation();
+      if(!confirm(`Delete question set "${s.name}"? This can't be undone.`)) return;
+      examSets = examSets.filter(x=>x.id!==s.id);
+      await saveExamSets(session.accountId, examSets);
+      render();
+    };
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+/* ---- Setup: choose timed/untimed before starting ---- */
+function renderExamSetupScreen(){
+  const wrap = el('<div></div>');
+  const set = examSets.find(s=>s.id===examSetup.setId);
+  if(!set){ wrap.appendChild(el('<div class="empty-state">That question set no longer exists.</div>')); return wrap; }
+  const defaultMinutes = Math.max(5, Math.round(set.questions.length*1.5));
+  const timed = examSetup.timed !== false;
+  const minutes = examSetup.minutes || defaultMinutes;
+  const sheet = el(`<div class="sheet" style="min-height:0;">
+    <div class="sheet-eyebrow">${esc(set.name)}</div>
+    <div class="sheet-title">Set up your mock exam</div>
+    <div class="sheet-sub">${set.questions.length} question${set.questions.length!==1?'s':''}</div>
+    <div class="field">
+      <label>Exam mode</label>
+      <div class="radio-row">
+        <label><input type="radio" name="timedMode" value="timed" ${timed?'checked':''}><span>Timed</span></label>
+        <label><input type="radio" name="timedMode" value="untimed" ${!timed?'checked':''}><span>Untimed</span></label>
+      </div>
+    </div>
+    <div class="field" id="minutesField" style="max-width:220px;${timed?'':'display:none;'}">
+      <label>Time limit (minutes)</label>
+      <input type="number" id="minutesInput" min="1" value="${minutes}">
+    </div>
+    <button class="btn btn-primary" id="beginBtn">Begin exam &rarr;</button>
+  </div>`);
+  sheet.querySelectorAll('input[name="timedMode"]').forEach(r=> r.onchange=()=>{
+    const isTimed = r.value==='timed';
+    sheet.querySelector('#minutesField').style.display = isTimed ? 'block' : 'none';
+  });
+  sheet.querySelector('#beginBtn').onclick = ()=>{
+    const isTimed = sheet.querySelector('input[name="timedMode"]:checked').value==='timed';
+    examSetup.timed = isTimed;
+    examSetup.minutes = isTimed ? Math.max(1, parseInt(sheet.querySelector('#minutesInput').value)||defaultMinutes) : defaultMinutes;
+    startExam();
+  };
+  wrap.appendChild(sheet);
+  const back = el('<button class="btn btn-ghost btn-sm" style="margin-top:16px;">&larr; Back to question sets</button>');
+  back.onclick = ()=>{ examView='home'; render(); };
+  wrap.appendChild(back);
+  return wrap;
+}
+function startExam(){
+  const set = examSets.find(s=>s.id===examSetup.setId);
+  if(!set || !set.questions.length){ examView='home'; render(); return; }
+  const timed = examSetup.timed !== false;
+  const minutes = examSetup.minutes || Math.max(5, Math.round(set.questions.length*1.5));
+  examState = {
+    setId: set.id, setName: set.name,
+    questions: set.questions,
+    answers: {}, marked: {}, visited: {},
+    currentIndex: 0,
+    timed, timeLeftSec: timed ? Math.round(minutes*60) : 0,
+    startedAt: Date.now(),
+    submitted: false, result: null,
+    timerHandle: null
+  };
+  render();
+  if(timed) startExamTimer();
+}
+
+/* ---- Manage: create / edit a question set ---- */
+function renderExamManageScreen(){
+  const d = examDraft || (examDraft = blankExamDraft());
+  const wrap = el('<div></div>');
+  const sheet = el(`<div class="sheet" style="min-height:0;">
+    <div class="sheet-eyebrow">${d.id?'Edit':'New'} question set</div>
+    <div class="sheet-title">${d.id?'Edit set':'Build a new set'}</div>
+    <div class="field" style="max-width:420px;"><label>Set name</label><input type="text" id="setName" value="${esc(d.name)}" placeholder="e.g. Biology Chapter 4"></div>
+  </div>`);
+  sheet.querySelector('#setName').oninput = (e)=>{ d.name = e.target.value; };
+  wrap.appendChild(sheet);
+
+  const aiCard = el(`<div class="sheet" style="margin-top:16px;min-height:0;">
+    <div class="sheet-eyebrow">Optional</div>
+    <div class="sheet-title" style="font-size:18px;">Generate questions with AI</div>
+    <div class="field-grid">
+      <div class="field"><label>Topic</label><input type="text" id="aiTopic" placeholder="e.g. Photosynthesis"></div>
+      <div class="field"><label>How many questions?</label><input type="number" id="aiCount" value="5" min="1" max="25"></div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="aiGenBtn">Generate</button>
+    <div id="aiErrHolder"></div>
+  </div>`);
+  aiCard.querySelector('#aiGenBtn').onclick = async ()=>{
+    const topic = aiCard.querySelector('#aiTopic').value.trim();
+    const count = Math.max(1, Math.min(25, parseInt(aiCard.querySelector('#aiCount').value)||5));
+    if(!topic) return;
+    const btn = aiCard.querySelector('#aiGenBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Generating…';
+    aiCard.querySelector('#aiErrHolder').innerHTML='';
+    try{
+      const text = `Write ${count} multiple-choice quiz questions on the topic "${topic}". Return ONLY JSON: {"questions":[{"question":"","options":["","","",""],"correctIndex":0}]}. Each question needs exactly 4 options, plausible distractors, and correctIndex 0-3 pointing to the correct option.`;
+      const result = await claudeJSON([{type:'text', text}], 'You are a careful quiz writer who creates clear, unambiguous multiple-choice questions.');
+      (result.questions||[]).forEach(q=>{
+        if(!q.question || !q.options || q.options.length<2) return;
+        const opts = q.options.map(o=>({id:uid(), text:o}));
+        const correctOptionId = opts[q.correctIndex] ? opts[q.correctIndex].id : opts[0].id;
+        d.questions.push({ id:uid(), question:q.question, options:opts, correctOptionId });
+      });
+      render();
+    }catch(err){
+      aiCard.querySelector('#aiErrHolder').innerHTML = `<div class="err-box">Couldn't generate questions (${err.message}).</div>`;
+      btn.disabled=false; btn.textContent='Generate';
+    }
+  };
+  wrap.appendChild(aiCard);
+
+  const addCard = el(`<div class="sheet" style="margin-top:16px;">
+    <div class="sheet-eyebrow">Add question</div>
+    <div class="field"><label>Question</label><textarea id="qText" placeholder="Question text"></textarea></div>
+    <div class="field-grid">
+      ${[0,1,2,3].map(i=>`<div class="field"><label>Option ${OPTION_LETTERS[i]}</label><input type="text" id="opt${i}" placeholder="Option ${OPTION_LETTERS[i]} text"></div>`).join('')}
+    </div>
+    <div class="field"><label>Correct option</label><div class="radio-row">${[0,1,2,3].map(i=>`<label><input type="radio" name="correctOpt" value="${i}" ${i===0?'checked':''}><span>${OPTION_LETTERS[i]}</span></label>`).join('')}</div></div>
+    <button class="btn btn-ghost btn-sm" id="addQBtn">+ Add question to set</button>
+  </div>`);
+  addCard.querySelector('#addQBtn').onclick = ()=>{
+    const qtext = addCard.querySelector('#qText').value.trim();
+    const opts = [0,1,2,3].map(i=>addCard.querySelector('#opt'+i).value.trim());
+    if(!qtext || opts.some(o=>!o)){ alert('Fill in the question and all four options.'); return; }
+    const correctIdx = parseInt(addCard.querySelector('input[name="correctOpt"]:checked').value);
+    const optObjs = opts.map(t=>({id:uid(), text:t}));
+    d.questions.push({ id:uid(), question:qtext, options:optObjs, correctOptionId:optObjs[correctIdx].id });
+    render();
+  };
+  wrap.appendChild(addCard);
+
+  if(d.questions.length){
+    const listCard = el(`<div class="sheet" style="margin-top:16px;"><div class="sheet-eyebrow">Questions in this set (${d.questions.length})</div></div>`);
+    d.questions.forEach((q,i)=>{
+      const row = el(`<div class="meal-line-row"><span><b>${i+1}.</b> ${esc(q.question)}</span></div>`);
+      const rm = el('<button class="line-btn">Remove</button>');
+      rm.onclick = ()=>{ d.questions.splice(i,1); render(); };
+      row.appendChild(rm);
+      listCard.appendChild(row);
+    });
+    wrap.appendChild(listCard);
+  }
+
+  const btnRow = el('<div class="btn-row" style="justify-content:flex-start;"></div>');
+  const saveBtn = el('<button class="btn btn-primary">Save set</button>');
+  const cancelBtn = el('<button class="btn btn-ghost">Cancel</button>');
+  saveBtn.onclick = async ()=>{
+    if(!d.name.trim()){ alert('Give this set a name.'); return; }
+    if(d.questions.length===0){ alert('Add at least one question.'); return; }
+    if(d.id){ const idx = examSets.findIndex(s=>s.id===d.id); examSets[idx] = {...d}; }
+    else{ d.id = uid(); d.createdAt = new Date().toISOString(); examSets.push(d); }
+    await saveExamSets(session.accountId, examSets);
+    examDraft = null; examView = 'home';
+    render();
+  };
+  cancelBtn.onclick = ()=>{ examDraft = null; examView = 'home'; render(); };
+  btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+  return wrap;
+}
+
+/* ---- Runner ---- */
+function startExamTimer(){
+  stopExamTimer();
+  examState.timerHandle = setInterval(()=>{
+    if(!examState || examState.submitted){ stopExamTimer(); return; }
+    examState.timeLeftSec--;
+    const chip = document.getElementById('examTimerChip');
+    if(chip){ chip.textContent = fmtTime(examState.timeLeftSec); chip.classList.toggle('low', examState.timeLeftSec<=60); }
+    if(examState.timeLeftSec<=0){ stopExamTimer(); submitExam(); }
+  }, 1000);
+}
+function stopExamTimer(){ if(examState && examState.timerHandle){ clearInterval(examState.timerHandle); examState.timerHandle=null; } }
+
+function renderExamRunner(){
+  const wrap = el('<div></div>');
+  const ex = examState;
+  const q = ex.questions[ex.currentIndex];
+  ex.visited[q.id] = true;
+
+  const header = el(`<div class="exam-header">
+    <div><div class="sheet-eyebrow" style="margin-bottom:2px;">${esc(ex.setName)}</div><div class="q-progress">Question ${ex.currentIndex+1} of ${ex.questions.length}</div></div>
+    ${ex.timed ? `<div class="timer-chip" id="examTimerChip">${fmtTime(ex.timeLeftSec)}</div>` : ''}
+  </div>`);
+  wrap.appendChild(header);
+
+  const layout = el('<div class="exam-layout"></div>');
+  const main = el('<div class="sheet"></div>');
+  main.appendChild(el(`<div class="q-text">${esc(q.question)}</div>`));
+  q.options.forEach((o,i)=>{
+    const selected = ex.answers[q.id]===o.id;
+    const btn = el(`<div class="option-btn ${selected?'selected':''}"><span class="option-letter">${OPTION_LETTERS[i]}</span><span>${esc(o.text)}</span></div>`);
+    btn.onclick = ()=>{ ex.answers[q.id]=o.id; render(); };
+    main.appendChild(btn);
+  });
+
+  const navRow = el('<div class="exam-nav-row"></div>');
+  const leftGroup = el('<div class="left-group"></div>');
+  const rightGroup = el('<div class="right-group"></div>');
+  const prevBtn = el(`<button class="btn btn-ghost" ${ex.currentIndex===0?'disabled':''}>&larr; Previous</button>`);
+  const clearBtn = el('<button class="btn btn-ghost">Clear response</button>');
+  const markBtn = el(`<button class="btn btn-ghost">${ex.marked[q.id]?'Unmark review':'Mark for review'}</button>`);
+  const nextBtn = el(`<button class="btn btn-primary" ${ex.currentIndex>=ex.questions.length-1?'disabled':''}>Next &rarr;</button>`);
+  const submitBtn = el('<button class="btn btn-teal">Submit exam</button>');
+  prevBtn.onclick = ()=>{ ex.currentIndex=Math.max(0,ex.currentIndex-1); render(); };
+  nextBtn.onclick = ()=>{ ex.currentIndex=Math.min(ex.questions.length-1,ex.currentIndex+1); render(); };
+  clearBtn.onclick = ()=>{ delete ex.answers[q.id]; render(); };
+  markBtn.onclick = ()=>{ ex.marked[q.id]=!ex.marked[q.id]; render(); };
+  submitBtn.onclick = ()=>{
+    const answered = Object.keys(ex.answers).length;
+    const unanswered = ex.questions.length - answered;
+    if(!confirm(`Submit exam?\n\nAnswered: ${answered}\nUnanswered: ${unanswered}\n\nThis cannot be changed after submitting.`)) return;
+    submitExam();
+  };
+  leftGroup.appendChild(prevBtn); leftGroup.appendChild(clearBtn); leftGroup.appendChild(markBtn);
+  rightGroup.appendChild(nextBtn); rightGroup.appendChild(submitBtn);
+  navRow.appendChild(leftGroup); navRow.appendChild(rightGroup);
+  main.appendChild(navRow);
+  layout.appendChild(main);
+
+  const palette = el(`<div class="palette-panel">
+    <div class="palette-title">Question palette</div>
+    <div class="palette-legend">
+      <span><i style="background:var(--teal)"></i>Answered</span>
+      <span><i style="background:var(--amber-soft);border:1px solid var(--amber)"></i>Visited, unanswered</span>
+      <span><i style="background:var(--violet)"></i>Marked for review</span>
+      <span><i style="background:var(--surface-2)"></i>Not visited</span>
+    </div>
+    <div class="palette-grid"></div>
+  </div>`);
+  const grid = palette.querySelector('.palette-grid');
+  ex.questions.forEach((qq,i)=>{
+    const cls = ['palette-btn'];
+    if(ex.marked[qq.id]) cls.push('marked');
+    else if(ex.answers[qq.id]) cls.push('answered');
+    else if(ex.visited[qq.id]) cls.push('visited');
+    if(i===ex.currentIndex) cls.push('current');
+    const b = el(`<button class="${cls.join(' ')}">${i+1}</button>`);
+    b.onclick = ()=>{ ex.currentIndex=i; render(); };
+    grid.appendChild(b);
+  });
+  layout.appendChild(palette);
+  wrap.appendChild(layout);
+
+  const exitBtn = el('<button class="btn btn-ghost btn-sm" style="margin-top:16px;">Abandon exam &amp; return to setup</button>');
+  exitBtn.onclick = ()=>{
+    if(!confirm('Abandon this exam? Your progress will be lost.')) return;
+    stopExamTimer(); examState=null; render();
+  };
+  wrap.appendChild(exitBtn);
+
+  return wrap;
+}
+
+async function submitExam(){
+  const ex = examState;
+  stopExamTimer();
+  let correct=0;
+  const detail = ex.questions.map(q=>{
+    const selected = ex.answers[q.id]||null;
+    const isCorrect = selected===q.correctOptionId;
+    if(isCorrect) correct++;
+    return { question:q.question, options:q.options, correctOptionId:q.correctOptionId, selectedOptionId:selected };
+  });
+  const total = ex.questions.length;
+  const unattempted = total - Object.keys(ex.answers).length;
+  const result = {
+    id: uid(), setId: ex.setId, setName: ex.setName,
+    takenAt: new Date().toISOString(),
+    timeTakenSec: Math.round((Date.now()-ex.startedAt)/1000),
+    total, correct, incorrect: total-correct-unattempted, unattempted,
+    percentage: total? Math.round(correct/total*1000)/10 : 0,
+    detail
+  };
+  results.unshift(result);
+  await saveResults();
+  ex.submitted = true;
+  ex.result = result;
+  render();
+}
+
+function renderExamResultDisplay(result){
+  const wrap = el('<div></div>');
+  const pct = result.percentage;
+  const badgeClass = pct>=75?'good':pct>=45?'mid':'bad';
+  const summary = el(`<div class="sheet">
+    <div class="sheet-eyebrow">${esc(result.setName)}</div>
+    <div class="sheet-title">Exam results</div>
+    <div class="sheet-sub">Taken ${fmtDate(result.takenAt)} · ${fmtTime(result.timeTakenSec)} elapsed</div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="tv"><span class="score-badge ${badgeClass}">${pct}%</span></div><div class="tl">Score</div></div>
+      <div class="stat-tile"><div class="tv" style="color:var(--lime)">${result.correct}</div><div class="tl">Correct</div></div>
+      <div class="stat-tile"><div class="tv" style="color:var(--red)">${result.incorrect}</div><div class="tl">Incorrect</div></div>
+      <div class="stat-tile"><div class="tv" style="color:var(--ink-faint)">${result.unattempted}</div><div class="tl">Unattempted</div></div>
+    </div>
+  </div>`);
+  const btnRow = el('<div class="btn-row" style="justify-content:flex-start;"></div>');
+  const retakeBtn = el('<button class="btn btn-primary">Retake this set</button>');
+  const backBtn = el('<button class="btn btn-ghost">Back to setup</button>');
+  retakeBtn.onclick = ()=>{ examSetup.setId=result.setId; examState=null; startExam(); };
+  backBtn.onclick = ()=>{ examState=null; render(); };
+  btnRow.appendChild(retakeBtn); btnRow.appendChild(backBtn);
+  summary.appendChild(btnRow);
+  wrap.appendChild(summary);
+
+  const reviewCard = el('<div class="sheet" style="margin-top:18px;"><div class="sheet-eyebrow">Review</div><div class="sheet-title">Question-by-question</div></div>');
+  result.detail.forEach((d,i)=>{
+    const qBlock = el(`<div style="margin-bottom:22px;"><div class="q-text" style="font-size:14.5px;margin-bottom:10px;">${i+1}. ${esc(d.question)}</div></div>`);
+    d.options.forEach((o,oi)=>{
+      const isCorrect = o.id===d.correctOptionId;
+      const isSelected = o.id===d.selectedOptionId;
+      let cls='option-btn';
+      if(isCorrect) cls+=' correct'; else if(isSelected) cls+=' incorrect';
+      const tag = isSelected && isCorrect ? '<span class="option-tag correct">Your answer · correct</span>'
+        : isSelected ? '<span class="option-tag yours">Your answer</span>'
+        : isCorrect ? '<span class="option-tag correct">Correct answer</span>' : '';
+      qBlock.appendChild(el(`<div class="${cls}" style="cursor:default;"><span class="option-letter">${OPTION_LETTERS[oi]}</span><span>${esc(o.text)}</span>${tag}</div>`));
+    });
+    reviewCard.appendChild(qBlock);
+  });
+  wrap.appendChild(reviewCard);
+  return wrap;
+}
+
+/* =========================================================
+   HISTORY VIEW
+========================================================= */
+function renderHistoryView(){
+  const wrap = el('<div></div>');
+  const card = el(`<div class="sheet" style="min-height:0;">
+    <div class="sheet-eyebrow">History</div>
+    <div class="sheet-title">Past mock exam attempts</div>
+  </div>`);
+  wrap.appendChild(card);
+
+  if(results.length===0){ wrap.appendChild(el('<div class="empty-state"><div class="big">🗒️</div>No exam attempts yet — take a mock exam to see your history here.</div>')); return wrap; }
+
+  results.forEach(r=>{
+    const badgeClass = r.percentage>=75?'good':r.percentage>=45?'mid':'bad';
+    const row = el(`<div class="history-row">
+      <div><b>${esc(r.setName)}</b><div class="set-meta">${fmtDate(r.takenAt)} · ${r.correct}/${r.total} correct · ${fmtTime(r.timeTakenSec)}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span class="score-badge ${badgeClass}">${r.percentage}%</span><button class="btn btn-ghost btn-sm" data-del="1">Delete</button></div>
+    </div>`);
+    row.onclick = (e)=>{
+      if(e.target.closest('[data-del]')) return;
+      examState = {submitted:true, result:r};
+      render();
+    };
+    row.querySelector('[data-del]').onclick = async (e)=>{
+      e.stopPropagation();
+      if(!confirm('Delete this exam attempt from history?')) return;
+      results = results.filter(x=>x.id!==r.id);
+      await saveResults();
+      render();
+    };
+    wrap.appendChild(row);
+  });
+  return wrap;
 }
 
 /* =========================================================
