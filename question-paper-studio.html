@@ -115,6 +115,17 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .modal-close:hover{background:var(--red-soft);color:var(--red);}
 .modal-title{font-family:var(--display);font-weight:700;font-size:19px;margin-bottom:16px;padding-right:24px;}
 
+/* ---- Numbered set-picker tiles (Mock Exam / Study Mode / Wrong Questions) ---- */
+.set-tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:6px;}
+.set-tile{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center;cursor:pointer;box-shadow:var(--shadow);}
+.set-tile:hover{border-color:var(--primary);}
+.set-tile.selected{border-color:var(--primary);background:var(--primary-soft);}
+.set-tile .st-num{font-family:var(--display);font-size:26px;font-weight:800;color:var(--primary-dark);}
+.set-tile .st-label{font-size:12px;font-weight:700;color:var(--ink);margin-top:2px;}
+.set-tile .st-meta{font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.5;}
+.set-tile .st-badge{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--red-soft);color:var(--red);}
+.back-link{display:inline-block;font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer;margin-bottom:14px;}
+
 /* ---- Set cards ---- */
 .set-card{background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
 .set-card .set-info{display:flex;flex-direction:column;gap:4px;}
@@ -246,6 +257,7 @@ let examSetup = { setId:null, timed:true, minutes:147 };
 let examState = null;              // active/submitted exam in-memory state
 let lastResultView = null;         // a result object being viewed (from history or fresh submit)
 
+let wrongScope = null;             // setId, or null = showing the 8-set overview grid
 let wrongLayout = 'flashcard';     // flashcard | list
 let wrongShuffleOn = true;
 let wrongOrder = [];
@@ -277,11 +289,63 @@ function download(filename, text){
 
 /* =========================================================
    STORAGE
+   window.storage isn't a real browser API — it only exists when this
+   page runs inside a host that injects it. Opened directly (e.g. this
+   file served from GitHub Pages), there's no such thing, so every
+   read/write would silently fail and nothing would ever persist (which
+   also meant paper-set generation, gated behind a successful save,
+   never ran). Polyfill it with a real IndexedDB store so the app
+   works the same whether hosted standalone or embedded.
 ========================================================= */
+if(!window.storage){
+  const IDB_NAME = 'exam-prep-studio-db';
+  const IDB_STORE = 'kv';
+  function openIDB(){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = ()=>{ req.result.createObjectStore(IDB_STORE); };
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }
+  let idbPromise = null;
+  function getIDB(){ if(!idbPromise) idbPromise = openIDB(); return idbPromise; }
+  window.storage = {
+    async get(key){
+      const db = await getIDB();
+      return new Promise((resolve,reject)=>{
+        const req = db.transaction(IDB_STORE,'readonly').objectStore(IDB_STORE).get(key);
+        req.onsuccess = ()=> resolve(req.result===undefined ? null : {value:req.result});
+        req.onerror = ()=> reject(req.error);
+      });
+    },
+    async set(key, value){
+      const db = await getIDB();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(IDB_STORE,'readwrite');
+        tx.objectStore(IDB_STORE).put(value, key);
+        tx.oncomplete = ()=> resolve();
+        tx.onerror = ()=> reject(tx.error);
+      });
+    },
+    async delete(key){
+      const db = await getIDB();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(IDB_STORE,'readwrite');
+        tx.objectStore(IDB_STORE).delete(key);
+        tx.oncomplete = ()=> resolve();
+        tx.onerror = ()=> reject(tx.error);
+      });
+    }
+  };
+}
 async function loadJSON(key, fallback){
   try{ const r = await window.storage.get(key, false); return r ? JSON.parse(r.value) : fallback; }catch(e){ return fallback; }
 }
-async function saveJSON(key, value){ await window.storage.set(key, JSON.stringify(value), false); }
+async function saveJSON(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), false); }
+  catch(e){ console.error('Storage write failed for', key, e); }
+}
 
 async function saveBank(){ await saveJSON('qp:bank', bank); await maybeAutoGenerateSets(); }
 async function saveSets(){ await saveJSON('qp:sets', sets); await saveJSON('qp:leftover', leftover); }
@@ -834,23 +898,69 @@ function buildStudyOrder(){
   studyIndex = 0; studyRevealed = false;
 }
 
+function studySetLabel(){
+  if(studyScope==='all') return 'All '+bank.length+' questions';
+  if(studyScope==='leftover') return 'Leftover pool';
+  const idx = sets.findIndex(s=>s.id===studyScope);
+  return idx>=0 ? 'Study Set '+(idx+1) : 'Study set';
+}
+
 function renderStudyView(){
   const wrap = el('<div></div>');
+
+  if(!studyScope){
+    const card = el(`<div class="sheet">
+      <div class="sheet-eyebrow">Study Mode</div>
+      <div class="sheet-title">Choose a study set</div>
+      <div class="sheet-sub">${FIXED_SET_COUNT} fixed sets of ${FIXED_SET_SIZE} questions each — the same split used for Mock Exams — so you can study Set N, then take Mock Exam N.</div>
+    </div>`);
+
+    if(sets.length===0){
+      card.appendChild(el(`<div class="empty-state"><div class="big">📖</div>Study sets appear automatically once your question bank has at least ${FIXED_SET_COUNT*FIXED_SET_SIZE} questions (currently ${bank.length}).</div>`));
+      wrap.appendChild(card);
+      return wrap;
+    }
+
+    const grid = el('<div class="set-tile-grid"></div>');
+    sets.forEach((s,i)=>{
+      const qs = availableQuestionsForSet(s);
+      const knownCount = qs.filter(q=>known[q.id]).length;
+      const tile = el(`<div class="set-tile">
+        <div class="st-num">${i+1}</div>
+        <div class="st-label">Study Set ${i+1}</div>
+        <div class="st-meta">${qs.length} questions<br>${knownCount} known</div>
+      </div>`);
+      tile.onclick = ()=>{ studyScope=s.id; buildStudyOrder(); render(); };
+      grid.appendChild(tile);
+    });
+    card.appendChild(grid);
+
+    const extraLinks = el('<div style="margin-top:14px;display:flex;gap:18px;flex-wrap:wrap;"></div>');
+    const allLink = el(`<span class="back-link">Or study all ${bank.length} questions at once →</span>`);
+    allLink.onclick = ()=>{ studyScope='all'; buildStudyOrder(); render(); };
+    extraLinks.appendChild(allLink);
+    if(leftover.length){
+      const leftoverLink = el(`<span class="back-link">Leftover pool (${leftover.length}) →</span>`);
+      leftoverLink.onclick = ()=>{ studyScope='leftover'; buildStudyOrder(); render(); };
+      extraLinks.appendChild(leftoverLink);
+    }
+    card.appendChild(extraLinks);
+    wrap.appendChild(card);
+    return wrap;
+  }
+
   const card = el(`<div class="sheet">
     <div class="sheet-eyebrow">Study Mode</div>
-    <div class="sheet-title">Memorize question &amp; correct answer</div>
+    <div class="sheet-title">${esc(studySetLabel())}</div>
     <div class="sheet-sub">Shows the question and only the correct option — no wrong answers to confuse you. The correct answer is highlighted.</div>
   </div>`);
-
-  const opts = [['all','All questions ('+bank.length+')']];
-  sets.forEach(s=> opts.push([s.id, s.name+' ('+s.questionIds.length+')']));
-  if(leftover.length) opts.push(['leftover','Leftover pool ('+leftover.length+')']);
+  const backLink = el('<div class="back-link">&larr; Back to all study sets</div>');
+  backLink.onclick = ()=>{ studyScope=null; studyOrder=[]; render(); };
+  card.insertBefore(backLink, card.firstChild);
 
   const controlRow = el(`<div class="field-grid" style="align-items:end;">
-    <div class="field" style="margin-bottom:0;"><label>Scope</label><select id="studyScopeSel"><option value="">Choose…</option>${opts.map(([v,l])=>`<option value="${v}" ${studyScope===v?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
     <div class="field" style="margin-bottom:0;"><label>Layout</label><select id="studyLayoutSel"><option value="flashcard" ${studyLayout==='flashcard'?'selected':''}>Flashcard (one at a time)</option><option value="list" ${studyLayout==='list'?'selected':''}>List (scan all)</option></select></div>
   </div>`);
-  controlRow.querySelector('#studyScopeSel').onchange = (e)=>{ studyScope=e.target.value||null; buildStudyOrder(); render(); };
   controlRow.querySelector('#studyLayoutSel').onchange = (e)=>{ studyLayout=e.target.value; render(); };
   card.appendChild(controlRow);
 
@@ -858,12 +968,11 @@ function renderStudyView(){
     <label class="checkbox-row"><input type="checkbox" id="shufToggle" ${studyShuffleOn?'checked':''}> Shuffle order</label>
     <label class="checkbox-row"><input type="checkbox" id="onlyLearnToggle" ${studyOnlyLearning?'checked':''}> Only show questions I haven't marked "known" yet</label>
   </div>`);
-  toggleRow.querySelector('#shufToggle').onchange = (e)=>{ studyShuffleOn=e.target.checked; if(studyScope) buildStudyOrder(); render(); };
-  toggleRow.querySelector('#onlyLearnToggle').onchange = (e)=>{ studyOnlyLearning=e.target.checked; if(studyScope) buildStudyOrder(); render(); };
+  toggleRow.querySelector('#shufToggle').onchange = (e)=>{ studyShuffleOn=e.target.checked; buildStudyOrder(); render(); };
+  toggleRow.querySelector('#onlyLearnToggle').onchange = (e)=>{ studyOnlyLearning=e.target.checked; buildStudyOrder(); render(); };
   card.appendChild(toggleRow);
   wrap.appendChild(card);
 
-  if(!studyScope){ wrap.appendChild(el('<div class="empty-state"><div class="big">📖</div>Pick a scope above to start studying.</div>')); return wrap; }
   if(!studyOrder.length && studyScopeQuestions().length) buildStudyOrder();
   const totalInScope = studyScopeQuestions().length;
   const knownCount = studyScopeQuestions().filter(q=>known[q.id]).length;
@@ -971,31 +1080,76 @@ function renderStudyListRefresh(){ render(); }
    next time it's answered correctly in a later attempt (see
    submitExam()). One entry per unique question — no duplicates.
 ========================================================= */
+function wrongIdsForSet(setId){
+  const set = sets.find(s=>s.id===setId);
+  if(!set) return [];
+  const idSet = new Set(set.questionIds);
+  return Object.keys(wrongPool).filter(id=>wrongPool[id] && idSet.has(id));
+}
 function wrongPoolCount(){ return Object.keys(wrongPool).filter(id=>wrongPool[id]).length; }
-function wrongPoolQuestions(){ return Object.keys(wrongPool).filter(id=>wrongPool[id]).map(bankById).filter(Boolean); }
+function wrongPoolQuestionsForScope(){
+  if(!wrongScope) return [];
+  return wrongIdsForSet(wrongScope).map(bankById).filter(Boolean);
+}
 function buildWrongOrder(){
-  let ids = wrongPoolQuestions().map(q=>q.id);
+  let ids = wrongPoolQuestionsForScope().map(q=>q.id);
   if(wrongShuffleOn) ids = shuffle(ids);
   wrongOrder = ids;
   wrongIndex = 0; wrongRevealed = false;
 }
 function wrongOrderStale(){
-  const currentIds = new Set(Object.keys(wrongPool).filter(id=>wrongPool[id]));
+  const currentIds = new Set(wrongPoolQuestionsForScope().map(q=>q.id));
   if(currentIds.size !== wrongOrder.length) return true;
   return wrongOrder.some(id=>!currentIds.has(id));
 }
 
 function renderWrongView(){
   const wrap = el('<div></div>');
-  const count = wrongPoolCount();
+
+  if(!wrongScope){
+    const totalCount = wrongPoolCount();
+    const card = el(`<div class="sheet">
+      <div class="sheet-eyebrow">Wrong Questions</div>
+      <div class="sheet-title">${totalCount} question${totalCount===1?'':'s'} to review, across all sets</div>
+      <div class="sheet-sub">Automatically collected from Mock Exam attempts you got wrong, split by set — Set 1 through ${FIXED_SET_COUNT}. Answer one correctly on a later attempt in that set and it drops off by itself.</div>
+    </div>`);
+
+    if(sets.length===0){
+      card.appendChild(el(`<div class="empty-state"><div class="big">🎯</div>Paper sets appear automatically once your question bank has at least ${FIXED_SET_COUNT*FIXED_SET_SIZE} questions (currently ${bank.length}).</div>`));
+      wrap.appendChild(card);
+      return wrap;
+    }
+
+    const grid = el('<div class="set-tile-grid"></div>');
+    sets.forEach((s,i)=>{
+      const c = wrongIdsForSet(s.id).length;
+      const tile = el(`<div class="set-tile">
+        <div class="st-num">${i+1}</div>
+        <div class="st-label">Set ${i+1}</div>
+        <div class="st-meta">${c ? c+' to review' : 'All clear ✓'}</div>
+        ${c ? `<span class="st-badge">${c}</span>` : ''}
+      </div>`);
+      tile.onclick = ()=>{ wrongScope=s.id; buildWrongOrder(); render(); };
+      grid.appendChild(tile);
+    });
+    card.appendChild(grid);
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  const idx = sets.findIndex(s=>s.id===wrongScope);
+  const scopeCount = wrongPoolQuestionsForScope().length;
   const card = el(`<div class="sheet">
     <div class="sheet-eyebrow">Wrong Questions</div>
-    <div class="sheet-title">${count} question${count===1?'':'s'} to review</div>
-    <div class="sheet-sub">Automatically collected from Mock Exam attempts you got wrong, across all sets. Answer one correctly on a later attempt and it drops off this list by itself.</div>
+    <div class="sheet-title">Set ${idx+1} — ${scopeCount} question${scopeCount===1?'':'s'} to review</div>
+    <div class="sheet-sub">Answer one correctly on a later Mock Exam ${idx+1} attempt and it drops off this list automatically.</div>
   </div>`);
+  const backLink = el('<div class="back-link">&larr; Back to all sets</div>');
+  backLink.onclick = ()=>{ wrongScope=null; wrongOrder=[]; render(); };
+  card.insertBefore(backLink, card.firstChild);
 
-  if(count===0){
-    card.appendChild(el('<div class="empty-state"><div class="big">🎉</div>Nothing to review — you haven\'t missed any mock exam questions yet (or you\'ve cleared them all).</div>'));
+  if(scopeCount===0){
+    card.appendChild(el('<div class="empty-state"><div class="big">🎉</div>Nothing to review in this set — nice work!</div>'));
     wrap.appendChild(card);
     return wrap;
   }
@@ -1067,37 +1221,50 @@ function renderExamSetup(){
   const wrap = el('<div></div>');
   const card = el(`<div class="sheet">
     <div class="sheet-eyebrow">Mock Exam</div>
-    <div class="sheet-title">Set up your mock exam</div>
-    <div class="sheet-sub">Pick one of the ${FIXED_SET_COUNT} fixed ${FIXED_SET_SIZE}-question sets and start a timed (or untimed) run. Questions and options always appear in the same fixed order — no shuffling.</div>
+    <div class="sheet-title">Choose a mock exam</div>
+    <div class="sheet-sub">${FIXED_SET_COUNT} fixed sets of ${FIXED_SET_SIZE} questions each — Mock Exam 1 through ${FIXED_SET_COUNT}. Questions and options always appear in the same order — no shuffling.</div>
   </div>`);
 
   if(sets.length===0){ card.appendChild(el(`<div class="empty-state"><div class="big">📝</div>Paper sets appear automatically once your question bank has at least ${FIXED_SET_COUNT*FIXED_SET_SIZE} questions (currently ${bank.length}).</div>`)); wrap.appendChild(card); return wrap; }
 
-  const setOpts = sets.map(s=>`<option value="${s.id}" ${examSetup.setId===s.id?'selected':''}>${esc(s.name)} (${availableQuestionsForSet(s).length} q)</option>`).join('');
-  const form = el(`<div>
-    <div class="field"><label>Paper set</label><select id="esSet"><option value="">Choose a set…</option>${setOpts}</select></div>
-    <div class="field">
-      <label class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="esTimed" ${examSetup.timed?'checked':''}> Timed exam</label>
-      <input type="number" id="esMinutes" min="1" value="${examSetup.minutes}" ${examSetup.timed?'':'disabled'}> <span class="hint">minutes</span>
-    </div>
-    <div class="btn-row" style="justify-content:flex-start;margin-top:20px;">
-      <button class="btn btn-primary" id="esStart">Start exam</button>
-      <button class="btn btn-ghost" id="esPrint" ${examSetup.setId?'':'disabled'}>🖨 Print this set</button>
-    </div>
-  </div>`);
-  form.querySelector('#esSet').onchange = (e)=>{ examSetup.setId=e.target.value||null; const s=sets.find(x=>x.id===examSetup.setId); if(s) examSetup.minutes = availableQuestionsForSet(s).length; render(); };
-  form.querySelector('#esTimed').onchange = (e)=>{ examSetup.timed=e.target.checked; render(); };
-  form.querySelector('#esMinutes').oninput = (e)=>{ examSetup.minutes=parseInt(e.target.value,10)||1; };
-  form.querySelector('#esStart').onclick = ()=>{
-    if(!examSetup.setId){ alert('Choose a paper set first.'); return; }
-    startExam();
-  };
-  form.querySelector('#esPrint').onclick = ()=>{
-    const s = sets.find(x=>x.id===examSetup.setId);
-    if(s) printSet(s);
-  };
-  card.appendChild(form);
+  const grid = el('<div class="set-tile-grid"></div>');
+  sets.forEach((s,i)=>{
+    const attempts = results.filter(r=>r.setId===s.id);
+    const best = attempts.length ? Math.max(...attempts.map(r=>r.percentage)) : null;
+    const tile = el(`<div class="set-tile ${examSetup.setId===s.id?'selected':''}">
+      <div class="st-num">${i+1}</div>
+      <div class="st-label">Mock Exam ${i+1}</div>
+      <div class="st-meta">${availableQuestionsForSet(s).length} questions${attempts.length?'<br>'+attempts.length+' attempt'+(attempts.length===1?'':'s'):''}${best!=null?'<br>best '+best+'%':''}</div>
+    </div>`);
+    tile.onclick = ()=>{ examSetup.setId=s.id; examSetup.minutes = availableQuestionsForSet(s).length; render(); };
+    grid.appendChild(tile);
+  });
+  card.appendChild(grid);
   wrap.appendChild(card);
+
+  if(examSetup.setId){
+    const s = sets.find(x=>x.id===examSetup.setId);
+    const idx = sets.findIndex(x=>x.id===examSetup.setId);
+    if(s){
+      const form = el(`<div class="sheet" style="margin-top:18px;">
+        <div class="sheet-eyebrow">Mock Exam ${idx+1}</div>
+        <div class="sheet-title">${esc(s.name)} — ${availableQuestionsForSet(s).length} questions</div>
+        <div class="field">
+          <label class="checkbox-row" style="margin-bottom:6px;"><input type="checkbox" id="esTimed" ${examSetup.timed?'checked':''}> Timed exam</label>
+          <input type="number" id="esMinutes" min="1" value="${examSetup.minutes}" ${examSetup.timed?'':'disabled'}> <span class="hint">minutes</span>
+        </div>
+        <div class="btn-row" style="justify-content:flex-start;margin-top:20px;">
+          <button class="btn btn-primary" id="esStart">Start Mock Exam ${idx+1}</button>
+          <button class="btn btn-ghost" id="esPrint">🖨 Print this set</button>
+        </div>
+      </div>`);
+      form.querySelector('#esTimed').onchange = (e)=>{ examSetup.timed=e.target.checked; render(); };
+      form.querySelector('#esMinutes').oninput = (e)=>{ examSetup.minutes=parseInt(e.target.value,10)||1; };
+      form.querySelector('#esStart').onclick = ()=> startExam();
+      form.querySelector('#esPrint').onclick = ()=> printSet(s);
+      wrap.appendChild(form);
+    }
+  }
   return wrap;
 }
 
