@@ -47,7 +47,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15p
 button,input,select,textarea{font-family:var(--sans);}
 ::selection{background:var(--primary-soft);}
 
-.app-shell{max-width:1180px;margin:0 auto;padding:22px 20px 60px;}
+.app-shell{max-width:1320px;margin:0 auto;padding:22px 20px 60px;}
 
 /* ---- Masthead ---- */
 .masthead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
@@ -136,7 +136,7 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .set-name-input:focus{outline:none;border-color:var(--primary);}
 
 /* ---- Question option / exam UI ---- */
-.option-btn{display:flex;align-items:center;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px;background:var(--bg);cursor:pointer;font-size:16px;color:var(--ink);}
+.option-btn{display:flex;align-items:center;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:12px;padding:19px 24px;margin-bottom:16px;background:var(--bg);cursor:pointer;font-size:17px;line-height:1.5;color:var(--ink);}
 .option-btn:hover{border-color:var(--primary);}
 .option-btn.selected{border-color:var(--primary);background:var(--primary-soft);font-weight:600;}
 .option-btn.correct{border-color:var(--lime);background:var(--lime-soft);}
@@ -166,7 +166,9 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .palette-btn.marked{background:var(--violet);color:#fff;}
 .palette-btn.current{outline:3px solid var(--primary);outline-offset:1px;}
 .q-progress{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:4px;}
-.q-text{font-family:var(--display);font-size:21px;font-weight:600;margin-bottom:24px;line-height:1.5;}
+.q-text{font-family:var(--display);font-size:24px;font-weight:600;margin-bottom:30px;line-height:1.55;}
+.exam-question-panel{padding:44px 48px;}
+@media (max-width:640px){.exam-question-panel{padding:26px 22px;} .q-text{font-size:20px;}}
 .exam-nav-row{display:flex;justify-content:space-between;margin-top:22px;gap:8px;flex-wrap:wrap;}
 .exam-nav-row .left-group,.exam-nav-row .right-group{display:flex;gap:8px;flex-wrap:wrap;}
 
@@ -192,6 +194,19 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .qa-list-item{background:var(--surface);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
 .qa-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
 .qa-know-btns{display:flex;gap:6px;margin-top:10px;}
+
+/* ---- Per-question explanation (Study Mode / Wrong Questions) ---- */
+.expl-wrap{text-align:left;margin-top:16px;}
+.flashcard .expl-wrap{margin-top:22px;}
+.expl-toggle{background:none;border:none;color:var(--primary);font-weight:600;font-size:13px;cursor:pointer;padding:0;text-align:center;width:100%;}
+.flashcard .expl-toggle{text-align:center;}
+.qa-list-item .expl-toggle{text-align:left;}
+.expl-text{background:var(--sky-soft);border-left:4px solid var(--sky);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13.5px;color:var(--ink);line-height:1.6;white-space:pre-wrap;}
+.expl-edit-link{font-size:11.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;margin-top:6px;display:inline-block;}
+.expl-actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;}
+.flashcard .expl-actions-row{justify-content:center;}
+.expl-edit textarea{width:100%;min-height:70px;font-size:13.5px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:var(--sans);resize:vertical;}
+.expl-edit-actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end;}
 
 /* ---- Import preview ---- */
 .import-row-ok{color:var(--ink);}
@@ -265,6 +280,10 @@ let wrongShuffleOn = true;
 let wrongOrder = [];
 let wrongIndex = 0;
 let wrongRevealed = false;
+
+// Per-question explanation UI state (Study Mode + Wrong Questions)
+let explOpenIds = new Set();       // question ids whose explanation panel is expanded
+let explEditingId = null;          // question id currently being written/edited, or null
 
 const FIXED_SET_COUNT = 8;
 const FIXED_SET_SIZE = 147;
@@ -429,7 +448,8 @@ function parseJSONText(text){
     else if(item.answer!=null) idx = resolveCorrectIndex(item.answer, optionTexts);
     if(idx<0 || idx>=optionTexts.length){ results.push({ok:false, lineNo:i+1, raw:JSON.stringify(item).slice(0,90), reason:'Could not determine the correct option'}); return; }
     const options = optionTexts.map(t=>({id:uid(), text:t}));
-    results.push({ok:true, q:{ id:uid(), question, options, correctOptionId:options[idx].id, createdAt:new Date().toISOString() }});
+    const explanation = String(item.explanation||item.note||item.why||'').trim();
+    results.push({ok:true, q:{ id:uid(), question, options, correctOptionId:options[idx].id, explanation, createdAt:new Date().toISOString() }});
   });
   return {results};
 }
@@ -554,7 +574,7 @@ function renderImportCard(){
 
   const helpText = importMode==='pipe'
     ? 'One question per line: <code>Question | Option A | Option B | Option C | Option D | CorrectAnswer</code><br>The last field can be the correct letter (A/B/C…), option number (1,2,3…), or the exact option text. Lines starting with # are ignored.'
-    : 'Paste a JSON array, e.g. <code>[{"question":"2+2=?","options":["3","4","5"],"correct":"B"}]</code>. Accepts <code>correct</code> (letter/number/text) or <code>correctIndex</code> (0-based).';
+    : 'Paste a JSON array, e.g. <code>[{"question":"2+2=?","options":["3","4","5"],"correct":"B"}]</code>. Accepts <code>correct</code> (letter/number/text) or <code>correctIndex</code> (0-based), plus an optional <code>explanation</code> field shown in Study Mode.';
   card.appendChild(el(`<div class="hint" style="margin-bottom:10px;line-height:1.6;">${helpText}</div>`));
 
   const ta = el(`<div class="field"><textarea id="importTa" placeholder="${importMode==='pipe' ? 'What is the capital of France? | Berlin | Madrid | Paris | Rome | Paris' : '[\\n  {"question":"...","options":["...","...","..."],"correct":"A"}\\n]'}" style="min-height:150px;font-family:monospace;font-size:13px;"></textarea></div>`);
@@ -823,6 +843,9 @@ function openQuestionModal(existing){
   addOptBtn.onclick = ()=>{ if(optionRows.length<8){ optionRows.push({id:uid(), text:'', correct:false}); renderOptRows(); } };
   box.appendChild(addOptBtn);
 
+  const explField = el(`<div class="field"><label>Explanation (optional)</label><textarea id="qmExpl" placeholder="Why is the correct answer correct? Shown in Study Mode after you reveal the answer." style="min-height:60px;">${existing?esc(existing.explanation||''):''}</textarea></div>`);
+  box.appendChild(explField);
+
   const errBox = el('<div></div>');
   box.appendChild(errBox);
 
@@ -852,10 +875,11 @@ function openQuestionModal(existing){
     if(!cleanOpts.some(o=>o.correct)){ errBox.appendChild(el('<div class="err-box">Select the correct option.</div>')); return; }
     const options = cleanOpts.map(o=>({id:o.id, text:o.text.trim()}));
     const correctOptionId = cleanOpts.find(o=>o.correct).id;
+    const explanation = box.querySelector('#qmExpl').value.trim();
     if(existing){
-      existing.question = questionText; existing.options = options; existing.correctOptionId = correctOptionId;
+      existing.question = questionText; existing.options = options; existing.correctOptionId = correctOptionId; existing.explanation = explanation;
     }else{
-      bank.push({ id:uid(), question:questionText, options, correctOptionId, createdAt:new Date().toISOString() });
+      bank.push({ id:uid(), question:questionText, options, correctOptionId, explanation, createdAt:new Date().toISOString() });
     }
     await saveBank();
     overlay.remove();
@@ -998,6 +1022,58 @@ function renderStudyView(){
   return wrap;
 }
 
+/* =========================================================
+   PER-QUESTION EXPLANATION
+   Optional free-text note on why the correct answer is correct.
+   Shared by Study Mode and Wrong Questions (flashcard + list).
+========================================================= */
+function renderExplanationBlock(q){
+  const wrap = el('<div class="expl-wrap"></div>');
+  const isOpen = explOpenIds.has(q.id);
+  const isEditing = explEditingId === q.id;
+  const hasExpl = !!(q.explanation && q.explanation.trim());
+
+  if(isEditing){
+    const box = el(`<div class="expl-edit">
+      <textarea placeholder="Why is this the correct answer?">${esc(q.explanation||'')}</textarea>
+      <div class="expl-edit-actions">
+        <button class="btn btn-ghost btn-sm" data-act="cancel">Cancel</button>
+        <button class="btn btn-primary btn-sm" data-act="save">Save</button>
+      </div>
+    </div>`);
+    box.querySelector('[data-act="save"]').onclick = async ()=>{
+      const val = box.querySelector('textarea').value.trim();
+      q.explanation = val;
+      await saveBank();
+      explEditingId = null;
+      if(val) explOpenIds.add(q.id); else explOpenIds.delete(q.id);
+      render();
+    };
+    box.querySelector('[data-act="cancel"]').onclick = ()=>{ explEditingId=null; render(); };
+    wrap.appendChild(box);
+    return wrap;
+  }
+
+  if(hasExpl){
+    const toggle = el(`<button type="button" class="expl-toggle">${isOpen?'▲ Hide explanation':'💡 Why is this correct?'}</button>`);
+    toggle.onclick = ()=>{ if(isOpen) explOpenIds.delete(q.id); else explOpenIds.add(q.id); render(); };
+    wrap.appendChild(toggle);
+    if(isOpen){
+      wrap.appendChild(el(`<div class="expl-text">${esc(q.explanation)}</div>`));
+      const editLink = el('<span class="expl-edit-link">Edit explanation</span>');
+      editLink.onclick = ()=>{ explEditingId=q.id; render(); };
+      wrap.appendChild(editLink);
+    }
+  }else{
+    const row = el('<div class="expl-actions-row"></div>');
+    const addBtn = el('<button type="button" class="btn btn-ghost btn-sm">💡 Add an explanation</button>');
+    addBtn.onclick = ()=>{ explEditingId=q.id; render(); };
+    row.appendChild(addBtn);
+    wrap.appendChild(row);
+  }
+  return wrap;
+}
+
 function renderFlashcard(){
   const qid = studyOrder[studyIndex];
   const q = bankById(qid);
@@ -1010,15 +1086,16 @@ function renderFlashcard(){
     ${studyRevealed ? `<div class="answer-pill">✓ ${esc(correct?correct.text:'')}</div>` : `<button class="btn btn-primary" id="revealBtn" style="margin:0 auto;">Show correct answer</button>`}
   </div>`);
   if(!studyRevealed) card.querySelector('#revealBtn').onclick = ()=>{ studyRevealed=true; render(); };
+  if(studyRevealed) card.appendChild(renderExplanationBlock(q));
   stage.appendChild(card);
 
   const nav = el('<div class="flashcard-controls"></div>');
   const prevBtn = el(`<button class="btn btn-ghost btn-sm" ${studyIndex===0?'disabled':''}>&larr; Prev</button>`);
   const nextBtn = el(`<button class="btn btn-ghost btn-sm" ${studyIndex>=studyOrder.length-1?'disabled':''}>Next &rarr;</button>`);
   const shuffleBtn = el('<button class="btn btn-ghost btn-sm">🔀 Reshuffle</button>');
-  prevBtn.onclick = ()=>{ studyIndex=Math.max(0,studyIndex-1); studyRevealed=false; render(); };
-  nextBtn.onclick = ()=>{ studyIndex=Math.min(studyOrder.length-1,studyIndex+1); studyRevealed=false; render(); };
-  shuffleBtn.onclick = ()=>{ buildStudyOrder(); render(); };
+  prevBtn.onclick = ()=>{ studyIndex=Math.max(0,studyIndex-1); studyRevealed=false; explEditingId=null; render(); };
+  nextBtn.onclick = ()=>{ studyIndex=Math.min(studyOrder.length-1,studyIndex+1); studyRevealed=false; explEditingId=null; render(); };
+  shuffleBtn.onclick = ()=>{ buildStudyOrder(); explEditingId=null; render(); };
   nav.appendChild(prevBtn); nav.appendChild(shuffleBtn); nav.appendChild(nextBtn);
   stage.appendChild(nav);
 
@@ -1034,6 +1111,7 @@ function renderFlashcard(){
   return stage;
 }
 function advanceFlashcard(){
+  explEditingId = null;
   if(studyOnlyLearning){ buildStudyOrder(); render(); return; }
   studyIndex = Math.min(studyOrder.length-1, studyIndex+1);
   studyRevealed = false;
@@ -1069,6 +1147,7 @@ function renderStudyList(){
     stillBtn.onclick = async ()=>{ known[q.id]=false; await saveKnown(); renderStudyListRefresh(); };
     gotBtn.onclick = async ()=>{ known[q.id]=true; await saveKnown(); renderStudyListRefresh(); };
     btns.appendChild(stillBtn); btns.appendChild(gotBtn);
+    item.appendChild(renderExplanationBlock(q));
     wrap.appendChild(item);
   });
   return wrap;
@@ -1183,15 +1262,16 @@ function renderWrongFlashcard(){
     ${wrongRevealed ? `<div class="answer-pill">✓ ${esc(correct?correct.text:'')}</div>` : `<button class="btn btn-primary" id="wrongRevealBtn" style="margin:0 auto;">Show correct answer</button>`}
   </div>`);
   if(!wrongRevealed) card.querySelector('#wrongRevealBtn').onclick = ()=>{ wrongRevealed=true; render(); };
+  if(wrongRevealed) card.appendChild(renderExplanationBlock(q));
   stage.appendChild(card);
 
   const nav = el('<div class="flashcard-controls"></div>');
   const prevBtn = el(`<button class="btn btn-ghost btn-sm" ${wrongIndex===0?'disabled':''}>&larr; Prev</button>`);
   const nextBtn = el(`<button class="btn btn-ghost btn-sm" ${wrongIndex>=wrongOrder.length-1?'disabled':''}>Next &rarr;</button>`);
   const shuffleBtn = el('<button class="btn btn-ghost btn-sm">🔀 Reshuffle</button>');
-  prevBtn.onclick = ()=>{ wrongIndex=Math.max(0,wrongIndex-1); wrongRevealed=false; render(); };
-  nextBtn.onclick = ()=>{ wrongIndex=Math.min(wrongOrder.length-1,wrongIndex+1); wrongRevealed=false; render(); };
-  shuffleBtn.onclick = ()=>{ buildWrongOrder(); render(); };
+  prevBtn.onclick = ()=>{ wrongIndex=Math.max(0,wrongIndex-1); wrongRevealed=false; explEditingId=null; render(); };
+  nextBtn.onclick = ()=>{ wrongIndex=Math.min(wrongOrder.length-1,wrongIndex+1); wrongRevealed=false; explEditingId=null; render(); };
+  shuffleBtn.onclick = ()=>{ buildWrongOrder(); explEditingId=null; render(); };
   nav.appendChild(prevBtn); nav.appendChild(shuffleBtn); nav.appendChild(nextBtn);
   stage.appendChild(nav);
   return stage;
@@ -1203,10 +1283,12 @@ function renderWrongList(){
     const q = bankById(qid);
     if(!q) return;
     const correct = q.options.find(o=>o.id===q.correctOptionId);
-    wrap.appendChild(el(`<div class="qa-list-item">
+    const item = el(`<div class="qa-list-item">
       <div class="qa-q">${esc(q.question)}</div>
       <div class="answer-pill" style="font-size:14px;padding:9px 16px;">✓ ${esc(correct?correct.text:'')}</div>
-    </div>`));
+    </div>`);
+    item.appendChild(renderExplanationBlock(q));
+    wrap.appendChild(item);
   });
   return wrap;
 }
@@ -1320,7 +1402,7 @@ function renderExamRunner(){
   wrap.appendChild(header);
 
   const layout = el('<div class="exam-layout"></div>');
-  const main = el('<div class="sheet"></div>');
+  const main = el('<div class="sheet exam-question-panel"></div>');
   main.appendChild(el(`<div class="q-text">${esc(q.question)}</div>`));
   q.options.forEach((o,i)=>{
     const selected = ex.answers[q.id]===o.id;
