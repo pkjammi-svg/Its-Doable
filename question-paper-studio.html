@@ -152,10 +152,6 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .exam-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
 .timer-chip{background:var(--coral-soft);color:var(--coral);font-weight:700;padding:9px 18px;border-radius:999px;font-family:var(--display);font-size:15px;}
 .timer-chip.low{background:var(--red-soft);color:var(--red);}
-.exam-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;}
-@media (max-width:880px){.exam-layout{grid-template-columns:1fr;} .palette-panel{order:2;}}
-.palette-panel{position:sticky;top:20px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:16px;}
-.palette-title{font-family:var(--display);font-weight:700;font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
 .palette-legend{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--ink-soft);margin-bottom:12px;}
 .palette-legend span{display:inline-flex;align-items:center;gap:6px;}
 .palette-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
@@ -166,8 +162,8 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .palette-btn.marked{background:var(--violet);color:#fff;}
 .palette-btn.current{outline:3px solid var(--primary);outline-offset:1px;}
 .q-progress{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:4px;}
-.q-text{font-family:var(--display);font-size:24px;font-weight:600;margin-bottom:30px;line-height:1.55;}
-.exam-question-panel{padding:44px 48px;}
+.q-text{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:32px;line-height:1.55;}
+.exam-question-panel{padding:52px 64px;max-width:980px;margin:0 auto;}
 @media (max-width:640px){.exam-question-panel{padding:26px 22px;} .q-text{font-size:20px;}}
 .exam-nav-row{display:flex;justify-content:space-between;margin-top:22px;gap:8px;flex-wrap:wrap;}
 .exam-nav-row .left-group,.exam-nav-row .right-group{display:flex;gap:8px;flex-wrap:wrap;}
@@ -1394,14 +1390,18 @@ function renderExamRunner(){
   const ex = examState;
   const q = ex.questions[ex.currentIndex];
   ex.visited[q.id] = true;
+  const answeredCount = Object.keys(ex.answers).length;
 
   const header = el(`<div class="exam-header">
     <div><div class="sheet-eyebrow" style="margin-bottom:2px;">${esc(ex.setName)}</div><div class="q-progress">Question ${ex.currentIndex+1} of ${ex.questions.length}</div></div>
-    ${ex.timed ? `<div class="timer-chip" id="examTimerChip">${fmtTime(ex.timeLeftSec)}</div>` : ''}
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" id="reviewBtn">📋 Review (${answeredCount}/${ex.questions.length} answered)</button>
+      ${ex.timed ? `<div class="timer-chip" id="examTimerChip">${fmtTime(ex.timeLeftSec)}</div>` : ''}
+    </div>
   </div>`);
+  header.querySelector('#reviewBtn').onclick = ()=> openReviewModal();
   wrap.appendChild(header);
 
-  const layout = el('<div class="exam-layout"></div>');
   const main = el('<div class="sheet exam-question-panel"></div>');
   main.appendChild(el(`<div class="q-text">${esc(q.question)}</div>`));
   q.options.forEach((o,i)=>{
@@ -1433,31 +1433,7 @@ function renderExamRunner(){
   rightGroup.appendChild(nextBtn); rightGroup.appendChild(submitBtn);
   navRow.appendChild(leftGroup); navRow.appendChild(rightGroup);
   main.appendChild(navRow);
-  layout.appendChild(main);
-
-  const palette = el(`<div class="palette-panel">
-    <div class="palette-title">Question palette</div>
-    <div class="palette-legend">
-      <span><i style="background:var(--teal)"></i>Answered</span>
-      <span><i style="background:var(--amber-soft);border:1px solid var(--amber)"></i>Visited, unanswered</span>
-      <span><i style="background:var(--violet)"></i>Marked for review</span>
-      <span><i style="background:var(--surface-2)"></i>Not visited</span>
-    </div>
-    <div class="palette-grid"></div>
-  </div>`);
-  const grid = palette.querySelector('.palette-grid');
-  ex.questions.forEach((qq,i)=>{
-    const cls = ['palette-btn'];
-    if(ex.marked[qq.id]) cls.push('marked');
-    else if(ex.answers[qq.id]) cls.push('answered');
-    else if(ex.visited[qq.id]) cls.push('visited');
-    if(i===ex.currentIndex) cls.push('current');
-    const b = el(`<button class="${cls.join(' ')}">${i+1}</button>`);
-    b.onclick = ()=>{ ex.currentIndex=i; render(); };
-    grid.appendChild(b);
-  });
-  layout.appendChild(palette);
-  wrap.appendChild(layout);
+  wrap.appendChild(main);
 
   const exitBtn = el('<button class="btn btn-ghost btn-sm" style="margin-top:16px;">Abandon exam &amp; return to setup</button>');
   exitBtn.onclick = ()=>{
@@ -1467,6 +1443,37 @@ function renderExamRunner(){
   wrap.appendChild(exitBtn);
 
   return wrap;
+}
+
+function openReviewModal(){
+  const ex = examState;
+  const overlay = el('<div class="modal-overlay"></div>');
+  const box = el('<div class="modal-box wide"></div>');
+  overlay.appendChild(box);
+  overlay.onclick = (e)=>{ if(e.target===overlay) overlay.remove(); };
+  const closeBtn = el('<button class="modal-close">✕</button>');
+  closeBtn.onclick = ()=> overlay.remove();
+  box.appendChild(closeBtn);
+  box.appendChild(el('<div class="modal-title">Question review</div>'));
+  box.appendChild(el(`<div class="palette-legend" style="flex-direction:row;flex-wrap:wrap;gap:14px;margin-bottom:14px;">
+    <span><i style="background:var(--teal)"></i>Answered</span>
+    <span><i style="background:var(--amber-soft);border:1px solid var(--amber)"></i>Visited, unanswered</span>
+    <span><i style="background:var(--violet)"></i>Marked for review</span>
+    <span><i style="background:var(--surface-2)"></i>Not visited</span>
+  </div>`));
+  const grid = el('<div class="palette-grid" style="max-height:60vh;"></div>');
+  ex.questions.forEach((qq,i)=>{
+    const cls = ['palette-btn'];
+    if(ex.marked[qq.id]) cls.push('marked');
+    else if(ex.answers[qq.id]) cls.push('answered');
+    else if(ex.visited[qq.id]) cls.push('visited');
+    if(i===ex.currentIndex) cls.push('current');
+    const b = el(`<button class="${cls.join(' ')}">${i+1}</button>`);
+    b.onclick = ()=>{ ex.currentIndex=i; overlay.remove(); render(); };
+    grid.appendChild(b);
+  });
+  box.appendChild(grid);
+  document.body.appendChild(overlay);
 }
 
 async function submitExam(){
