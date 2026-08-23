@@ -198,8 +198,9 @@ table.log-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-
 .flashcard .expl-toggle{text-align:center;}
 .qa-list-item .expl-toggle{text-align:left;}
 .expl-text{background:var(--sky-soft);border-left:4px solid var(--sky);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13.5px;color:var(--ink);line-height:1.6;white-space:pre-wrap;}
+.expl-loading{font-size:12.5px;color:var(--ink-soft);font-style:italic;padding:6px 0;}
 .expl-edit-link{font-size:11.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;margin-top:6px;display:inline-block;}
-.expl-actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;}
+.expl-actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;align-items:center;}
 .flashcard .expl-actions-row{justify-content:center;}
 .expl-edit textarea{width:100%;min-height:70px;font-size:13.5px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:var(--sans);resize:vertical;}
 .expl-edit-actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end;}
@@ -278,8 +279,11 @@ let wrongIndex = 0;
 let wrongRevealed = false;
 
 // Per-question explanation UI state (Study Mode + Wrong Questions)
-let explOpenIds = new Set();       // question ids whose explanation panel is expanded
 let explEditingId = null;          // question id currently being written/edited, or null
+let explLoadingIds = new Set();    // question ids currently generating an AI explanation
+let explErrors = {};               // {questionId: last AI-generation error message}
+
+let apiKey = null;                 // Anthropic API key, entered via the settings modal
 
 const FIXED_SET_COUNT = 8;
 const FIXED_SET_SIZE = 147;
@@ -369,14 +373,26 @@ async function saveSets(){ await saveJSON('qp:sets', sets); await saveJSON('qp:l
 async function saveResults(){ await saveJSON('qp:results', results); }
 async function saveKnown(){ await saveJSON('qp:known', known); }
 async function saveWrongPool(){ await saveJSON('qp:wrongPool', wrongPool); }
+async function loadApiKey(){ try{ const r=await window.storage.get('apiKey', false); return r?r.value:null; }catch(e){ return null; } }
+async function saveApiKey(key){ await window.storage.set('apiKey', key, false); }
+async function clearApiKey(){ await window.storage.delete('apiKey', false); }
 
 /* =========================================================
-   CLAUDE API (optional AI-assisted parsing)
+   CLAUDE API (AI-assisted parsing + Study Mode explanations)
 ========================================================= */
 async function claudeCall(content, system){
+  if(!apiKey){
+    throw new Error('Add your Anthropic API key in Settings (gear icon, top right) to use AI features');
+  }
   const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:4096, system, messages:[{role:'user', content}] })
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({ model:'claude-sonnet-5', max_tokens:4096, system, messages:[{role:'user', content}] })
   });
   const data = await res.json();
   if(data.error) throw new Error(data.error.message || 'AI request failed');
@@ -482,6 +498,7 @@ async function boot(){
   results = await loadJSON('qp:results', []);
   known = await loadJSON('qp:known', {});
   wrongPool = await loadJSON('qp:wrongPool', {});
+  apiKey = await loadApiKey();
   await maybeAutoGenerateSets(); // safety net: covers a bank that already had ≥1,176 questions but no sets yet
   render();
 }
@@ -517,9 +534,50 @@ window.addEventListener('resize', adjustFlashcardStage);
 function renderMasthead(){
   const h = el(`<div class="masthead">
     <div class="brand"><div class="brand-mark">${BRAND_MARK_SVG}</div><div><div class="brand-name">It's Doable</div><div class="brand-tagline">Exam Prep Studio — build, memorize, mock-test.</div></div></div>
-    <div class="stats-chip"><span><b>${bank.length}</b> questions</span><span><b>${sets.length}</b> paper sets</span><span><b>${results.length}</b> attempts</span></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="stats-chip"><span><b>${bank.length}</b> questions</span><span><b>${sets.length}</b> paper sets</span><span><b>${results.length}</b> attempts</span></div>
+      <button class="btn btn-ghost btn-sm" id="settingsBtn" title="AI settings">⚙ ${apiKey?'AI on':'AI settings'}</button>
+    </div>
   </div>`);
+  h.querySelector('#settingsBtn').onclick = openSettingsModal;
   return h;
+}
+function openSettingsModal(){
+  const overlay = el('<div class="modal-overlay"></div>');
+  const box = el('<div class="modal-box"></div>');
+  overlay.appendChild(box);
+  overlay.onclick = (e)=>{ if(e.target===overlay) overlay.remove(); };
+  const closeBtn = el('<button class="modal-close">✕</button>');
+  closeBtn.onclick = ()=> overlay.remove();
+  box.appendChild(closeBtn);
+  box.appendChild(el('<div class="modal-title">AI settings</div>'));
+  box.appendChild(el(`<div style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;line-height:1.5;">
+    AI-assisted import and auto-generated Study Mode explanations call the Anthropic API directly from your browser using your own API key. The key is stored only in this browser (IndexedDB) — it's never sent anywhere except api.anthropic.com.
+  </div>`));
+  const field = el(`<div class="field">
+    <label>Anthropic API key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." value="${apiKey||''}">
+    <div class="hint">Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com/settings/keys</a></div>
+  </div>`);
+  box.appendChild(field);
+  const row = el(`<div style="display:flex;gap:10px;margin-top:6px;">
+    <button class="btn btn-primary" id="saveKeyBtn">Save key</button>
+    <button class="btn btn-ghost" id="clearKeyBtn">Remove key</button>
+  </div>`);
+  box.appendChild(row);
+  const msg = el('<div id="settingsMsg"></div>');
+  box.appendChild(msg);
+  row.querySelector('#saveKeyBtn').onclick = async ()=>{
+    const val = field.querySelector('#apiKeyInput').value.trim();
+    if(!val){ msg.innerHTML = '<div class="err-box">Enter a key first.</div>'; return; }
+    apiKey = val; await saveApiKey(val);
+    msg.innerHTML = '<div class="ok-box">Saved.</div>';
+  };
+  row.querySelector('#clearKeyBtn').onclick = async ()=>{
+    apiKey = null; await clearApiKey(); field.querySelector('#apiKeyInput').value='';
+    msg.innerHTML = '<div class="ok-box">Key removed.</div>';
+  };
+  document.body.appendChild(overlay);
 }
 function renderNavTabs(){
   const tabsMeta = [
@@ -974,7 +1032,7 @@ function renderStudyView(){
   const card = el(`<div class="sheet">
     <div class="sheet-eyebrow">Study Mode</div>
     <div class="sheet-title">${esc(studySetLabel())}</div>
-    <div class="sheet-sub">Shows the question and only the correct option — no wrong answers to confuse you. The correct answer is highlighted.</div>
+    <div class="sheet-sub">Reveal shows all the options with the correct one highlighted, plus an AI-generated explanation of why it's correct.</div>
   </div>`);
   const backLink = el('<div class="back-link">&larr; Back to all study sets</div>');
   backLink.onclick = ()=>{ studyScope=null; studyOrder=[]; render(); };
@@ -1023,10 +1081,38 @@ function renderStudyView(){
    Optional free-text note on why the correct answer is correct.
    Shared by Study Mode and Wrong Questions (flashcard + list).
 ========================================================= */
+/* AI-generate a short "why is this correct" explanation for a bank question,
+   caching the result onto the question itself so it's only generated once. */
+async function maybeGenerateExplanation(q){
+  if(!apiKey) return;
+  if(q.explanation && q.explanation.trim()) return;
+  if(explLoadingIds.has(q.id)) return;
+  explLoadingIds.add(q.id);
+  delete explErrors[q.id];
+  render();
+  try{
+    const correct = q.options.find(o=>o.id===q.correctOptionId);
+    const optsStr = q.options.map((o,i)=>`${OPTION_LETTERS[i]}) ${o.text}`).join('\n');
+    const prompt = `Question: ${q.question}\nOptions:\n${optsStr}\nCorrect answer: ${correct?correct.text:'(unknown)'}\n\nIn 1-2 short, plain sentences, explain why this is the correct answer. Be direct and specific to this question — don't restate the question or list the options back.`;
+    const explanation = (await claudeCall(prompt, 'You are a concise tutor explaining exam answers. Reply with 1-2 plain sentences only — no markdown, no preamble, no restating the question.')).trim();
+    q.explanation = explanation;
+    await saveBank();
+  }catch(e){
+    explErrors[q.id] = e.message;
+  }
+  explLoadingIds.delete(q.id);
+  render();
+}
+function regenerateExplanation(q){
+  q.explanation = '';
+  maybeGenerateExplanation(q);
+}
+
 function renderExplanationBlock(q){
   const wrap = el('<div class="expl-wrap"></div>');
-  const isOpen = explOpenIds.has(q.id);
   const isEditing = explEditingId === q.id;
+  const isLoading = explLoadingIds.has(q.id);
+  const err = explErrors[q.id];
   const hasExpl = !!(q.explanation && q.explanation.trim());
 
   if(isEditing){
@@ -1042,7 +1128,6 @@ function renderExplanationBlock(q){
       q.explanation = val;
       await saveBank();
       explEditingId = null;
-      if(val) explOpenIds.add(q.id); else explOpenIds.delete(q.id);
       render();
     };
     box.querySelector('[data-act="cancel"]').onclick = ()=>{ explEditingId=null; render(); };
@@ -1050,23 +1135,41 @@ function renderExplanationBlock(q){
     return wrap;
   }
 
-  if(hasExpl){
-    const toggle = el(`<button type="button" class="expl-toggle">${isOpen?'▲ Hide explanation':'💡 Why is this correct?'}</button>`);
-    toggle.onclick = ()=>{ if(isOpen) explOpenIds.delete(q.id); else explOpenIds.add(q.id); render(); };
-    wrap.appendChild(toggle);
-    if(isOpen){
-      wrap.appendChild(el(`<div class="expl-text">${esc(q.explanation)}</div>`));
-      const editLink = el('<span class="expl-edit-link">Edit explanation</span>');
-      editLink.onclick = ()=>{ explEditingId=q.id; render(); };
-      wrap.appendChild(editLink);
-    }
-  }else{
-    const row = el('<div class="expl-actions-row"></div>');
-    const addBtn = el('<button type="button" class="btn btn-ghost btn-sm">💡 Add an explanation</button>');
-    addBtn.onclick = ()=>{ explEditingId=q.id; render(); };
-    row.appendChild(addBtn);
-    wrap.appendChild(row);
+  if(isLoading){
+    wrap.appendChild(el('<div class="expl-loading">✨ Generating explanation…</div>'));
+    return wrap;
   }
+
+  if(hasExpl){
+    wrap.appendChild(el(`<div class="expl-text">💡 ${esc(q.explanation)}</div>`));
+    const actions = el('<div class="expl-actions-row"></div>');
+    if(apiKey){
+      const regen = el('<span class="expl-edit-link">🔄 Regenerate with AI</span>');
+      regen.onclick = ()=> regenerateExplanation(q);
+      actions.appendChild(regen);
+    }
+    const editLink = el('<span class="expl-edit-link">Edit</span>');
+    editLink.onclick = ()=>{ explEditingId=q.id; render(); };
+    actions.appendChild(editLink);
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  if(err){
+    wrap.appendChild(el(`<div class="expl-loading" style="color:var(--red);">Couldn't generate an explanation (${esc(err)}).</div>`));
+  }else if(!apiKey){
+    wrap.appendChild(el('<div class="expl-loading">Add an Anthropic API key in Settings (⚙, top right) to auto-generate explanations.</div>'));
+  }
+  const row = el('<div class="expl-actions-row"></div>');
+  if(apiKey){
+    const genBtn = el(`<button type="button" class="btn btn-ghost btn-sm">✨ ${err?'Retry':'Generate'} with AI</button>`);
+    genBtn.onclick = ()=> maybeGenerateExplanation(q);
+    row.appendChild(genBtn);
+  }
+  const addBtn = el('<button type="button" class="btn btn-ghost btn-sm">Write my own</button>');
+  addBtn.onclick = ()=>{ explEditingId=q.id; render(); };
+  row.appendChild(addBtn);
+  wrap.appendChild(row);
   return wrap;
 }
 
@@ -1075,14 +1178,21 @@ function renderFlashcard(){
   const q = bankById(qid);
   const stage = el('<div class="flashcard-stage"></div>');
   if(!q){ stage.appendChild(el('<div class="empty-state">Question no longer exists.</div>')); return stage; }
-  const correct = q.options.find(o=>o.id===q.correctOptionId);
   const card = el(`<div class="flashcard">
     <div class="flashcard-eyebrow">Card ${studyIndex+1} of ${studyOrder.length}${known[q.id]?' · ✅ known':''}</div>
     <div class="flashcard-q">${esc(q.question)}</div>
-    ${studyRevealed ? `<div class="answer-pill">✓ ${esc(correct?correct.text:'')}</div>` : `<button class="btn btn-primary" id="revealBtn" style="margin:0 auto;">Show correct answer</button>`}
   </div>`);
-  if(!studyRevealed) card.querySelector('#revealBtn').onclick = ()=>{ studyRevealed=true; render(); };
-  if(studyRevealed) card.appendChild(renderExplanationBlock(q));
+  if(!studyRevealed){
+    const revealBtn = el('<button class="btn btn-primary" id="revealBtn" style="margin:0 auto;">Show correct answer</button>');
+    revealBtn.onclick = ()=>{ studyRevealed=true; render(); maybeGenerateExplanation(q); };
+    card.appendChild(revealBtn);
+  }else{
+    q.options.forEach((o,i)=>{
+      const isCorrect = o.id===q.correctOptionId;
+      card.appendChild(el(`<div class="option-btn ${isCorrect?'correct':''}" style="cursor:default;"><span class="option-letter">${OPTION_LETTERS[i]}</span><span>${esc(o.text)}</span>${isCorrect?'<span class="option-tag correct">Correct</span>':''}</div>`));
+    });
+    card.appendChild(renderExplanationBlock(q));
+  }
   stage.appendChild(card);
 
   const nav = el('<div class="flashcard-controls"></div>');
@@ -1131,18 +1241,20 @@ function renderStudyList(){
   studyOrder.forEach(qid=>{
     const q = bankById(qid);
     if(!q) return;
-    const correct = q.options.find(o=>o.id===q.correctOptionId);
     const item = el(`<div class="qa-list-item">
       <div class="qa-q">${esc(q.question)}</div>
-      <div class="answer-pill" style="font-size:14px;padding:9px 16px;">✓ ${esc(correct?correct.text:'')}</div>
-      <div class="qa-know-btns"></div>
     </div>`);
-    const btns = item.querySelector('.qa-know-btns');
+    q.options.forEach((o,i)=>{
+      const isCorrect = o.id===q.correctOptionId;
+      item.appendChild(el(`<div class="option-btn ${isCorrect?'correct':''}" style="cursor:default;padding:12px 16px;margin-bottom:8px;font-size:14.5px;"><span class="option-letter">${OPTION_LETTERS[i]}</span><span>${esc(o.text)}</span>${isCorrect?'<span class="option-tag correct">Correct</span>':''}</div>`));
+    });
+    const btns = el('<div class="qa-know-btns"></div>');
     const stillBtn = el(`<button class="btn btn-ghost btn-sm" style="${!known[q.id]?'outline:2px solid var(--amber);':''}">😅 Learning</button>`);
     const gotBtn = el(`<button class="btn btn-ghost btn-sm" style="${known[q.id]?'outline:2px solid var(--lime);':''}">✅ Known</button>`);
     stillBtn.onclick = async ()=>{ known[q.id]=false; await saveKnown(); renderStudyListRefresh(); };
     gotBtn.onclick = async ()=>{ known[q.id]=true; await saveKnown(); renderStudyListRefresh(); };
     btns.appendChild(stillBtn); btns.appendChild(gotBtn);
+    item.appendChild(btns);
     item.appendChild(renderExplanationBlock(q));
     wrap.appendChild(item);
   });
