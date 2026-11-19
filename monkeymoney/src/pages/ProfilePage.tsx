@@ -79,12 +79,12 @@ export function ProfilePage() {
       <BadgeGrid earnedBadges={meta.earnedBadges} bananas={gs.bananas} level={gs.level} />
 
       {/* Data management */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800 space-y-3">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-3">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100">Data</h3>
 
         <button
           onClick={handleExport}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-50 dark:bg-jungle-800 hover:bg-gray-100 dark:hover:bg-jungle-700 text-gray-700 dark:text-gray-200 text-sm font-medium transition-colors focus-visible:ring-2 ring-jungle-500"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-jungle-800 hover:bg-gray-100 dark:hover:bg-jungle-700 text-gray-700 dark:text-gray-200 text-sm font-medium transition-colors focus-visible:ring-2 ring-jungle-500"
         >
           <Download size={18} className="text-jungle-600 dark:text-jungle-400" />
           Export backup (JSON)
@@ -92,7 +92,7 @@ export function ProfilePage() {
 
         <button
           onClick={handleImport}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-50 dark:bg-jungle-800 hover:bg-gray-100 dark:hover:bg-jungle-700 text-gray-700 dark:text-gray-200 text-sm font-medium transition-colors focus-visible:ring-2 ring-jungle-500"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-jungle-800 hover:bg-gray-100 dark:hover:bg-jungle-700 text-gray-700 dark:text-gray-200 text-sm font-medium transition-colors focus-visible:ring-2 ring-jungle-500"
         >
           <Upload size={18} className="text-jungle-600 dark:text-jungle-400" />
           Import from backup

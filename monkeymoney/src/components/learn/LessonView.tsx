@@ -33,10 +33,10 @@ export function LessonView({ lesson, completed, onBack }: Props) {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 transition-colors focus-visible:ring-2 ring-jungle-500 rounded-lg"
+          className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 transition-colors focus-visible:ring-2 ring-jungle-500 rounded-lg"
         >
           <ArrowLeft size={16} /> Back to lessons
         </button>
@@ -44,7 +44,7 @@ export function LessonView({ lesson, completed, onBack }: Props) {
           <span className="text-4xl">{lesson.emoji}</span>
           <div>
             <h2 className="font-display font-bold text-xl text-gray-800 dark:text-gray-100">{lesson.title}</h2>
-            <p className="text-xs text-gray-400 dark:text-gray-500 font-body">{lesson.estimatedMinutes} min · {completed && <span className="text-green-500">✓ Complete</span>}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 font-body">{lesson.estimatedMinutes} min · {completed && <span className="text-green-500">✓ Complete</span>}</p>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export function LessonView({ lesson, completed, onBack }: Props) {
       </div>
 
       {/* Content */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800 space-y-4">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-4">
         {paragraphs.map((para, i) => (
           <p key={i} className="text-sm text-gray-700 dark:text-gray-200 font-body leading-relaxed">
             {para}
@@ -69,7 +69,7 @@ export function LessonView({ lesson, completed, onBack }: Props) {
       {lesson.hasCalculator && <CompoundCalculator />}
 
       {/* Quiz */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-4">Quick check</h3>
         <p className="text-sm font-medium text-gray-700 dark:text-gray-200 font-body mb-4">{lesson.quiz.question}</p>
         <div className="space-y-2">
@@ -83,8 +83,8 @@ export function LessonView({ lesson, completed, onBack }: Props) {
                 disabled={submitted}
                 className={clsx(
                   'w-full text-left px-4 py-3 rounded-2xl text-sm font-body transition-all border focus-visible:ring-2 ring-jungle-500',
-                  !submitted && 'border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 hover:bg-gray-100 dark:hover:bg-jungle-700 text-gray-700 dark:text-gray-200',
-                  submitted && !isSelected && 'border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-gray-400 dark:text-gray-500 opacity-60',
+                  !submitted && 'border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 hover:bg-gray-100 dark:hover:bg-jungle-700 text-gray-700 dark:text-gray-200',
+                  submitted && !isSelected && 'border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-gray-600 dark:text-gray-400 opacity-60',
                   showResult && opt.correct && 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200',
                   showResult && !opt.correct && 'border-red-400 dark:border-red-700 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200',
                 )}

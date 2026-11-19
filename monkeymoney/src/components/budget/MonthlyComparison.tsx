@@ -43,12 +43,12 @@ export function MonthlyComparison({ monthlySummaries, monthlyLimit, currency = '
   return (
     <div className="space-y-4">
       {/* Bar chart */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">6-month history</h3>
-        <p className="text-xs text-gray-400 dark:text-gray-500 font-body mb-4">Dashed line = monthly limit</p>
+        <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-4">Dashed line = monthly limit</p>
 
         {monthlySummaries.length === 0 ? (
-          <div className="text-center py-8 text-gray-400 dark:text-gray-500 font-body text-sm">Not enough data yet.</div>
+          <div className="text-center py-8 text-gray-600 dark:text-gray-400 font-body text-sm">Not enough data yet.</div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={barData} barSize={28}>
@@ -67,15 +67,15 @@ export function MonthlyComparison({ monthlySummaries, monthlyLimit, currency = '
       </div>
 
       {/* Category comparison table */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">This vs last month</h3>
-        <p className="text-xs text-gray-400 dark:text-gray-500 font-body mb-4">By category</p>
+        <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-4">By category</p>
 
         {comparison.length === 0 ? (
-          <div className="text-center py-6 text-gray-400 dark:text-gray-500 font-body text-sm">No data to compare yet.</div>
+          <div className="text-center py-6 text-gray-600 dark:text-gray-400 font-body text-sm">No data to compare yet.</div>
         ) : (
           <div className="space-y-0">
-            <div className="grid grid-cols-4 gap-2 text-xs font-medium text-gray-400 dark:text-gray-500 font-body pb-2 border-b border-gray-100 dark:border-jungle-800">
+            <div className="grid grid-cols-4 gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 font-body pb-2 border-b border-gray-100 dark:border-jungle-800">
               <span className="col-span-2">Category</span>
               <span className="text-right">This month</span>
               <span className="text-right">Change</span>
@@ -91,7 +91,7 @@ export function MonthlyComparison({ monthlySummaries, monthlyLimit, currency = '
                   {row.direction === 'down' && <TrendingDown size={12} className="text-green-500 shrink-0" />}
                   {row.direction === 'same' && <Minus size={12} className="text-gray-400 shrink-0" />}
                   <span className={`text-xs font-semibold font-display tabular-nums ${
-                    row.direction === 'up' ? 'text-red-500' : row.direction === 'down' ? 'text-green-500' : 'text-gray-400 dark:text-gray-500'
+                    row.direction === 'up' ? 'text-red-500' : row.direction === 'down' ? 'text-green-500' : 'text-gray-600 dark:text-gray-400'
                   }`}>
                     {row.change === 0 ? '—' : (row.change > 0 ? '+' : '') + formatCurrency(Math.abs(row.change), currency)}
                   </span>

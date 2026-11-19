@@ -23,9 +23,9 @@ function CustomTooltip({ active, payload, currency }: { active?: boolean; payloa
 export function DonutChart({ data, currency = 'INR', total }: Props) {
   if (data.length === 0 || total === 0) {
     return (
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-4">Spending by category</h3>
-        <div className="text-center py-8 text-gray-400 dark:text-gray-500 font-body text-sm">
+        <div className="text-center py-8 text-gray-600 dark:text-gray-400 font-body text-sm">
           No spending logged yet this month.
         </div>
       </div>
@@ -35,9 +35,9 @@ export function DonutChart({ data, currency = 'INR', total }: Props) {
   const chartData = data.map(d => ({ name: d.category, value: d.total }))
 
   return (
-    <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+    <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
       <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">Spending by category</h3>
-      <p className="text-xs text-gray-400 dark:text-gray-500 font-body mb-4">This month</p>
+      <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-4">This month</p>
 
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>
@@ -71,7 +71,7 @@ export function DonutChart({ data, currency = 'INR', total }: Props) {
             <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 font-display tabular-nums">
               {formatCurrency(d.total, currency)}
             </span>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-body w-10 text-right">
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-body w-10 text-right">
               {((d.total / total) * 100).toFixed(0)}%
             </span>
           </div>

@@ -93,9 +93,9 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
 
   if (shown.length === 0) {
     return (
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-8 text-center border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-8 text-center shadow-sm border border-gray-200 dark:border-jungle-800">
         <div className="text-4xl mb-2">🐒</div>
-        <p className="text-gray-500 dark:text-gray-400 font-body text-sm">No expenses yet. Log your first one!</p>
+        <p className="text-gray-600 dark:text-gray-400 font-body text-sm">No expenses yet. Log your first one!</p>
       </div>
     )
   }
@@ -106,8 +106,8 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl overflow-hidden border border-gray-100 dark:border-jungle-800">
-      <div className="divide-y divide-gray-50 dark:divide-jungle-800">
+    <div className="bg-white dark:bg-jungle-900 rounded-3xl overflow-hidden shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="divide-y divide-gray-200 dark:divide-jungle-800">
         {shown.map(exp => (
           <div key={exp.id}>
             {editId === exp.id ? (
@@ -124,8 +124,8 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
                     </p>
                     {exp.isNoSpend && <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full px-1.5 py-0.5">🧘</span>}
                   </div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 font-body truncate">
-                    {exp.note || formatDate(exp.date)} {exp.note && <span className="text-gray-300 dark:text-gray-600">· {formatDate(exp.date)}</span>}
+                  <p className="text-xs text-gray-600 dark:text-gray-400 font-body truncate">
+                    {exp.note || formatDate(exp.date)} {exp.note && <span className="text-gray-400 dark:text-gray-500">· {formatDate(exp.date)}</span>}
                   </p>
                 </div>
                 <p className={clsx(
@@ -143,7 +143,7 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
                     ><Check size={14} /></button>
                     <button
                       onClick={() => setConfirmDeleteId(null)}
-                      className="p-1.5 rounded-lg bg-gray-100 dark:bg-jungle-800 text-gray-500 dark:text-gray-400 focus-visible:ring-2 ring-jungle-500"
+                      className="p-1.5 rounded-lg bg-gray-100 dark:bg-jungle-800 text-gray-600 dark:text-gray-400 focus-visible:ring-2 ring-jungle-500"
                       aria-label="Cancel"
                     ><X size={14} /></button>
                   </div>
@@ -167,7 +167,7 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
         ))}
       </div>
       {expenses.length > limit && (
-        <p className="text-center text-xs text-gray-400 dark:text-gray-500 py-2 font-body">
+        <p className="text-center text-xs text-gray-600 dark:text-gray-400 py-2 font-body">
           Showing {limit} of {expenses.length} expenses
         </p>
       )}

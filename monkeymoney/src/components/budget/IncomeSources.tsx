@@ -57,7 +57,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
   return (
     <div className="space-y-4">
       {/* Currency selector */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-3">Currency</h3>
         <div className="flex flex-wrap gap-2">
           {CURRENCY_OPTIONS.map(opt => (
@@ -77,13 +77,13 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
       </div>
 
       {/* Income sources */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800 space-y-3">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-3">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100">Income sources</h3>
 
         {incomes.map(inc => (
           <div key={inc.id}>
             {editId === inc.id ? (
-              <div className="bg-gray-50 dark:bg-jungle-800 rounded-xl p-3 space-y-2">
+              <div className="bg-white dark:bg-jungle-800 rounded-xl p-3 space-y-2">
                 <input
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
@@ -135,7 +135,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
             value={addName}
             onChange={e => setAddName(e.target.value)}
             placeholder="Source name (e.g. Salary)"
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
             aria-label="New income source name"
           />
           <div className="flex gap-2">
@@ -144,7 +144,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
               value={addAmount}
               onChange={e => setAddAmount(e.target.value)}
               placeholder="Monthly amount"
-              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
+              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
               aria-label="Monthly amount"
             />
             <button
@@ -158,7 +158,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
 
         <div className="pt-2 border-t border-gray-100 dark:border-jungle-800">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 font-body">Total monthly income</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 font-body">Total monthly income</span>
             <span className="font-display font-bold text-jungle-700 dark:text-jungle-300 text-base tabular-nums">
               {formatCurrency(totalIncome, currency)}
             </span>
@@ -167,9 +167,9 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
       </div>
 
       {/* Spending limit override */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">Monthly spending limit</h3>
-        <p className="text-xs text-gray-400 dark:text-gray-500 font-body mb-3">
+        <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-3">
           Defaults to your total income. Override it here.
         </p>
         {editingLimit ? (
@@ -179,7 +179,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
               value={limitInput}
               onChange={e => setLimitInput(e.target.value)}
               placeholder={String(totalIncome)}
-              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
+              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
               aria-label="Monthly spending limit"
             />
             <button onClick={saveLimit} className="flex items-center gap-1 px-3 py-2 bg-jungle-600 text-white rounded-xl text-sm font-medium focus-visible:ring-2 ring-jungle-500">
@@ -193,7 +193,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
           <div className="flex justify-between items-center">
             <span className="font-display font-bold text-gray-800 dark:text-gray-100 text-lg tabular-nums">
               {formatCurrency(settings.monthlyLimitOverride ?? totalIncome, currency)}
-              {!settings.monthlyLimitOverride && <span className="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">(auto)</span>}
+              {!settings.monthlyLimitOverride && <span className="text-xs font-normal text-gray-600 dark:text-gray-400 ml-1">(auto)</span>}
             </span>
             <button
               onClick={() => { setLimitInput(String(settings.monthlyLimitOverride ?? totalIncome)); setEditingLimit(true) }}

@@ -21,7 +21,7 @@ export function CompoundCalculator() {
   )
 
   return (
-    <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800 space-y-4">
+    <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-4">
       <div>
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">Compound growth calculator</h3>
         <p className="text-xs text-amber-700 dark:text-amber-400 font-body bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-3 py-2 leading-relaxed">
@@ -31,7 +31,7 @@ export function CompoundCalculator() {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 font-body mb-1.5" htmlFor="monthly-amt">
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 font-body mb-1.5" htmlFor="monthly-amt">
             Monthly amount (₹)
           </label>
           <input
@@ -39,13 +39,13 @@ export function CompoundCalculator() {
             type="number"
             value={monthly}
             onChange={e => setMonthly(Math.max(1, parseInt(e.target.value) || 0))}
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
             min="1"
             step="500"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 font-body mb-1.5" htmlFor="years-input">
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 font-body mb-1.5" htmlFor="years-input">
             Years
           </label>
           <input
@@ -53,7 +53,7 @@ export function CompoundCalculator() {
             type="number"
             value={years}
             onChange={e => setYears(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ring-jungle-500"
             min="1"
             max="50"
           />
@@ -61,15 +61,15 @@ export function CompoundCalculator() {
       </div>
 
       <div>
-        <p className="text-xs text-gray-400 dark:text-gray-500 font-body mb-2">
+        <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-2">
           Total invested: <span className="font-semibold text-gray-700 dark:text-gray-200">{formatCurrency(invested)}</span>
         </p>
         <div className="space-y-2">
           {results.map(r => (
-            <div key={r.rate} className="bg-gray-50 dark:bg-jungle-800 rounded-xl p-3">
+            <div key={r.rate} className="bg-white dark:bg-jungle-800 rounded-xl p-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 font-body">At {r.rate}% per year</p>
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 font-body">At {r.rate}% per year</p>
                   <p className="font-display font-bold text-lg text-gray-800 dark:text-gray-100 tabular-nums mt-0.5">
                     {formatCurrency(Math.round(r.fv))}
                   </p>

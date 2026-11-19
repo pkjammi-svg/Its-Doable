@@ -21,8 +21,8 @@ export function LessonList({ progress, onSelect }: Props) {
       </div>
 
       {/* Lessons */}
-      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl overflow-hidden border border-gray-100 dark:border-jungle-800">
-        <div className="divide-y divide-gray-50 dark:divide-jungle-800">
+      <div className="bg-white dark:bg-jungle-900 rounded-3xl overflow-hidden shadow-sm border border-gray-200 dark:border-jungle-800">
+        <div className="divide-y divide-gray-200 dark:divide-jungle-800">
           {LESSONS.map((lesson, i) => {
             const done = progressMap.get(lesson.id)?.completed ?? false
             return (
@@ -37,14 +37,14 @@ export function LessonList({ progress, onSelect }: Props) {
                     'text-sm font-semibold font-body',
                     done ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-gray-100'
                   )}>
-                    <span className="text-gray-400 dark:text-gray-500 font-normal mr-1">{String(i + 1).padStart(2, '0')}.</span>
+                    <span className="text-gray-600 dark:text-gray-400 font-normal mr-1">{String(i + 1).padStart(2, '0')}.</span>
                     {lesson.title}
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 font-body mt-0.5">{lesson.estimatedMinutes} min</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 font-body mt-0.5">{lesson.estimatedMinutes} min</p>
                 </div>
                 {done
                   ? <CheckCircle2 size={18} className="text-green-500 shrink-0" />
-                  : <ChevronRight size={18} className="text-gray-300 dark:text-gray-600 shrink-0" />
+                  : <ChevronRight size={18} className="text-gray-400 dark:text-gray-500 shrink-0" />
                 }
               </button>
             )
@@ -53,7 +53,7 @@ export function LessonList({ progress, onSelect }: Props) {
       </div>
 
       {/* Progress summary */}
-      <div className="text-center text-xs text-gray-400 dark:text-gray-500 font-body">
+      <div className="text-center text-xs text-gray-600 dark:text-gray-400 font-body">
         {progress.filter(p => p.completed).length} / {LESSONS.length} lessons done
       </div>
     </div>

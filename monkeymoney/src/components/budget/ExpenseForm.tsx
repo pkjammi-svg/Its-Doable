@@ -85,12 +85,12 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800 space-y-4">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-4">
       <h2 className="font-display font-bold text-lg text-gray-800 dark:text-gray-100">Log expense</h2>
 
       {/* Amount */}
       <div>
-        <label htmlFor="amount" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+        <label htmlFor="amount" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
           Amount
         </label>
         <div className="relative">
@@ -104,7 +104,7 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
             value={amount}
             onChange={e => setAmount(e.target.value)}
             placeholder="0"
-            className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-gray-900 dark:text-gray-100 font-display text-lg focus:outline-none focus:ring-2 ring-jungle-500"
+            className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-gray-900 dark:text-gray-100 font-display text-lg focus:outline-none focus:ring-2 ring-jungle-500"
             required
           />
         </div>
@@ -112,7 +112,7 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
 
       {/* Category chips */}
       <div>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Category</p>
+        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Category</p>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Category">
           {CATEGORIES.map(cat => {
             const paused = settings.pausedCategories?.includes(cat)
@@ -155,7 +155,7 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
 
       {/* Note */}
       <div>
-        <label htmlFor="note" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+        <label htmlFor="note" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
           Note (optional)
         </label>
         <input
@@ -165,13 +165,13 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
           onChange={e => setNote(e.target.value)}
           placeholder="What was this for?"
           maxLength={100}
-          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 ring-jungle-500"
+          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 ring-jungle-500"
         />
       </div>
 
       {/* Date */}
       <div>
-        <label htmlFor="date" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+        <label htmlFor="date" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
           Date
         </label>
         <input
@@ -180,7 +180,7 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
           value={date}
           max={maxDate}
           onChange={e => setDate(e.target.value)}
-          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-jungle-700 bg-gray-50 dark:bg-jungle-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 ring-jungle-500"
+          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-jungle-700 bg-white dark:bg-jungle-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 ring-jungle-500"
         />
       </div>
 

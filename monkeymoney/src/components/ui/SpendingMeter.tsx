@@ -83,7 +83,7 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
   const monkeyPos = polar(fillAngle)
 
   return (
-    <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
+    <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
       <div className="relative mx-auto" style={{ maxWidth: 220 }}>
         <svg viewBox="0 0 200 110" className="w-full overflow-visible">
           {/* Track */}
@@ -132,14 +132,14 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
           <p className="text-3xl font-bold font-display text-jungle-700 dark:text-jungle-200 tabular-nums">
             {formatCurrency(remaining, currency)}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-body mt-0.5">left this month</p>
+          <p className="text-xs text-gray-700 dark:text-gray-300 font-body mt-0.5">left this month</p>
         </div>
       </div>
 
       {/* Stats row */}
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-jungle-800">
         <div className="text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-body">spent</p>
+          <p className="text-xs text-gray-700 dark:text-gray-300 font-body">spent</p>
           <p className="text-sm font-semibold font-display text-gray-700 dark:text-gray-200 tabular-nums">
             {formatCurrency(spent, currency)}
           </p>
@@ -156,10 +156,10 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
           >
             {pct.toFixed(0)}%
           </span>
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-body mt-0.5">used</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 font-body mt-0.5">used</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-body">days left</p>
+          <p className="text-xs text-gray-700 dark:text-gray-300 font-body">days left</p>
           <p className="text-sm font-semibold font-display text-gray-700 dark:text-gray-200">{daysLeft}</p>
         </div>
       </div>
@@ -172,9 +172,9 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 font-body mt-1">
+        <div className="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 font-body mt-1">
           <span>₹0</span>
-          <span className="text-gray-400 dark:text-gray-500">on pace ◆</span>
+          <span className="text-gray-600 dark:text-gray-400">on pace ◆</span>
           <span>{formatCurrency(limit, currency)}</span>
         </div>
       </div>

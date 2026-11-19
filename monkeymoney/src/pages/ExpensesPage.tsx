@@ -17,7 +17,7 @@ export function ExpensesPage() {
         settings={settings}
       />
       <div>
-        <h3 className="font-display font-bold text-sm text-gray-500 dark:text-gray-400 mb-2 px-1">Recent expenses</h3>
+        <h3 className="font-display font-bold text-sm text-gray-600 dark:text-gray-400 mb-2 px-1">Recent expenses</h3>
         <ExpenseList expenses={expenses} currency={settings.currency} />
       </div>
     </div>
