@@ -26,22 +26,37 @@ export function Layout({ children }: Props) {
       <header className="sticky top-0 z-30 bg-white dark:bg-jungle-900/90 backdrop-blur-md border-b border-gray-200 dark:border-jungle-800">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg className="w-7 h-7" viewBox="0 0 36 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="8" cy="20" r="5" fill="#8B6914"/>
-              <circle cx="8" cy="20" r="3" fill="#D4956A"/>
-              <circle cx="28" cy="20" r="5" fill="#8B6914"/>
-              <circle cx="28" cy="20" r="3" fill="#D4956A"/>
-              <circle cx="18" cy="18" r="11" fill="#8B6914"/>
-              <ellipse cx="18" cy="22" rx="7" ry="5.5" fill="#D4956A"/>
-              <circle cx="13.5" cy="15.5" r="2.5" fill="white"/>
-              <circle cx="22.5" cy="15.5" r="2.5" fill="white"/>
-              <circle cx="14" cy="16" r="1.3" fill="#1a0a00"/>
-              <circle cx="23" cy="16" r="1.3" fill="#1a0a00"/>
-              <ellipse cx="18" cy="21" rx="2" ry="1.4" fill="#5C3D1A"/>
-              <path d="M 14.5 24.5 Q 18 27 21.5 24.5" stroke="#5C3D1A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+            {/* Coin logo mark: yellow ring + green disc + monkey face */}
+            <svg className="w-8 h-8" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Yellow coin ring */}
+              <circle cx="100" cy="100" r="99" fill="#f5c518"/>
+              {/* Green disc */}
+              <circle cx="100" cy="100" r="90" fill="#2d6a4f"/>
+              {/* Ears */}
+              <circle cx="63" cy="95" r="20" fill="#8B6914"/>
+              <circle cx="63" cy="95" r="13" fill="#D4956A"/>
+              <circle cx="137" cy="95" r="20" fill="#8B6914"/>
+              <circle cx="137" cy="95" r="13" fill="#D4956A"/>
+              {/* Head */}
+              <circle cx="100" cy="91" r="44" fill="#8B6914"/>
+              {/* Muzzle */}
+              <ellipse cx="100" cy="111" rx="27" ry="21" fill="#D4956A"/>
+              {/* Eye whites */}
+              <circle cx="85" cy="83" r="11.5" fill="white"/>
+              <circle cx="115" cy="83" r="11.5" fill="white"/>
+              {/* Pupils */}
+              <circle cx="87" cy="85" r="6" fill="#1a0a00"/>
+              <circle cx="117" cy="85" r="6" fill="#1a0a00"/>
+              {/* Eye shine */}
+              <circle cx="90" cy="82" r="2.5" fill="white"/>
+              <circle cx="120" cy="82" r="2.5" fill="white"/>
+              {/* Nose */}
+              <ellipse cx="100" cy="107" rx="6" ry="4" fill="#5C3D1A"/>
+              {/* Smile */}
+              <path d="M 89 114 Q 100 124 111 114" stroke="#5C3D1A" strokeWidth="3" fill="none" strokeLinecap="round"/>
             </svg>
             <span className="font-display font-bold text-lg text-jungle-700 dark:text-jungle-200 tracking-tight">
-              MonkeyMoney
+              Monkey<span className="text-banana-600 dark:text-banana-400">Money</span>
             </span>
           </div>
           <button
