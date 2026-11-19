@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: process.env.GITHUB_ACTIONS ? '/its-doable/' : '/',
+  base: process.env.GITHUB_ACTIONS ? '/its-doable/monkeymoney/' : '/',
   plugins: [
     react(),
     VitePWA({

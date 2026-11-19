@@ -22,9 +22,35 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: monkeymoney/package-lock.json
+
+      - name: Install MonkeyMoney dependencies
+        run: npm ci
+        working-directory: monkeymoney
+
+      - name: Build MonkeyMoney
+        run: npm run build
+        working-directory: monkeymoney
+        env:
+          GITHUB_ACTIONS: 'true'
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='monkeymoney' --exclude='.github' --exclude='_site' --exclude='.git' . _site/
+          cp -r monkeymoney/dist _site/monkeymoney
+
       - uses: actions/configure-pages@v5
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
+
       - id: deployment
         uses: actions/deploy-pages@v4
