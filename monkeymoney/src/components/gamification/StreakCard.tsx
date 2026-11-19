@@ -7,7 +7,7 @@ interface Props {
 
 export function StreakCard({ dailyStreak, weeklyStreak, bestDailyStreak, bestWeeklyStreak }: Props) {
   return (
-    <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+    <div className="bg-amber-50 dark:bg-amber-900/20 rounded-3xl p-5 shadow-sm border border-amber-100 dark:border-amber-800/40">
       <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-4">Streaks</h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl p-4 text-center">

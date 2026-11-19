@@ -23,7 +23,7 @@ function CustomTooltip({ active, payload, currency }: { active?: boolean; payloa
 export function DonutChart({ data, currency = 'INR', total }: Props) {
   if (data.length === 0 || total === 0) {
     return (
-      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl p-5 shadow-sm border border-indigo-100 dark:border-indigo-800/40">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-4">Spending by category</h3>
         <div className="text-center py-8 text-gray-600 dark:text-gray-400 font-body text-sm">
           No spending logged yet this month.
@@ -35,7 +35,7 @@ export function DonutChart({ data, currency = 'INR', total }: Props) {
   const chartData = data.map(d => ({ name: d.category, value: d.total }))
 
   return (
-    <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+    <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl p-5 shadow-sm border border-indigo-100 dark:border-indigo-800/40">
       <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">Spending by category</h3>
       <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-4">This month</p>
 

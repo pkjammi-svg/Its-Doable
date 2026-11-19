@@ -33,7 +33,7 @@ export function LessonView({ lesson, completed, onBack }: Props) {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-3xl p-5 shadow-sm border border-blue-100 dark:border-blue-800/40">
         <button
           onClick={onBack}
           className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4 transition-colors focus-visible:ring-2 ring-jungle-500 rounded-lg"
@@ -57,7 +57,7 @@ export function LessonView({ lesson, completed, onBack }: Props) {
       </div>
 
       {/* Content */}
-      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-4">
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-3xl p-5 shadow-sm border border-blue-100 dark:border-blue-800/40 space-y-4">
         {paragraphs.map((para, i) => (
           <p key={i} className="text-sm text-gray-700 dark:text-gray-200 font-body leading-relaxed">
             {para}
@@ -69,7 +69,7 @@ export function LessonView({ lesson, completed, onBack }: Props) {
       {lesson.hasCalculator && <CompoundCalculator />}
 
       {/* Quiz */}
-      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-3xl p-5 shadow-sm border border-blue-100 dark:border-blue-800/40">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-4">Quick check</h3>
         <p className="text-sm font-medium text-gray-700 dark:text-gray-200 font-body mb-4">{lesson.quiz.question}</p>
         <div className="space-y-2">

@@ -21,7 +21,7 @@ export function CompoundCalculator() {
   )
 
   return (
-    <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-4">
+    <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-3xl p-5 shadow-sm border border-emerald-100 dark:border-emerald-800/40 space-y-4">
       <div>
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">Compound growth calculator</h3>
         <p className="text-xs text-amber-700 dark:text-amber-400 font-body bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-3 py-2 leading-relaxed">
