@@ -21,9 +21,9 @@ export function Layout({ children }: Props) {
   }, [dark])
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-jungle-950 font-body transition-colors">
+    <div className="min-h-screen bg-white dark:bg-jungle-950 font-body transition-colors">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-jungle-900/80 backdrop-blur-md border-b border-gray-100 dark:border-jungle-800">
+      <header className="sticky top-0 z-30 bg-white dark:bg-jungle-900/90 backdrop-blur-md border-b border-gray-200 dark:border-jungle-800">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg className="w-7 h-7" viewBox="0 0 36 40" fill="none" xmlns="http://www.w3.org/2000/svg">

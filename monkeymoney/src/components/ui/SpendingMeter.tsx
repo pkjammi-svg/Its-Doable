@@ -83,7 +83,7 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
   const monkeyPos = polar(fillAngle)
 
   return (
-    <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm">
+    <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800">
       <div className="relative mx-auto" style={{ maxWidth: 220 }}>
         <svg viewBox="0 0 200 110" className="w-full overflow-visible">
           {/* Track */}

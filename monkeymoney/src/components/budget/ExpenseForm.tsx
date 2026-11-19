@@ -85,7 +85,7 @@ export function ExpenseForm({ currency = 'INR', monthlyLimit, settings, onLogged
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-5 border border-gray-100 dark:border-jungle-800 space-y-4">
       <h2 className="font-display font-bold text-lg text-gray-800 dark:text-gray-100">Log expense</h2>
 
       {/* Amount */}

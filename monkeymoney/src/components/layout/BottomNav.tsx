@@ -13,7 +13,7 @@ const NAV = [
 export function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-jungle-900/90 backdrop-blur-md border-t border-gray-100 dark:border-jungle-800"
+      className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-jungle-900/90 backdrop-blur-md border-t border-gray-200 dark:border-jungle-800"
       aria-label="Main navigation"
     >
       <div className="max-w-2xl mx-auto flex">

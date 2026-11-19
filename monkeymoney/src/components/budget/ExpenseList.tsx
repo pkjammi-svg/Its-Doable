@@ -93,7 +93,7 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
 
   if (shown.length === 0) {
     return (
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-8 text-center">
+      <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl p-8 text-center border border-gray-100 dark:border-jungle-800">
         <div className="text-4xl mb-2">🐒</div>
         <p className="text-gray-500 dark:text-gray-400 font-body text-sm">No expenses yet. Log your first one!</p>
       </div>
@@ -106,7 +106,7 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
   }
 
   return (
-    <div className="bg-white dark:bg-jungle-900 rounded-3xl overflow-hidden shadow-sm">
+    <div className="bg-gray-50 dark:bg-jungle-900 rounded-3xl overflow-hidden border border-gray-100 dark:border-jungle-800">
       <div className="divide-y divide-gray-50 dark:divide-jungle-800">
         {shown.map(exp => (
           <div key={exp.id}>
