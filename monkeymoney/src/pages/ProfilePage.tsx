@@ -79,7 +79,7 @@ export function ProfilePage() {
       <BadgeGrid earnedBadges={meta.earnedBadges} bananas={gs.bananas} level={gs.level} />
 
       {/* Data management */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-3">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-3">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100">Data</h3>
 
         <button

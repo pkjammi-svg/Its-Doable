@@ -21,8 +21,8 @@
   }
 
   body {
-    @apply font-body antialiased text-gray-900;
-    color: #111827;
+    @apply font-body antialiased;
+    color: #000000;
   }
 
   /* Custom scrollbar */

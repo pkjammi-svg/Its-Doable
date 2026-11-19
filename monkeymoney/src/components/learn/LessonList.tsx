@@ -21,7 +21,7 @@ export function LessonList({ progress, onSelect }: Props) {
       </div>
 
       {/* Lessons */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl overflow-hidden shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl overflow-hidden shadow-sm border border-gray-200 dark:border-jungle-800">
         <div className="divide-y divide-gray-200 dark:divide-jungle-800">
           {LESSONS.map((lesson, i) => {
             const done = progressMap.get(lesson.id)?.completed ?? false

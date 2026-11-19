@@ -43,7 +43,7 @@ export function MonthlyComparison({ monthlySummaries, monthlyLimit, currency = '
   return (
     <div className="space-y-4">
       {/* Bar chart */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">6-month history</h3>
         <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-4">Dashed line = monthly limit</p>
 
@@ -67,7 +67,7 @@ export function MonthlyComparison({ monthlySummaries, monthlyLimit, currency = '
       </div>
 
       {/* Category comparison table */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">This vs last month</h3>
         <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-4">By category</p>
 

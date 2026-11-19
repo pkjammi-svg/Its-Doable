@@ -57,7 +57,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
   return (
     <div className="space-y-4">
       {/* Currency selector */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-3">Currency</h3>
         <div className="flex flex-wrap gap-2">
           {CURRENCY_OPTIONS.map(opt => (
@@ -77,7 +77,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
       </div>
 
       {/* Income sources */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-3">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800 space-y-3">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100">Income sources</h3>
 
         {incomes.map(inc => (
@@ -167,7 +167,7 @@ export function IncomeSources({ incomes, totalIncome, settings, currency }: Prop
       </div>
 
       {/* Spending limit override */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">Monthly spending limit</h3>
         <p className="text-xs text-gray-600 dark:text-gray-400 font-body mb-3">
           Defaults to your total income. Override it here.

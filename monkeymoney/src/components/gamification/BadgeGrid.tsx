@@ -17,7 +17,7 @@ export function BadgeGrid({ earnedBadges, bananas, level }: Props) {
   return (
     <div className="space-y-4">
       {/* Level card */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <div className="flex items-center gap-3 mb-3">
           <span className="text-4xl">{level.emoji}</span>
           <div>
@@ -45,7 +45,7 @@ export function BadgeGrid({ earnedBadges, bananas, level }: Props) {
       </div>
 
       {/* Badges */}
-      <div className="bg-white dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
+      <div className="bg-gray-100 dark:bg-jungle-900 rounded-3xl p-5 shadow-sm border border-gray-200 dark:border-jungle-800">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-4">Badges</h3>
         <div className="grid grid-cols-2 gap-3">
           {BADGES.map(badge => {
