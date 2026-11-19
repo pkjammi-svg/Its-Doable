@@ -51,11 +51,6 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
     return 'bg-green-500'
   }, [pct])
 
-  const meterGlow = useMemo(() => {
-    if (pct >= 85) return 'shadow-red-500/30'
-    if (pct >= 70) return 'shadow-amber-500/30'
-    return 'shadow-green-500/30'
-  }, [pct])
 
   // SVG gauge (semicircle)
   const R = 70
@@ -82,100 +77,109 @@ export function SpendingMeter({ spent, limit, pacePercent, currency = 'INR', day
   const paceAngle = startAngle - (pacePercent / 100) * totalAngle
   const monkeyPos = polar(fillAngle)
 
+  const heroGradient = pct >= 85
+    ? 'from-red-600 to-orange-500'
+    : pct >= 70
+    ? 'from-amber-500 to-yellow-400'
+    : 'from-jungle-700 to-teal-500'
+
   return (
-    <div className="bg-green-50 dark:bg-green-900/20 rounded-3xl p-5 shadow-sm border border-green-100 dark:border-green-800/40">
-      <div className="relative mx-auto" style={{ maxWidth: 220 }}>
-        <svg viewBox="0 0 200 110" className="w-full overflow-visible">
-          {/* Track */}
-          <path
-            d={arcPath(startAngle, endAngle)}
-            stroke="currentColor"
-            className="text-gray-100 dark:text-jungle-800"
-            strokeWidth="14"
-            fill="none"
-            strokeLinecap="round"
-          />
-          {/* Fill */}
-          {pct > 0 && (
+    <div className="rounded-3xl overflow-hidden shadow-lg">
+      {/* Coloured hero section */}
+      <div className={clsx('bg-gradient-to-br', heroGradient, 'px-5 pt-5 pb-4')}>
+        <div className="relative mx-auto" style={{ maxWidth: 220 }}>
+          <svg viewBox="0 0 200 110" className="w-full overflow-visible">
+            {/* Track */}
             <path
-              d={arcPath(startAngle, fillAngle)}
-              stroke={pct >= 85 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#22c55e'}
+              d={arcPath(startAngle, endAngle)}
+              stroke="rgba(255,255,255,0.25)"
               strokeWidth="14"
               fill="none"
               strokeLinecap="round"
-              className="transition-all duration-700 motion-reduce:transition-none"
             />
-          )}
-          {/* Pace marker */}
-          {pacePercent > 0 && pacePercent < 100 && (
-            <g transform={`translate(${polar(paceAngle).x}, ${polar(paceAngle).y})`}>
-              <circle r="5" fill="white" stroke="#94a3b8" strokeWidth="1.5"/>
-              <circle r="2" fill="#94a3b8"/>
-            </g>
-          )}
-          {/* Monkey at current position */}
-          {pct > 0 && (
-            <foreignObject
-              x={monkeyPos.x - 18}
-              y={monkeyPos.y - 22}
-              width="36"
-              height="40"
-              className="overflow-visible animate-monkey-ride motion-reduce:animate-none"
-            >
-              <MonkeyOnMeter pct={pct} />
-            </foreignObject>
-          )}
-        </svg>
-
-        {/* Center text */}
-        <div className="text-center -mt-2">
-          <p className="text-3xl font-bold font-display text-jungle-700 dark:text-jungle-200 tabular-nums">
-            {formatCurrency(remaining, currency)}
-          </p>
-          <p className="text-xs text-gray-700 dark:text-gray-300 font-body mt-0.5">left this month</p>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-jungle-800">
-        <div className="text-center">
-          <p className="text-xs text-gray-700 dark:text-gray-300 font-body">spent</p>
-          <p className="text-sm font-semibold font-display text-gray-700 dark:text-gray-200 tabular-nums">
-            {formatCurrency(spent, currency)}
-          </p>
-        </div>
-        <div className="text-center">
-          <span
-            className={clsx(
-              'inline-flex items-center justify-center rounded-full px-3 py-1 text-sm font-bold font-display shadow-md',
-              meterGlow,
-              pct >= 85 ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-              : pct >= 70 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
-              : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+            {/* Fill */}
+            {pct > 0 && (
+              <path
+                d={arcPath(startAngle, fillAngle)}
+                stroke="white"
+                strokeWidth="14"
+                fill="none"
+                strokeLinecap="round"
+                className="transition-all duration-700 motion-reduce:transition-none"
+              />
             )}
-          >
-            {pct.toFixed(0)}%
-          </span>
-          <p className="text-xs text-gray-600 dark:text-gray-400 font-body mt-0.5">used</p>
-        </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-700 dark:text-gray-300 font-body">days left</p>
-          <p className="text-sm font-semibold font-display text-gray-700 dark:text-gray-200">{daysLeft}</p>
+            {/* Pace marker */}
+            {pacePercent > 0 && pacePercent < 100 && (
+              <g transform={`translate(${polar(paceAngle).x}, ${polar(paceAngle).y})`}>
+                <circle r="5" fill="white" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5"/>
+                <circle r="2" fill="rgba(255,255,255,0.6)"/>
+              </g>
+            )}
+            {/* Monkey at current position */}
+            {pct > 0 && (
+              <foreignObject
+                x={monkeyPos.x - 18}
+                y={monkeyPos.y - 22}
+                width="36"
+                height="40"
+                className="overflow-visible animate-monkey-ride motion-reduce:animate-none"
+              >
+                <MonkeyOnMeter pct={pct} />
+              </foreignObject>
+            )}
+          </svg>
+
+          {/* Center text */}
+          <div className="text-center -mt-2">
+            <p className="text-3xl font-bold font-display text-white tabular-nums drop-shadow">
+              {formatCurrency(remaining, currency)}
+            </p>
+            <p className="text-xs text-white/80 font-body mt-0.5">left this month</p>
+          </div>
         </div>
       </div>
 
-      {/* Pace indicator */}
-      <div className="mt-3">
-        <div className="relative h-2 bg-gray-100 dark:bg-jungle-800 rounded-full overflow-hidden">
-          <div
-            className={clsx('h-full rounded-full transition-all duration-700 motion-reduce:transition-none', meterColor)}
-            style={{ width: `${pct}%` }}
-          />
+      {/* Stats row on white */}
+      <div className="bg-white dark:bg-jungle-800 px-5 py-4">
+        <div className="flex items-center justify-between">
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-body">spent</p>
+            <p className="text-sm font-semibold font-display text-gray-800 dark:text-gray-100 tabular-nums">
+              {formatCurrency(spent, currency)}
+            </p>
+          </div>
+          <div className="text-center">
+            <span
+              className={clsx(
+                'inline-flex items-center justify-center rounded-full px-3 py-1 text-sm font-bold font-display shadow-sm',
+                pct >= 85 ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                : pct >= 70 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+              )}
+            >
+              {pct.toFixed(0)}%
+            </span>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-body mt-0.5">used</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-body">days left</p>
+            <p className="text-sm font-semibold font-display text-gray-800 dark:text-gray-100">{daysLeft}</p>
+          </div>
         </div>
-        <div className="flex justify-between text-[10px] text-gray-600 dark:text-gray-400 font-body mt-1">
-          <span>₹0</span>
-          <span className="text-gray-600 dark:text-gray-400">on pace ◆</span>
-          <span>{formatCurrency(limit, currency)}</span>
+
+        {/* Pace bar */}
+        <div className="mt-3">
+          <div className="relative h-2 bg-gray-100 dark:bg-jungle-700 rounded-full overflow-hidden">
+            <div
+              className={clsx('h-full rounded-full transition-all duration-700 motion-reduce:transition-none', meterColor)}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] text-gray-400 font-body mt-1">
+            <span>₹0</span>
+            <span>on pace ◆</span>
+            <span>{formatCurrency(limit, currency)}</span>
+          </div>
         </div>
       </div>
     </div>

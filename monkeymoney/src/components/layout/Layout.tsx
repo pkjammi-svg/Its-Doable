@@ -21,9 +21,9 @@ export function Layout({ children }: Props) {
   }, [dark])
 
   return (
-    <div className="min-h-screen bg-white dark:bg-jungle-950 font-body transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-jungle-950 font-body transition-colors">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-jungle-900/90 backdrop-blur-md border-b border-gray-200 dark:border-jungle-800">
+      <header className="sticky top-0 z-30 bg-gradient-to-r from-jungle-700 to-jungle-500 dark:from-jungle-800 dark:to-jungle-700 border-b border-jungle-600 dark:border-jungle-700 shadow-md">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* Coin logo mark: yellow ring + green disc + monkey face */}
@@ -55,13 +55,13 @@ export function Layout({ children }: Props) {
               {/* Smile */}
               <path d="M 89 114 Q 100 124 111 114" stroke="#5C3D1A" strokeWidth="3" fill="none" strokeLinecap="round"/>
             </svg>
-            <span className="font-display font-bold text-lg text-jungle-700 dark:text-jungle-200 tracking-tight">
-              Monkey<span className="text-banana-600 dark:text-banana-400">Money</span>
+            <span className="font-display font-bold text-lg text-white tracking-tight">
+              Monkey<span className="text-banana-300">Money</span>
             </span>
           </div>
           <button
             onClick={() => setDark(d => !d)}
-            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-jungle-800 dark:text-gray-400 transition-colors focus-visible:ring-2 ring-jungle-500"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-white/80 hover:bg-jungle-600 dark:hover:bg-jungle-700 transition-colors focus-visible:ring-2 ring-white/50"
             aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {dark ? '☀️' : '🌙'}

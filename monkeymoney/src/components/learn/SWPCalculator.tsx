@@ -62,7 +62,7 @@ export function SWPCalculator() {
     : `${Math.floor(monthsLast / 12)}y ${monthsLast % 12}m`
 
   return (
-    <div className="bg-violet-50 dark:bg-violet-900/20 rounded-3xl p-5 shadow-sm border border-violet-100 dark:border-violet-800/40 space-y-4">
+    <div className="bg-white dark:bg-jungle-800 rounded-3xl p-5 shadow-md space-y-4">
       <div>
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">
           SWP Calculator

@@ -33,7 +33,7 @@ function EditRow({ expense, onDone }: { expense: Expense; currency?: string; onD
   }
 
   return (
-    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-3 space-y-2">
+    <div className="bg-white dark:bg-jungle-800 rounded-2xl p-3 space-y-2">
       <div className="flex gap-2">
         <input
           type="number"
@@ -93,7 +93,7 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
 
   if (shown.length === 0) {
     return (
-      <div className="bg-sky-50 dark:bg-sky-900/20 rounded-3xl p-8 text-center shadow-sm border border-sky-100 dark:border-sky-800/40">
+      <div className="bg-white dark:bg-jungle-800 rounded-3xl p-8 text-center shadow-md">
         <div className="text-4xl mb-2">🐒</div>
         <p className="text-gray-600 dark:text-gray-400 font-body text-sm">No expenses yet. Log your first one!</p>
       </div>
@@ -106,7 +106,7 @@ export function ExpenseList({ expenses, currency = 'INR', limit = 50 }: Props) {
   }
 
   return (
-    <div className="bg-sky-50 dark:bg-sky-900/20 rounded-3xl overflow-hidden shadow-sm border border-sky-100 dark:border-sky-800/40">
+    <div className="bg-white dark:bg-jungle-800 rounded-3xl overflow-hidden shadow-md">
       <div className="divide-y divide-gray-200 dark:divide-jungle-800">
         {shown.map(exp => (
           <div key={exp.id}>

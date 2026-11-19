@@ -79,7 +79,7 @@ export function ProfilePage() {
       <BadgeGrid earnedBadges={meta.earnedBadges} bananas={gs.bananas} level={gs.level} />
 
       {/* Data management */}
-      <div className="bg-rose-50 dark:bg-rose-900/20 rounded-3xl p-5 shadow-sm border border-rose-100 dark:border-rose-800/40 space-y-3">
+      <div className="bg-white dark:bg-jungle-800 rounded-3xl p-5 shadow-md space-y-3">
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100">Data</h3>
 
         <button
@@ -108,7 +108,7 @@ export function ProfilePage() {
             Load sample data (3 months preview)
           </button>
         ) : (
-          <div className="bg-banana-50 dark:bg-banana-900/20 rounded-2xl p-3 space-y-2">
+          <div className="bg-white dark:bg-jungle-800 rounded-2xl p-3 space-y-2">
             <p className="text-sm text-banana-800 dark:text-banana-200 font-body">This will replace all your data with sample data.</p>
             <div className="flex gap-2">
               <button onClick={handleSeed} className="flex-1 py-2 rounded-xl bg-banana-500 text-white text-sm font-semibold focus-visible:ring-2 ring-banana-500">Yes, load sample</button>

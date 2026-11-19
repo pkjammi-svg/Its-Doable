@@ -55,7 +55,7 @@ export function SIPCalculator() {
     .join(' ')
 
   return (
-    <div className="bg-teal-50 dark:bg-teal-900/20 rounded-3xl p-5 shadow-sm border border-teal-100 dark:border-teal-800/40 space-y-4">
+    <div className="bg-white dark:bg-jungle-800 rounded-3xl p-5 shadow-md space-y-4">
       <div>
         <h3 className="font-display font-bold text-base text-gray-800 dark:text-gray-100 mb-1">
           SIP Calculator
